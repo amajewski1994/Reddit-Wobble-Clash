@@ -4,8 +4,9 @@ import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { navigateTo } from '@devvit/web/client';
 import { useCounter } from './hooks/useCounter';
-import { Map } from './components/map';
-import { MapUI } from './components/createMapUI';
+import { Map } from './components/createMapMode/createMap';
+import { MapUI } from './components/createMapMode/createMapUI';
+import { DuelMap } from './components/duelMode/duelMap';
 
 export const App = () => {
   // const { count, username, loading, increment, decrement } = useCounter();
@@ -14,7 +15,7 @@ export const App = () => {
 
   return (
     <div>
-      <MapUI
+      {/* <MapUI
         selectedTileName={selectedTileName}
         onSelectTileName={setSelectedTileName}
         onResetRotation={() => setRotatingTileId(null)}
@@ -23,7 +24,11 @@ export const App = () => {
         selectedTileName={selectedTileName}
         rotatingTileId={rotatingTileId}
         onRotatingTileIdChange={setRotatingTileId}
-      />
+      /> */}
+
+      <DuelMap 
+        selectedTileName={selectedTileName}
+         />
     </div>
   );
 };

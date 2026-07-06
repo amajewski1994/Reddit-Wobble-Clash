@@ -3,8 +3,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Mesh, TextureLoader } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { mapTilesData as initialMapTilesData } from './mapTilesData';
-import { TILE_NAMES } from './tileNames';
+import { mapTilesData as initialMapTilesData } from './createMapTilesData';
+import { TILE_NAMES } from '../tileNames';
 
 const TILE_PATHS = TILE_NAMES.map((name) => `/assets/tiles/${name}.glb`);
 const ROTATE_LEFT_ICON = '/assets/images/curve-up-arrow.png';

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { TILE_NAMES } from './tileNames';
+import { TILE_NAMES } from '../tileNames';
 
 const SCROLL_STEP = 80;
 
