@@ -4,7 +4,7 @@ export const duelMapTilesData = [
     positionX: -4.545,
     positionZ: -4.45,
     rotationY: 240,
-    tileName: 'stone-hill',
+    tileName: 'grass',
   },
   {
     id: 1,
