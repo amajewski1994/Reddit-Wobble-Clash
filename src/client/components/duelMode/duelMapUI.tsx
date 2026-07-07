@@ -1,16 +1,4 @@
-import type { TeamMember } from './teamsDate';
-
-interface DuelMapUIProps {
-  team: TeamMember[];
-  enemyTeam: TeamMember[];
-  activeAvatarId: number | null;
-  onSelectAvatarId: (id: number | null) => void;
-  isMoveMode: boolean;
-  isAttackMode: boolean;
-  onAttack: () => void;
-  onMove: () => void;
-  onUtilities: () => void;
-}
+import type { DuelMapUIProps } from '../../types/duelMap';
 
 const abbreviateAvatarName = (name: string) => {
   return name

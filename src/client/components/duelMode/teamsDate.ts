@@ -1,13 +1,4 @@
-export type TeamMember = {
-  id: number;
-  name: string;
-  hp: number;
-  attack: number;
-  defence: number;
-  AP: number;
-  tileID: number;
-  rotationY: number;
-};
+import type { TeamMember } from '../../types/team';
 
 export const userTeam: TeamMember[] = [
   {

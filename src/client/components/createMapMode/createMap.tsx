@@ -1,81 +1,16 @@
-import { Canvas, extend, ThreeElement, ThreeEvent, useLoader, useThree } from '@react-three/fiber';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { ThreeEvent, useLoader } from '@react-three/fiber';
+import { useEffect, useRef, useState } from 'react';
 import { Mesh, TextureLoader } from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { mapTilesData as initialMapTilesData } from './createMapTilesData';
-import { TILE_NAMES } from '../tileNames';
-
-const TILE_PATHS = TILE_NAMES.map((name) => `/assets/tiles/${name}.glb`);
-const ROTATE_LEFT_ICON = '/assets/images/curve-up-arrow.png';
-const ROTATE_RIGHT_ICON = '/assets/images/curve-down-arrow.png';
-
-TILE_PATHS.forEach((path) => useLoader.preload(GLTFLoader, path));
-useLoader.preload(TextureLoader, ROTATE_LEFT_ICON);
-useLoader.preload(TextureLoader, ROTATE_RIGHT_ICON);
-
-extend({ OrbitControls });
-
-declare module '@react-three/fiber' {
-  interface ThreeElements {
-    orbitControls: ThreeElement<typeof OrbitControls>;
-  }
-}
-
-const CameraControls = () => {
-  const { camera, gl } = useThree();
-  const controlsRef = useRef<OrbitControls>(null);
-
-  useEffect(() => {
-    controlsRef.current?.update();
-  }, []);
-
-  return <orbitControls ref={controlsRef} args={[camera, gl.domElement]} enableDamping />;
-};
-
-const Tile = ({
-  position,
-  rotation,
-  name,
-  onClick,
-}: {
-  position?: [number, number, number];
-  rotation?: [number, number, number];
-  name?: string;
-  onClick?: (() => void) | undefined;
-}) => {
-  const path = `/assets/tiles/${name}.glb`;
-  const gltf = useLoader(GLTFLoader, path);
-  const scene = useMemo(() => gltf.scene.clone(), [gltf]);
-  return <primitive object={scene} position={position} rotation={rotation} onClick={onClick} />;
-};
-
-interface MapTilesProps {
-  tiles: typeof initialMapTilesData;
-  onTileClick: (id: number) => void;
-}
-
-const MapTiles = ({ tiles, onTileClick }: MapTilesProps) => {
-  return (
-    <>
-      {tiles.map(({ id, positionX, positionZ, rotationY, tileName }) => (
-        <Tile
-          key={id}
-          position={[positionX, 0, positionZ]}
-          rotation={[0, (rotationY * Math.PI) / 180, 0]}
-          name={tileName}
-          onClick={() => onTileClick(id)}
-        />
-      ))}
-    </>
-  );
-};
+import { MapCanvas } from '../shared/MapCanvas';
+import { MapTiles } from '../shared/MapTiles';
+import { ROTATE_LEFT_ICON } from '../shared/tileAssets';
+import type { MapTileData } from '../../types/mapTile';
+import type { CreateMapProps } from '../../types/createMap';
 
 const ROTATE_STEP = 60;
 const ROTATE_ARROW_OFFSET = 0.6;
 const ROTATE_ARROW_HEIGHT = 0.1;
-
-type TileData = (typeof initialMapTilesData)[number];
 
 const RotateArrow = ({
   direction,
@@ -130,7 +65,7 @@ const RotateControls = ({
   tile,
   onRotate,
 }: {
-  tile: TileData;
+  tile: MapTileData;
   onRotate: (id: number, delta: number) => void;
 }) => {
   return (
@@ -151,13 +86,11 @@ const RotateControls = ({
   );
 };
 
-interface MapProps {
-  selectedTileName: string | null;
-  rotatingTileId: number | null;
-  onRotatingTileIdChange: (id: number | null) => void;
-}
-
-export const Map = ({ selectedTileName, rotatingTileId, onRotatingTileIdChange }: MapProps) => {
+export const Map = ({
+  selectedTileName,
+  rotatingTileId,
+  onRotatingTileIdChange,
+}: CreateMapProps) => {
   const [tiles, setTiles] = useState(initialMapTilesData);
 
   const handleTileClick = (id: number) => {
@@ -181,12 +114,9 @@ export const Map = ({ selectedTileName, rotatingTileId, onRotatingTileIdChange }
   const rotatingTile = tiles.find((tile) => tile.id === rotatingTileId) ?? null;
 
   return (
-    <Canvas camera={{ position: [0, 12, 0.01], fov: 50 }}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[5, 5, 5]} intensity={1} />
+    <MapCanvas>
       <MapTiles tiles={tiles} onTileClick={handleTileClick} />
       {rotatingTile && <RotateControls tile={rotatingTile} onRotate={handleRotateTile} />}
-      <CameraControls />
-    </Canvas>
+    </MapCanvas>
   );
 };

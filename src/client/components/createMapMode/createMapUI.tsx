@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { TILE_NAMES } from '../tileNames';
+import type { MapUIProps } from '../../types/createMap';
 
 const SCROLL_STEP = 80;
 
@@ -10,12 +11,6 @@ const abbreviateTileName = (tileName: string) => {
   }
   return tileName.slice(0, 2).toUpperCase();
 };
-
-interface MapUIProps {
-  selectedTileName: string | null;
-  onSelectTileName: (tileName: string | null) => void;
-  onResetRotation: () => void;
-}
 
 export const MapUI = ({ selectedTileName, onSelectTileName, onResetRotation }: MapUIProps) => {
   const [isOpen, setIsOpen] = useState(false);
