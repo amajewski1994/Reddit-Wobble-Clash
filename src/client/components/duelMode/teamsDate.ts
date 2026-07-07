@@ -15,7 +15,7 @@ export const userTeam: TeamMember[] = [
     id: 1,
     name: 'avatar_tank_v1',
     hp: 100,
-    attack: 15,
+    attack: 150,
     defence: 2,
     AP: 3,
     tileID: 1,

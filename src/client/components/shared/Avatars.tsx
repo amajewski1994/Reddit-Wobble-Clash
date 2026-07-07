@@ -29,10 +29,15 @@ export const Avatars = ({
         targetX: attackEvent.targetX,
         targetZ: attackEvent.targetZ,
       });
-      map.set(attackEvent.targetId, { type: 'hurt', damage: attackEvent.damage });
+      const target = team.find(({ id }) => id === attackEvent.targetId);
+      map.set(attackEvent.targetId, {
+        type: 'hurt',
+        damage: attackEvent.damage,
+        isDead: (target?.hp ?? 0) <= 0,
+      });
     }
     return map;
-  }, [attackEvent]);
+  }, [attackEvent, team]);
 
   return (
     <>

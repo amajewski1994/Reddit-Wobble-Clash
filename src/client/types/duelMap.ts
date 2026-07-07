@@ -25,4 +25,4 @@ export interface DuelMapProps {
 
 export type AvatarAction =
   | { type: 'attack'; targetX: number; targetZ: number }
-  | { type: 'hurt'; damage: number };
+  | { type: 'hurt'; damage: number; isDead: boolean };

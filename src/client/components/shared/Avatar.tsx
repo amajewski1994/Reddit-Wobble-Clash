@@ -93,11 +93,13 @@ export const Avatar = ({
     run: AnimationAction | undefined;
     attack: AnimationAction | undefined;
     hurt: AnimationAction | undefined;
+    death: AnimationAction | undefined;
   }>({
     idle: undefined,
     run: undefined,
     attack: undefined,
     hurt: undefined,
+    death: undefined,
   });
   const moveRef = useRef<{
     phase: 'rotating' | 'moving';
@@ -113,9 +115,10 @@ export const Avatar = ({
     rotationDelta: number;
     elapsed: number;
     clipDuration: number;
-    clipName: 'attack' | 'hurt';
+    clipName: 'attack' | 'hurt' | 'death';
     damage?: number;
   } | null>(null);
+  const isDeadRef = useRef(false);
   const prevPositionRef = useRef(position);
   const [damageDisplay, setDamageDisplay] = useState<{
     key: number;
@@ -135,10 +138,12 @@ export const Avatar = ({
     const runClip = gltf.animations.find((clip: AnimationClip) => clip.name === 'Run');
     const attackClip = gltf.animations.find((clip: AnimationClip) => clip.name === 'Attack');
     const hurtClip = gltf.animations.find((clip: AnimationClip) => clip.name === 'Hurt');
+    const deathClip = gltf.animations.find((clip: AnimationClip) => clip.name === 'Death');
     const idleAction = idleClip ? mixer.clipAction(idleClip) : undefined;
     const runAction = runClip ? mixer.clipAction(runClip) : undefined;
     const attackAction = attackClip ? mixer.clipAction(attackClip) : undefined;
     const hurtAction = hurtClip ? mixer.clipAction(hurtClip) : undefined;
+    const deathAction = deathClip ? mixer.clipAction(deathClip) : undefined;
     if (attackAction) {
       attackAction.setLoop(LoopOnce, 1);
       attackAction.clampWhenFinished = true;
@@ -147,7 +152,17 @@ export const Avatar = ({
       hurtAction.setLoop(LoopOnce, 1);
       hurtAction.clampWhenFinished = true;
     }
-    actionsRef.current = { idle: idleAction, run: runAction, attack: attackAction, hurt: hurtAction };
+    if (deathAction) {
+      deathAction.setLoop(LoopOnce, 1);
+      deathAction.clampWhenFinished = true;
+    }
+    actionsRef.current = {
+      idle: idleAction,
+      run: runAction,
+      attack: attackAction,
+      hurt: hurtAction,
+      death: deathAction,
+    };
     idleAction?.play();
     mixerRef.current = mixer;
     return () => {
@@ -174,8 +189,8 @@ export const Avatar = ({
   }, [position]);
 
   useEffect(() => {
-    if (!action) return;
-    const { attack, hurt } = actionsRef.current;
+    if (!action || isDeadRef.current) return;
+    const { attack, hurt, death } = actionsRef.current;
 
     if (action.type === 'attack') {
       const targetRotation = Math.atan2(
@@ -193,13 +208,15 @@ export const Avatar = ({
       return;
     }
 
+    if (action.isDead) isDeadRef.current = true;
+
     actionStateRef.current = {
       phase: 'waiting',
       fromRotation: groupRef.current.rotation.y,
       rotationDelta: 0,
       elapsed: 0,
-      clipDuration: hurt?.getClip().duration ?? 0.6,
-      clipName: 'hurt',
+      clipDuration: (action.isDead ? death : hurt)?.getClip().duration ?? 0.6,
+      clipName: action.isDead ? 'death' : 'hurt',
       damage: action.damage,
     };
   }, [action]);
@@ -253,9 +270,10 @@ export const Avatar = ({
         if (activeAction.elapsed >= HURT_DELAY) {
           activeAction.phase = 'playing';
           activeAction.elapsed = 0;
-          const { idle, hurt } = actionsRef.current;
+          const { idle, hurt, death } = actionsRef.current;
+          const hitAction = activeAction.clipName === 'death' ? death : hurt;
           idle?.fadeOut(0.1);
-          hurt?.reset().fadeIn(0.1).play();
+          hitAction?.reset().fadeIn(0.1).play();
           if (activeAction.damage !== undefined) {
             const { x, y, z } = groupRef.current.position;
             setDamageDisplay({ key: Date.now(), damage: activeAction.damage, origin: [x, y + 1, z] });
@@ -263,7 +281,7 @@ export const Avatar = ({
         }
       } else {
         const t = Math.min(activeAction.elapsed / activeAction.clipDuration, 1);
-        if (t >= 1) {
+        if (t >= 1 && activeAction.clipName !== 'death') {
           actionStateRef.current = null;
           const { idle, attack, hurt } = actionsRef.current;
           (activeAction.clipName === 'attack' ? attack : hurt)?.fadeOut(0.2);

@@ -39,7 +39,11 @@ export const App = () => {
   const handleMoveAvatarToTile = (tileId: number) => {
     if (activeAvatarId === null) return;
     setTeam((prev) =>
-      prev.map((member) => (member.id === activeAvatarId ? { ...member, tileID: tileId } : member))
+      prev.map((member) =>
+        member.id === activeAvatarId
+          ? { ...member, tileID: tileId, AP: Math.max(0, member.AP - 1) }
+          : member
+      )
     );
     handleSelectAvatarId(null);
   };
@@ -54,8 +58,23 @@ export const App = () => {
       return { ...member, hp: nextHp <= 0 ? 0 : nextHp };
     };
 
-    setTeam((prev) => prev.map(applyDamage));
-    setEnemyTeam((prev) => prev.map(applyDamage));
+    const applyApCost = (member: (typeof team)[number]) => {
+      if (member.id !== attackerId) return member;
+      return { ...member, AP: Math.max(0, member.AP - 1) };
+    };
+
+    setTeam((prev) => prev.map(applyDamage).map(applyApCost));
+    setEnemyTeam((prev) => prev.map(applyDamage).map(applyApCost));
+    handleSelectAvatarId(null);
+  };
+
+  const handleUtilities = () => {
+    if (activeAvatarId === null) return;
+    setTeam((prev) =>
+      prev.map((member) =>
+        member.id === activeAvatarId ? { ...member, AP: Math.max(0, member.AP - 1) } : member
+      )
+    );
     handleSelectAvatarId(null);
   };
 
@@ -81,7 +100,7 @@ export const App = () => {
         isAttackMode={isAttackMode}
         onAttack={handleAttack}
         onMove={handleMove}
-        onUtilities={() => {}}
+        onUtilities={handleUtilities}
       />
       <DuelMap
         selectedTileName={selectedTileName}
