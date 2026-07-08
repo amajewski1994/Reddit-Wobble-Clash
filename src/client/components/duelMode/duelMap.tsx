@@ -41,6 +41,7 @@ export const DuelMap = ({
     targetX: number;
     targetZ: number;
     damage: number;
+    isDead: boolean;
   } | null>(null);
 
   const allAvatars = useMemo(() => [...team, ...enemyTeam], [team, enemyTeam]);
@@ -70,7 +71,9 @@ export const DuelMap = ({
     }
 
     if (isAttackMode) {
-      const enemyTileIds = new Set(enemyTeam.map(({ tileID }) => tileID));
+      const enemyTileIds = new Set(
+        enemyTeam.filter(({ hp }) => hp > 0).map(({ tileID }) => tileID)
+      );
       const ids = tiles
         .filter((tile) => {
           if (tile.id === activeTile.id) return false;
@@ -96,12 +99,14 @@ export const DuelMap = ({
       const targetAvatar = enemyTeam.find(({ tileID }) => tileID === id);
       const attackerAvatar = allAvatars.find(({ id }) => id === activeAvatarId);
       if (!targetTile || !targetAvatar || !attackerAvatar) return;
+      const damage = attackerAvatar.attack - targetAvatar.defence;
       setAttackEvent({
         attackerId: activeAvatarId,
         targetId: targetAvatar.id,
         targetX: targetTile.positionX,
         targetZ: targetTile.positionZ,
-        damage: attackerAvatar.attack - targetAvatar.defence,
+        damage,
+        isDead: targetAvatar.hp - damage <= 0,
       });
       onAttackTile(activeAvatarId, targetAvatar.id);
     }

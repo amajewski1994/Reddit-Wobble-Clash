@@ -10,6 +10,8 @@ export interface DuelMapUIProps {
   onAttack: () => void;
   onMove: () => void;
   onUtilities: () => void;
+  turn: number;
+  onEndTurn: () => void;
 }
 
 export interface DuelMapProps {

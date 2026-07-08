@@ -9,6 +9,7 @@ import { MapUI } from './components/createMapMode/createMapUI';
 import { DuelMap } from './components/duelMode/duelMap';
 import { DuelMapUI } from './components/duelMode/duelMapUI';
 import { userTeam, enemyTeam as initialEnemyTeam } from './components/duelMode/teamsDate';
+import { GameInfo } from './data/game';
 
 export const App = () => {
   // const { count, username, loading, increment, decrement } = useCounter();
@@ -19,6 +20,7 @@ export const App = () => {
   const [activeAvatarId, setActiveAvatarId] = useState<number | null>(null);
   const [isMoveMode, setIsMoveMode] = useState(false);
   const [isAttackMode, setIsAttackMode] = useState(false);
+  const [turn, setTurn] = useState(GameInfo.turn);
 
   const handleSelectAvatarId = (id: number | null) => {
     setActiveAvatarId(id);
@@ -78,6 +80,16 @@ export const App = () => {
     handleSelectAvatarId(null);
   };
 
+  const handleEndTurn = () => {
+    setTurn((prev) => prev + 1);
+    setTeam((prev) =>
+      prev.map((member) => {
+        const initial = userTeam.find(({ id }) => id === member.id);
+        return initial ? { ...member, AP: initial.AP } : member;
+      })
+    );
+  };
+
   return (
     <div>
       {/* <MapUI
@@ -101,6 +113,8 @@ export const App = () => {
         onAttack={handleAttack}
         onMove={handleMove}
         onUtilities={handleUtilities}
+        turn={turn}
+        onEndTurn={handleEndTurn}
       />
       <DuelMap
         selectedTileName={selectedTileName}

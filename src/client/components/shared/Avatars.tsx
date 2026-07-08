@@ -19,6 +19,7 @@ export const Avatars = ({
     targetX: number;
     targetZ: number;
     damage: number;
+    isDead: boolean;
   } | null;
 }) => {
   const actionsById = useMemo(() => {
@@ -29,15 +30,14 @@ export const Avatars = ({
         targetX: attackEvent.targetX,
         targetZ: attackEvent.targetZ,
       });
-      const target = team.find(({ id }) => id === attackEvent.targetId);
       map.set(attackEvent.targetId, {
         type: 'hurt',
         damage: attackEvent.damage,
-        isDead: (target?.hp ?? 0) <= 0,
+        isDead: attackEvent.isDead,
       });
     }
     return map;
-  }, [attackEvent, team]);
+  }, [attackEvent]);
 
   return (
     <>

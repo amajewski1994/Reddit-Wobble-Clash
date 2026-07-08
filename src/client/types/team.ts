@@ -7,4 +7,5 @@ export type TeamMember = {
   AP: number;
   tileID: number;
   rotationY: number;
+  utilities: string[];
 };
