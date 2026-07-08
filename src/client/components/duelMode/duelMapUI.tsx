@@ -67,10 +67,18 @@ const FullCard = ({
         <span>{avatar.AP}</span>
       </div>
       <div className="flex flex-col gap-2">
-        <button className={actionButtonClassName} onClick={onAttack} disabled={avatar.AP === 0 || isDead}>
+        <button
+          className={actionButtonClassName}
+          onClick={onAttack}
+          disabled={avatar.AP === 0 || isDead}
+        >
           Attack
         </button>
-        <button className={actionButtonClassName} onClick={onMove} disabled={avatar.AP === 0 || isDead}>
+        <button
+          className={actionButtonClassName}
+          onClick={onMove}
+          disabled={avatar.AP === 0 || isDead}
+        >
           Move
         </button>
         <button
@@ -147,7 +155,7 @@ export const DuelMapUI = ({
           className="fixed top-4 right-4 z-20 text-xs font-semibold text-[#d93900] dark:text-orange-500 cursor-pointer hover:underline"
           onClick={() => onSelectAvatarId(null)}
         >
-          ← Wróć
+          ← Back
         </button>
       )}
       {activeAvatar && (

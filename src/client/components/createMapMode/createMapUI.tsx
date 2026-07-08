@@ -62,7 +62,7 @@ export const MapUI = ({ selectedTileName, onSelectTileName, onResetRotation }: M
             onResetRotation();
           }}
         >
-          Wróć
+          Back
         </button>
       </div>
       <div className="fixed top-1/2 right-4 -translate-y-1/2 z-10 flex flex-col items-center gap-2">
