@@ -20,9 +20,10 @@ const abbreviateAvatarName = (name: string) => {
 const actionButtonClassName =
   'flex items-center justify-center bg-[#d93900] dark:bg-orange-600 text-white h-10 rounded-full cursor-pointer transition-colors px-4 hover:bg-[#c23300] dark:hover:bg-orange-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#d93900] dark:disabled:hover:bg-orange-600';
 
-const MiniCard = ({ hp }: { hp: number }) => (
+const MiniCard = ({ hp, onSelect }: { hp: number; onSelect: () => void }) => (
   <div
-    className={`flex flex-col gap-1 w-20 rounded-md border-2 border-[#d93900] dark:border-orange-600 bg-white dark:bg-gray-900 p-1.5 transition-opacity ${
+    onClick={onSelect}
+    className={`flex flex-col gap-1 w-20 rounded-md border-2 border-[#d93900] dark:border-orange-600 bg-white dark:bg-gray-900 p-1.5 cursor-pointer transition-opacity ${
       hp <= 0 ? 'opacity-40 grayscale' : ''
     }`}
   >
@@ -38,6 +39,7 @@ const MiniCard = ({ hp }: { hp: number }) => (
 
 const FullCard = ({
   avatar,
+  isEnemy,
   isMoveMode,
   isAttackMode,
   isUtilitiesOpen,
@@ -46,6 +48,7 @@ const FullCard = ({
   onUtilities,
 }: {
   avatar: TeamMember;
+  isEnemy: boolean;
   isMoveMode: boolean;
   isAttackMode: boolean;
   isUtilitiesOpen: boolean;
@@ -53,7 +56,7 @@ const FullCard = ({
   onMove: () => void;
   onUtilities: () => void;
 }) => {
-  const isDead = avatar.hp <= 0;
+  const isDead = avatar.statistics.hp <= 0;
 
   return (
     <div
@@ -67,40 +70,50 @@ const FullCard = ({
       </div>
       <div className="flex justify-between text-sm">
         <span>HP</span>
-        <span>{avatar.hp}</span>
+        <span>{avatar.statistics.hp}</span>
       </div>
       <div className="flex justify-between text-sm">
         <span>AP</span>
-        <span>{avatar.AP}</span>
+        <span>{avatar.statistics.AP}</span>
       </div>
-      <div className="flex flex-col gap-2">
-        <button
-          className={actionButtonClassName}
-          onClick={onAttack}
-          disabled={avatar.AP === 0 || isDead}
-        >
-          Attack
-        </button>
-        <button
-          className={actionButtonClassName}
-          onClick={onMove}
-          disabled={avatar.AP === 0 || isDead}
-        >
-          Move
-        </button>
-        <button
-          className={actionButtonClassName}
-          onClick={onUtilities}
-          disabled={avatar.AP === 0 || isDead}
-        >
-          Utilities
-        </button>
+      <div className="flex justify-between text-sm">
+        <span>Dodge</span>
+        <span>{avatar.statistics.dodge}</span>
       </div>
+      <div className="flex justify-between text-sm">
+        <span>Accuracy</span>
+        <span>{avatar.statistics.accuracy}</span>
+      </div>
+      {!isEnemy && (
+        <div className="flex flex-col gap-2">
+          <button
+            className={actionButtonClassName}
+            onClick={onAttack}
+            disabled={avatar.statistics.AP === 0 || isDead}
+          >
+            Attack
+          </button>
+          <button
+            className={actionButtonClassName}
+            onClick={onMove}
+            disabled={avatar.statistics.AP === 0 || isDead}
+          >
+            Move
+          </button>
+          <button
+            className={actionButtonClassName}
+            onClick={onUtilities}
+            disabled={avatar.statistics.AP === 0 || isDead}
+          >
+            Utilities
+          </button>
+        </div>
+      )}
     </div>
   );
 };
 
-const UtilityCard = ({ name, onSelect }: { name: string; onSelect: () => void }) => (
+const SelectableCard = ({ name, onSelect }: { name: string; onSelect: () => void }) => (
   <div
     onClick={onSelect}
     className="flex flex-col items-center gap-2 w-28 rounded-md border-2 border-[#d93900] dark:border-orange-600 bg-white dark:bg-gray-900 p-2 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
@@ -112,21 +125,23 @@ const UtilityCard = ({ name, onSelect }: { name: string; onSelect: () => void })
   </div>
 );
 
-const UtilitiesPopup = ({
-  utilities,
-  onSelectUtility,
+const SelectionPopup = ({
+  title,
+  items,
+  onSelectItem,
   onBack,
 }: {
-  utilities: string[];
-  onSelectUtility: (name: string) => void;
+  title: string;
+  items: string[];
+  onSelectItem: (name: string) => void;
   onBack: () => void;
 }) => (
   <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40">
     <div className="flex flex-col gap-4 w-full max-w-md mx-4 rounded-lg border-2 border-[#d93900] dark:border-orange-600 bg-white dark:bg-gray-900 p-6 text-gray-900 dark:text-white">
-      <div className="text-center font-semibold">Utilities</div>
+      <div className="text-center font-semibold">{title}</div>
       <div className="flex flex-wrap justify-center gap-3">
-        {utilities.map((name) => (
-          <UtilityCard key={name} name={name} onSelect={() => onSelectUtility(name)} />
+        {items.map((name) => (
+          <SelectableCard key={name} name={name} onSelect={() => onSelectItem(name)} />
         ))}
       </div>
       <button className={actionButtonClassName} onClick={onBack}>
@@ -173,8 +188,10 @@ export const DuelMapUI = ({
 }: DuelMapUIProps) => {
   const [isEndingTurn, setIsEndingTurn] = useState(false);
   const [isUtilitiesOpen, setIsUtilitiesOpen] = useState(false);
+  const [isItemsOpen, setIsItemsOpen] = useState(false);
   const [lastActiveAvatarId, setLastActiveAvatarId] = useState(activeAvatarId);
-  const activeAvatar = team.find(({ id }) => id === activeAvatarId);
+  const activeAvatar = [...team, ...enemyTeam].find(({ id }) => id === activeAvatarId);
+  const isActiveAvatarEnemy = !!activeAvatar && enemyTeam.some(({ id }) => id === activeAvatarId);
   const isCardOpen = !!activeAvatar;
 
   if (activeAvatarId !== lastActiveAvatarId) {
@@ -210,8 +227,14 @@ export const DuelMapUI = ({
           <span>{UserInfo.name}</span>
           <span className="text-xs font-normal">lvl {UserInfo.lvl}</span>
         </div>
-        {team.map(({ id, hp }) => (
-          <MiniCard key={id} hp={hp} />
+        <button
+          className={`${actionButtonClassName} h-8 w-20 px-0 text-xs`}
+          onClick={() => setIsItemsOpen(true)}
+        >
+          Items
+        </button>
+        {team.map(({ id, statistics }) => (
+          <MiniCard key={id} hp={statistics.hp} onSelect={() => onSelectAvatarId(id)} />
         ))}
       </div>
       <div
@@ -223,8 +246,8 @@ export const DuelMapUI = ({
           <span>{EnemyInfo.name}</span>
           <span className="text-xs font-normal">lvl {EnemyInfo.lvl}</span>
         </div>
-        {enemyTeam.map(({ id, hp }) => (
-          <MiniCard key={id} hp={hp} />
+        {enemyTeam.map(({ id, statistics }) => (
+          <MiniCard key={id} hp={statistics.hp} onSelect={() => onSelectAvatarId(id)} />
         ))}
       </div>
       {activeAvatar && (
@@ -238,6 +261,7 @@ export const DuelMapUI = ({
       {activeAvatar && (
         <FullCard
           avatar={activeAvatar}
+          isEnemy={isActiveAvatarEnemy}
           isMoveMode={isMoveMode}
           isAttackMode={isAttackMode}
           isUtilitiesOpen={isUtilitiesOpen}
@@ -247,10 +271,19 @@ export const DuelMapUI = ({
         />
       )}
       {activeAvatar && isUtilitiesOpen && (
-        <UtilitiesPopup
-          utilities={activeAvatar.utilities}
-          onSelectUtility={() => setIsUtilitiesOpen(false)}
+        <SelectionPopup
+          title="Utilities"
+          items={activeAvatar.utilities}
+          onSelectItem={() => setIsUtilitiesOpen(false)}
           onBack={() => setIsUtilitiesOpen(false)}
+        />
+      )}
+      {isItemsOpen && (
+        <SelectionPopup
+          title="Items"
+          items={UserInfo.items}
+          onSelectItem={() => setIsItemsOpen(false)}
+          onBack={() => setIsItemsOpen(false)}
         />
       )}
 
@@ -259,11 +292,11 @@ export const DuelMapUI = ({
           isEndingTurn ? 'translate-y-[150%] opacity-0' : 'opacity-100'
         }`}
       >
-        {team.map(({ id, name, hp }) => (
+        {team.map(({ id, name, statistics }) => (
           <BottomTeamCard
             key={id}
             name={name}
-            hp={hp}
+            hp={statistics.hp}
             isActive={activeAvatarId === id}
             onSelect={() => onSelectAvatarId(id)}
           />

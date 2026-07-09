@@ -10,6 +10,7 @@ import { DuelMap } from './components/duelMode/duelMap';
 import { DuelMapUI } from './components/duelMode/duelMapUI';
 import { userTeam, enemyTeam as initialEnemyTeam } from './components/duelMode/teamsDate';
 import { GameInfo } from './data/game';
+import type { AttackOutcome } from './types/duelMap';
 
 export const App = () => {
   // const { count, username, loading, increment, decrement } = useCounter();
@@ -43,26 +44,32 @@ export const App = () => {
     setTeam((prev) =>
       prev.map((member) =>
         member.id === activeAvatarId
-          ? { ...member, tileID: tileId, AP: Math.max(0, member.AP - 1) }
+          ? {
+              ...member,
+              tileID: tileId,
+              statistics: { ...member.statistics, AP: Math.max(0, member.statistics.AP - 1) },
+            }
           : member
       )
     );
     handleSelectAvatarId(null);
   };
 
-  const handleAttackTile = (attackerId: number, targetId: number) => {
-    const attacker = [...team, ...enemyTeam].find(({ id }) => id === attackerId);
-    if (!attacker) return;
-
+  const handleAttackTile = (
+    attackerId: number,
+    targetId: number,
+    damage: number,
+    outcome: AttackOutcome
+  ) => {
     const applyDamage = (member: (typeof team)[number]) => {
-      if (member.id !== targetId) return member;
-      const nextHp = member.hp - attacker.attack + member.defence;
-      return { ...member, hp: nextHp <= 0 ? 0 : nextHp };
+      if (member.id !== targetId || outcome !== 'hit') return member;
+      const nextHp = member.statistics.hp - damage;
+      return { ...member, statistics: { ...member.statistics, hp: nextHp <= 0 ? 0 : nextHp } };
     };
 
     const applyApCost = (member: (typeof team)[number]) => {
       if (member.id !== attackerId) return member;
-      return { ...member, AP: Math.max(0, member.AP - 1) };
+      return { ...member, statistics: { ...member.statistics, AP: Math.max(0, member.statistics.AP - 1) } };
     };
 
     setTeam((prev) => prev.map(applyDamage).map(applyApCost));
@@ -74,7 +81,9 @@ export const App = () => {
     if (activeAvatarId === null) return;
     setTeam((prev) =>
       prev.map((member) =>
-        member.id === activeAvatarId ? { ...member, AP: Math.max(0, member.AP - 1) } : member
+        member.id === activeAvatarId
+          ? { ...member, statistics: { ...member.statistics, AP: Math.max(0, member.statistics.AP - 1) } }
+          : member
       )
     );
     handleSelectAvatarId(null);
@@ -85,7 +94,9 @@ export const App = () => {
     setTeam((prev) =>
       prev.map((member) => {
         const initial = userTeam.find(({ id }) => id === member.id);
-        return initial ? { ...member, AP: initial.AP } : member;
+        return initial
+          ? { ...member, statistics: { ...member.statistics, AP: initial.statistics.AP } }
+          : member;
       })
     );
   };

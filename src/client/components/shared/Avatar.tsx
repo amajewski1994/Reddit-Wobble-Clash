@@ -13,7 +13,7 @@ import {
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { clone as cloneSkinnedScene } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import type { AvatarAction } from '../../types/duelMap';
+import type { AttackOutcome, AvatarAction } from '../../types/duelMap';
 
 const ROTATE_DURATION = 0.3;
 const MOVE_DURATION = 0.8;
@@ -23,7 +23,7 @@ const DAMAGE_NUMBER_RISE = 0.8;
 
 const normalizeAngle = (angle: number) => Math.atan2(Math.sin(angle), Math.cos(angle));
 
-const createDamageTexture = (damage: number) => {
+const createLabelTexture = (label: string, color: string) => {
   const canvas = document.createElement('canvas');
   canvas.width = 128;
   canvas.height = 64;
@@ -33,23 +33,25 @@ const createDamageTexture = (damage: number) => {
   context.textBaseline = 'middle';
   context.lineWidth = 6;
   context.strokeStyle = '#000000';
-  context.strokeText(`-${damage}`, canvas.width / 2, canvas.height / 2);
-  context.fillStyle = '#ff3b30';
-  context.fillText(`-${damage}`, canvas.width / 2, canvas.height / 2);
+  context.strokeText(label, canvas.width / 2, canvas.height / 2);
+  context.fillStyle = color;
+  context.fillText(label, canvas.width / 2, canvas.height / 2);
   return new CanvasTexture(canvas);
 };
 
 const DamageNumber = ({
-  damage,
+  label,
+  color,
   origin,
   onComplete,
 }: {
-  damage: number;
+  label: string;
+  color: string;
   origin: [number, number, number];
   onComplete: () => void;
 }) => {
   const spriteRef = useRef<Sprite>(null!);
-  const texture = useMemo(() => createDamageTexture(damage), [damage]);
+  const texture = useMemo(() => createLabelTexture(label, color), [label, color]);
   const elapsedRef = useRef(0);
 
   useEffect(() => {
@@ -115,14 +117,16 @@ export const Avatar = ({
     rotationDelta: number;
     elapsed: number;
     clipDuration: number;
-    clipName: 'attack' | 'hurt' | 'death';
+    clipName: 'attack' | 'hurt' | 'death' | 'none';
+    outcome?: AttackOutcome;
     damage?: number;
   } | null>(null);
   const isDeadRef = useRef(false);
   const prevPositionRef = useRef(position);
   const [damageDisplay, setDamageDisplay] = useState<{
     key: number;
-    damage: number;
+    label: string;
+    color: string;
     origin: [number, number, number];
   } | null>(null);
 
@@ -208,15 +212,19 @@ export const Avatar = ({
       return;
     }
 
-    if (action.isDead) isDeadRef.current = true;
+    const isHit = action.outcome === 'hit';
+    if (isHit && action.isDead) isDeadRef.current = true;
+
+    const clipName: 'hurt' | 'death' | 'none' = !isHit ? 'none' : action.isDead ? 'death' : 'hurt';
 
     actionStateRef.current = {
       phase: 'waiting',
       fromRotation: groupRef.current.rotation.y,
       rotationDelta: 0,
       elapsed: 0,
-      clipDuration: (action.isDead ? death : hurt)?.getClip().duration ?? 0.6,
-      clipName: action.isDead ? 'death' : 'hurt',
+      clipDuration: (clipName === 'death' ? death : hurt)?.getClip().duration ?? 0.6,
+      clipName,
+      outcome: action.outcome,
       damage: action.damage,
     };
   }, [action]);
@@ -271,12 +279,24 @@ export const Avatar = ({
           activeAction.phase = 'playing';
           activeAction.elapsed = 0;
           const { idle, hurt, death } = actionsRef.current;
-          const hitAction = activeAction.clipName === 'death' ? death : hurt;
-          idle?.fadeOut(0.1);
-          hitAction?.reset().fadeIn(0.1).play();
-          if (activeAction.damage !== undefined) {
-            const { x, y, z } = groupRef.current.position;
-            setDamageDisplay({ key: Date.now(), damage: activeAction.damage, origin: [x, y + 1, z] });
+          if (activeAction.clipName !== 'none') {
+            const hitAction = activeAction.clipName === 'death' ? death : hurt;
+            idle?.fadeOut(0.1);
+            hitAction?.reset().fadeIn(0.1).play();
+          }
+          const { x, y, z } = groupRef.current.position;
+          const origin: [number, number, number] = [x, y + 1, z];
+          if (activeAction.outcome === 'dodge') {
+            setDamageDisplay({ key: Date.now(), label: 'Dodge', color: '#3b82f6', origin });
+          } else if (activeAction.outcome === 'miss') {
+            setDamageDisplay({ key: Date.now(), label: 'Miss', color: '#9ca3af', origin });
+          } else if (activeAction.damage !== undefined) {
+            setDamageDisplay({
+              key: Date.now(),
+              label: `-${activeAction.damage}`,
+              color: '#ff3b30',
+              origin,
+            });
           }
         }
       } else {
@@ -284,7 +304,8 @@ export const Avatar = ({
         if (t >= 1 && activeAction.clipName !== 'death') {
           actionStateRef.current = null;
           const { idle, attack, hurt } = actionsRef.current;
-          (activeAction.clipName === 'attack' ? attack : hurt)?.fadeOut(0.2);
+          if (activeAction.clipName === 'attack') attack?.fadeOut(0.2);
+          if (activeAction.clipName === 'hurt') hurt?.fadeOut(0.2);
           idle?.reset().fadeIn(0.2).play();
         }
       }
@@ -297,7 +318,8 @@ export const Avatar = ({
       {damageDisplay && (
         <DamageNumber
           key={damageDisplay.key}
-          damage={damageDisplay.damage}
+          label={damageDisplay.label}
+          color={damageDisplay.color}
           origin={damageDisplay.origin}
           onComplete={() => setDamageDisplay(null)}
         />

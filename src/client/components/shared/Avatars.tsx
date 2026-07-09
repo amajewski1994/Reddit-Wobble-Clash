@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Avatar } from './Avatar';
 import type { TeamMember } from '../../types/team';
-import type { AvatarAction } from '../../types/duelMap';
+import type { AttackOutcome, AvatarAction } from '../../types/duelMap';
 import type { MapTileData } from '../../types/mapTile';
 
 const AVATAR_Y_OFFSET = 0.225;
@@ -19,6 +19,7 @@ export const Avatars = ({
     targetX: number;
     targetZ: number;
     damage: number;
+    outcome: AttackOutcome;
     isDead: boolean;
   } | null;
 }) => {
@@ -32,6 +33,7 @@ export const Avatars = ({
       });
       map.set(attackEvent.targetId, {
         type: 'hurt',
+        outcome: attackEvent.outcome,
         damage: attackEvent.damage,
         isDead: attackEvent.isDead,
       });

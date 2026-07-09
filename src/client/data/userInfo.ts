@@ -5,4 +5,5 @@ export const UserInfo = {
   wins: 0,
   losses: 0,
   team: [],
+  items: ['item 1', 'item 2', 'item 3'],
 };

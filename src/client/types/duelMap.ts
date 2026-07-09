@@ -22,9 +22,16 @@ export interface DuelMapProps {
   isMoveMode: boolean;
   isAttackMode: boolean;
   onMoveAvatarToTile: (tileId: number) => void;
-  onAttackTile: (attackerId: number, targetId: number) => void;
+  onAttackTile: (
+    attackerId: number,
+    targetId: number,
+    damage: number,
+    outcome: AttackOutcome
+  ) => void;
 }
+
+export type AttackOutcome = 'hit' | 'dodge' | 'miss';
 
 export type AvatarAction =
   | { type: 'attack'; targetX: number; targetZ: number }
-  | { type: 'hurt'; damage: number; isDead: boolean };
+  | { type: 'hurt'; outcome: AttackOutcome; damage: number; isDead: boolean };

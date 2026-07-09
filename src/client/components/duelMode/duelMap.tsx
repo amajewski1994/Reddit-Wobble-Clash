@@ -6,7 +6,7 @@ import { userTeam, enemyTeam } from './teamsDate';
 import { MapCanvas } from '../shared/MapCanvas';
 import { MapTiles } from '../shared/MapTiles';
 import { Avatars } from '../shared/Avatars';
-import type { DuelMapProps } from '../../types/duelMap';
+import type { AttackOutcome, DuelMapProps } from '../../types/duelMap';
 
 const AVATAR_PATHS = [...userTeam, ...enemyTeam].map(({ name }) => `/assets/characters/${name}.glb`);
 
@@ -41,6 +41,7 @@ export const DuelMap = ({
     targetX: number;
     targetZ: number;
     damage: number;
+    outcome: AttackOutcome;
     isDead: boolean;
   } | null>(null);
 
@@ -72,7 +73,7 @@ export const DuelMap = ({
 
     if (isAttackMode) {
       const enemyTileIds = new Set(
-        enemyTeam.filter(({ hp }) => hp > 0).map(({ tileID }) => tileID)
+        enemyTeam.filter(({ statistics }) => statistics.hp > 0).map(({ tileID }) => tileID)
       );
       const ids = tiles
         .filter((tile) => {
@@ -99,16 +100,28 @@ export const DuelMap = ({
       const targetAvatar = enemyTeam.find(({ tileID }) => tileID === id);
       const attackerAvatar = allAvatars.find(({ id }) => id === activeAvatarId);
       if (!targetTile || !targetAvatar || !attackerAvatar) return;
-      const damage = attackerAvatar.attack - targetAvatar.defence;
+
+      const randomDodge = Math.random() * 100;
+      const randomAccuracy = Math.random() * 100;
+      const outcome: AttackOutcome =
+        randomDodge < targetAvatar.statistics.dodge
+          ? 'dodge'
+          : randomAccuracy > attackerAvatar.statistics.accuracy
+            ? 'miss'
+            : 'hit';
+      const damage =
+        outcome === 'hit' ? attackerAvatar.statistics.attack - targetAvatar.statistics.defence : 0;
+
       setAttackEvent({
         attackerId: activeAvatarId,
         targetId: targetAvatar.id,
         targetX: targetTile.positionX,
         targetZ: targetTile.positionZ,
         damage,
-        isDead: targetAvatar.hp - damage <= 0,
+        outcome,
+        isDead: outcome === 'hit' && targetAvatar.statistics.hp - damage <= 0,
       });
-      onAttackTile(activeAvatarId, targetAvatar.id);
+      onAttackTile(activeAvatarId, targetAvatar.id, damage, outcome);
     }
   };
 
