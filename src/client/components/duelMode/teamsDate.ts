@@ -3,7 +3,8 @@ import type { TeamMember } from '../../types/team';
 export const userTeam: TeamMember[] = [
   {
     id: 0,
-    name: 'avatar_duelist_v1',
+    name: 'Duelist',
+    objectName: 'avatar_duelist_v1',
     statistics: {
       hp: 100,
       attack: 10,
@@ -11,6 +12,15 @@ export const userTeam: TeamMember[] = [
       AP: 3,
       dodge: 10,
       accuracy: 90,
+      tileBP: {
+        grassBP: 3,
+        sandBP: 1,
+        stoneBP: 4,
+        dirtBP: 5,
+        forestBP: 5,
+        desertBP: 3,
+        rocksBP: 1,
+      },
     },
     tileID: 0,
     rotationY: 0,
@@ -18,7 +28,8 @@ export const userTeam: TeamMember[] = [
   },
   {
     id: 1,
-    name: 'avatar_tank_v1',
+    name: 'Tank',
+    objectName: 'avatar_tank_v1',
     statistics: {
       hp: 100,
       attack: 150,
@@ -26,6 +37,15 @@ export const userTeam: TeamMember[] = [
       AP: 3,
       dodge: 10,
       accuracy: 90,
+      tileBP: {
+        grassBP: 1,
+        sandBP: 5,
+        stoneBP: 1,
+        dirtBP: 3,
+        forestBP: 1,
+        desertBP: 3,
+        rocksBP: 4,
+      },
     },
     tileID: 1,
     rotationY: 0,
@@ -33,7 +53,8 @@ export const userTeam: TeamMember[] = [
   },
   {
     id: 2,
-    name: 'avatar_tracker_v1',
+    name: 'Tracker',
+    objectName: 'avatar_tracker_v1',
     statistics: {
       hp: 100,
       attack: 150,
@@ -41,6 +62,15 @@ export const userTeam: TeamMember[] = [
       AP: 3,
       dodge: 10,
       accuracy: 90,
+      tileBP: {
+        grassBP: 3,
+        sandBP: 1,
+        stoneBP: 5,
+        dirtBP: 1,
+        forestBP: 1,
+        desertBP: 5,
+        rocksBP: 3,
+      },
     },
     tileID: 12,
     rotationY: 0,
@@ -51,7 +81,8 @@ export const userTeam: TeamMember[] = [
 export const enemyTeam: TeamMember[] = [
   {
     id: 100,
-    name: 'avatar_wildheart_v1',
+    name: 'Wildheart',
+    objectName: 'avatar_wildheart_v1',
     statistics: {
       hp: 100,
       attack: 15,
@@ -59,6 +90,15 @@ export const enemyTeam: TeamMember[] = [
       AP: 3,
       dodge: 90,
       accuracy: 90,
+      tileBP: {
+        grassBP: 1,
+        sandBP: 4,
+        stoneBP: 1,
+        dirtBP: 4,
+        forestBP: 2,
+        desertBP: 5,
+        rocksBP: 2,
+      },
     },
     tileID: 13,
     rotationY: 0,

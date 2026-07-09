@@ -43,13 +43,14 @@ export const Avatars = ({
 
   return (
     <>
-      {team.map(({ id, name, tileID, rotationY }) => {
+      {team.map(({ id, name, objectName, tileID, rotationY }) => {
         const tile = tiles.find((tile) => tile.id === tileID);
         if (!tile) return null;
         return (
           <Avatar
             key={id}
             name={name}
+            objectName={objectName}
             position={[tile.positionX, AVATAR_Y_OFFSET, tile.positionZ]}
             rotationY={rotationY}
             action={actionsById.get(id) ?? null}

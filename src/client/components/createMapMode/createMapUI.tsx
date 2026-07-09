@@ -12,6 +12,8 @@ const abbreviateTileName = (tileName: string) => {
   return tileName.slice(0, 2).toUpperCase();
 };
 
+const actionButtonClassName = 'game-button-primary flex items-center justify-center h-10 px-4';
+
 export const MapUI = ({ selectedTileName, onSelectTileName, onResetRotation }: MapUIProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [canScrollUp, setCanScrollUp] = useState(false);
@@ -39,7 +41,7 @@ export const MapUI = ({ selectedTileName, onSelectTileName, onResetRotation }: M
     return (
       <div className="fixed top-1/2 right-4 -translate-y-1/2 z-10">
         <button
-          className="flex items-center justify-center bg-[#d93900] dark:bg-orange-600 text-white w-auto h-10 rounded-full cursor-pointer transition-colors px-4 hover:bg-[#c23300] dark:hover:bg-orange-700"
+          className={actionButtonClassName}
           onClick={() => {
             setIsOpen(true);
             onResetRotation();
@@ -55,7 +57,7 @@ export const MapUI = ({ selectedTileName, onSelectTileName, onResetRotation }: M
     <>
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-10">
         <button
-          className="flex items-center justify-center bg-[#d93900] dark:bg-orange-600 text-white w-auto h-10 rounded-full cursor-pointer transition-colors px-4 hover:bg-[#c23300] dark:hover:bg-orange-700"
+          className={actionButtonClassName}
           onClick={() => {
             setIsOpen(false);
             onSelectTileName(null);
@@ -67,7 +69,7 @@ export const MapUI = ({ selectedTileName, onSelectTileName, onResetRotation }: M
       </div>
       <div className="fixed top-1/2 right-4 -translate-y-1/2 z-10 flex flex-col items-center gap-2">
         <button
-          className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d93900] dark:bg-orange-600 text-white cursor-pointer transition-colors hover:bg-[#c23300] dark:hover:bg-orange-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#d93900] dark:disabled:hover:bg-orange-600"
+          className={`${actionButtonClassName} w-8 h-8 px-0`}
           onClick={() => scrollList(-SCROLL_STEP)}
           disabled={!canScrollUp}
         >
@@ -86,8 +88,8 @@ export const MapUI = ({ selectedTileName, onSelectTileName, onResetRotation }: M
                 onClick={() => onSelectTileName(tileName)}
                 className={`flex items-center justify-center w-16 h-16 shrink-0 rounded-full border-2 cursor-pointer transition-colors text-sm font-semibold ${
                   isSelected
-                    ? 'bg-[#d93900] dark:bg-orange-600 border-[#d93900] dark:border-orange-600 text-white'
-                    : 'bg-white dark:bg-gray-900 border-[#d93900] dark:border-orange-600 text-gray-900 dark:text-white'
+                    ? 'bg-(--primary) border-(--primary) text-white'
+                    : 'bg-(--panel-soft) border-(--panel-border)'
                 }`}
               >
                 {abbreviateTileName(tileName)}
@@ -96,7 +98,7 @@ export const MapUI = ({ selectedTileName, onSelectTileName, onResetRotation }: M
           })}
         </div>
         <button
-          className="flex items-center justify-center w-8 h-8 rounded-full bg-[#d93900] dark:bg-orange-600 text-white cursor-pointer transition-colors hover:bg-[#c23300] dark:hover:bg-orange-700 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#d93900] dark:disabled:hover:bg-orange-600"
+          className={`${actionButtonClassName} w-8 h-8 px-0`}
           onClick={() => scrollList(SCROLL_STEP)}
           disabled={!canScrollDown}
         >

@@ -76,16 +76,18 @@ const DamageNumber = ({
 
 export const Avatar = ({
   name,
+  objectName,
   position,
   rotationY,
   action,
 }: {
   name: string;
+  objectName: string;
   position: [number, number, number];
   rotationY: number;
   action: AvatarAction | null;
 }) => {
-  const path = `/assets/characters/${name}.glb`;
+  const path = `/assets/characters/${objectName}.glb`;
   const gltf = useLoader(GLTFLoader, path);
   const scene = useMemo(() => cloneSkinnedScene(gltf.scene), [gltf]);
   const groupRef = useRef<Object3D>(null!);

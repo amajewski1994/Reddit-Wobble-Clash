@@ -7,6 +7,7 @@ import { MapCanvas } from '../shared/MapCanvas';
 import { MapTiles } from '../shared/MapTiles';
 import { Avatars } from '../shared/Avatars';
 import type { AttackOutcome, DuelMapProps } from '../../types/duelMap';
+import type { TeamMemberTileStatistics } from '../../types/team';
 
 const AVATAR_PATHS = [...userTeam, ...enemyTeam].map(({ name }) => `/assets/characters/${name}.glb`);
 
@@ -14,6 +15,22 @@ AVATAR_PATHS.forEach((path) => useLoader.preload(GLTFLoader, path));
 
 const NEIGHBOR_DISTANCE_THRESHOLD = 1.1;
 const IMPASSABLE_TILE_NAME_PARTS = ['hill', 'mountain'];
+
+const TILE_BP_KEY_BY_NAME_PART: Record<string, keyof TeamMemberTileStatistics> = {
+  grass: 'grassBP',
+  sand: 'sandBP',
+  stone: 'stoneBP',
+  dirt: 'dirtBP',
+  forest: 'forestBP',
+  desert: 'desertBP',
+  rocks: 'rocksBP',
+};
+
+const getTileBPBonus = (tileName: string, tileBP: TeamMemberTileStatistics) =>
+  tileName.split('-').reduce((sum, part) => {
+    const key = TILE_BP_KEY_BY_NAME_PART[part];
+    return key ? sum + (tileBP[key] ?? 0) : sum;
+  }, 0);
 
 const isNeighborTile = (
   tile: { positionX: number; positionZ: number },
@@ -99,7 +116,11 @@ export const DuelMap = ({
       const targetTile = tiles.find((tile) => tile.id === id);
       const targetAvatar = enemyTeam.find(({ tileID }) => tileID === id);
       const attackerAvatar = allAvatars.find(({ id }) => id === activeAvatarId);
-      if (!targetTile || !targetAvatar || !attackerAvatar) return;
+      const attackerTile = tiles.find((tile) => tile.id === attackerAvatar?.tileID);
+      if (!targetTile || !targetAvatar || !attackerAvatar || !attackerTile) return;
+
+      const attackBonus = getTileBPBonus(attackerTile.tileName, attackerAvatar.statistics.tileBP);
+      const defenceBonus = getTileBPBonus(targetTile.tileName, targetAvatar.statistics.tileBP);
 
       const randomDodge = Math.random() * 100;
       const randomAccuracy = Math.random() * 100;
@@ -110,7 +131,9 @@ export const DuelMap = ({
             ? 'miss'
             : 'hit';
       const damage =
-        outcome === 'hit' ? attackerAvatar.statistics.attack - targetAvatar.statistics.defence : 0;
+        outcome === 'hit'
+          ? attackerAvatar.statistics.attack + attackBonus - (targetAvatar.statistics.defence + defenceBonus)
+          : 0;
 
       setAttackEvent({
         attackerId: activeAvatarId,
