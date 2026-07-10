@@ -1,1 +1,170 @@
 @import 'tailwindcss';
+
+:root {
+  --background: #0b0f14;
+  --foreground: #f8fafc;
+
+  --panel: #111827;
+  --panel-soft: #1f2937;
+  --panel-border: #334155;
+
+  --primary: #ff4500;
+  --primary-hover: #ff5f1f;
+
+  --secondary: #38bdf8;
+  --success: #22c55e;
+  --warning: #facc15;
+  --danger: #ef4444;
+
+  --muted: #94a3b8;
+  --muted-dark: #64748b;
+}
+
+html,
+body {
+  min-height: 100%;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  font-family: Inter, system-ui, sans-serif;
+  overflow: hidden;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.game-panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+}
+
+.game-card {
+  background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.game-button-primary {
+  background: var(--primary);
+  color: white;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: 160ms ease;
+}
+
+.game-button-primary:hover {
+  background: var(--primary-hover);
+}
+
+.game-button-secondary {
+  background: var(--panel-soft);
+  color: var(--foreground);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.game-label {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Duel HUD */
+.duel-panel {
+  background: var(--panel);
+  border: 2px solid var(--panel-border);
+  border-radius: 10px;
+}
+
+.duel-panel--team {
+  border-color: var(--secondary);
+}
+
+.duel-panel--enemy {
+  border-color: var(--danger);
+}
+
+.duel-hp-track {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.duel-hp-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 200ms ease;
+}
+
+.duel-hp-fill--team {
+  background: var(--secondary);
+}
+
+.duel-hp-fill--enemy {
+  background: var(--danger);
+}
+
+.duel-hex-badge {
+  clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
+  padding: 3px;
+}
+
+.duel-hex-badge--team {
+  background: var(--secondary);
+}
+
+.duel-hex-badge--enemy {
+  background: var(--danger);
+}
+
+.duel-hex-badge__inner {
+  clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
+  background: var(--panel);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.duel-banner {
+  clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+  background: var(--panel-border);
+  padding: 2px;
+}
+
+.duel-banner__inner {
+  clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+  background: var(--panel);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.duel-button-cut {
+  clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+}
+
+.duel-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--primary);
+}

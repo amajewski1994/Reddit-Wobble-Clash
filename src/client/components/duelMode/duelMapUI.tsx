@@ -2,8 +2,9 @@ import { useState } from 'react';
 import type { DuelMapUIProps } from '../../types/duelMap';
 import type { TeamMember, TeamMemberTileStatistics } from '../../types/team';
 import { UserInfo } from '../../data/userInfo';
-import { EnemyInfo } from '../../data/enemyInfo';
 import { duelMapTilesData } from './duelMapTilesData';
+import { actionButtonClassName, getMaxHp, HpBar } from './duelMapShared';
+import { DuelSidePanel } from './duelSidePanel';
 
 const END_TURN_HIDE_DURATION_MS = 3000;
 
@@ -37,23 +38,13 @@ const formatTileName = (tileName: string) =>
 const getTileName = (tileID: number) =>
   duelMapTilesData.find(({ id }) => id === tileID)?.tileName ?? '';
 
-const actionButtonClassName = 'game-button-primary flex items-center justify-center h-10 px-4';
-
-const MiniCard = ({ hp, onSelect }: { hp: number; onSelect: () => void }) => (
-  <div
-    onClick={onSelect}
-    className={`game-panel flex flex-col gap-1 w-20 p-1.5 cursor-pointer transition-opacity ${
-      hp <= 0 ? 'opacity-40 grayscale' : ''
-    }`}
-  >
-    <div className="flex items-center justify-center w-full h-14 rounded border border-dashed border-(--panel-border) game-label">
-      Zdjęcie
-    </div>
-    <div className="flex items-center justify-between text-xs">
-      <span className="game-label">HP</span>
-      <span>{hp}</span>
-    </div>
-  </div>
+const HudCorners = () => (
+  <>
+    <span className="duel-corner top-0 left-0 border-t-2 border-l-2" />
+    <span className="duel-corner top-0 right-0 border-t-2 border-r-2" />
+    <span className="duel-corner bottom-0 left-0 border-b-2 border-l-2" />
+    <span className="duel-corner bottom-0 right-0 border-b-2 border-r-2" />
+  </>
 );
 
 const FullCard = ({
@@ -79,18 +70,25 @@ const FullCard = ({
 
   return (
     <div
-      className={`game-card fixed top-1/2 right-4 -translate-y-1/2 z-10 w-56 flex flex-col gap-3 p-4 transition-all duration-300 ${
-        isMoveMode || isAttackMode || isUtilitiesOpen ? 'translate-x-[calc(100%+1rem)]' : ''
+      className={`duel-panel ${isEnemy ? 'duel-panel--enemy' : 'duel-panel--team'} fixed top-1/2 right-4 -translate-y-1/2 z-10 w-56 flex flex-col gap-3 p-4 transition-all duration-300 ${
+        isMoveMode || isAttackMode || isUtilitiesOpen
+          ? 'translate-x-[calc(100%+1rem)]'
+          : ''
       } ${isDead ? 'opacity-40 grayscale' : ''}`}
     >
-      <div className="text-center font-semibold">{avatar.name}</div>
-      <div className="flex items-center justify-center w-full h-32 rounded-md border-2 border-dashed border-(--panel-border) game-label">
-        Zdjęcie
+      <div className="text-center font-bold">{avatar.name}</div>
+      <div className="flex items-center justify-center w-full h-32 rounded-md border-2 border-dashed border-(--panel-border) text-4xl opacity-70">
+        {isEnemy ? '💀' : '🪖'}
       </div>
       <div className="flex justify-between text-sm">
         <span className="game-label">HP</span>
-        <span>{avatar.statistics.hp}</span>
+        <span className="font-bold">{avatar.statistics.hp}</span>
       </div>
+      <HpBar
+        hp={avatar.statistics.hp}
+        maxHp={getMaxHp(avatar.id)}
+        isEnemy={isEnemy}
+      />
       <div className="flex justify-between text-sm">
         <span className="game-label">AP</span>
         <span>{avatar.statistics.AP}</span>
@@ -108,16 +106,18 @@ const FullCard = ({
         <span>{formatTileName(getTileName(avatar.tileID))}</span>
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-1 border-t border-(--panel-border) pt-2">
-        {(Object.keys(TILE_BP_LABELS) as (keyof typeof TILE_BP_LABELS)[]).map((key) => {
-          const value = avatar.statistics.tileBP[key];
-          if (value === undefined) return null;
-          return (
-            <div key={key} className="flex justify-between text-xs">
-              <span className="game-label">{TILE_BP_LABELS[key]} BP</span>
-              <span>{value}</span>
-            </div>
-          );
-        })}
+        {(Object.keys(TILE_BP_LABELS) as (keyof typeof TILE_BP_LABELS)[]).map(
+          (key) => {
+            const value = avatar.statistics.tileBP[key];
+            if (value === undefined) return null;
+            return (
+              <div key={key} className="flex justify-between text-xs">
+                <span className="game-label">{TILE_BP_LABELS[key]} BP</span>
+                <span>{value}</span>
+              </div>
+            );
+          }
+        )}
       </div>
       {!isEnemy && (
         <div className="flex flex-col gap-2">
@@ -148,10 +148,16 @@ const FullCard = ({
   );
 };
 
-const SelectableCard = ({ name, onSelect }: { name: string; onSelect: () => void }) => (
+const SelectableCard = ({
+  name,
+  onSelect,
+}: {
+  name: string;
+  onSelect: () => void;
+}) => (
   <div
     onClick={onSelect}
-    className="game-panel flex flex-col items-center gap-2 w-28 p-2 cursor-pointer transition-opacity hover:opacity-80"
+    className="duel-panel duel-panel--team flex flex-col items-center gap-2 w-28 p-2 cursor-pointer transition-opacity hover:opacity-80"
   >
     <div className="flex items-center justify-center w-full h-20 rounded border border-dashed border-(--panel-border) game-label">
       Zdjęcie
@@ -172,11 +178,15 @@ const SelectionPopup = ({
   onBack: () => void;
 }) => (
   <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40">
-    <div className="game-card flex flex-col gap-4 w-full max-w-md mx-4 p-6">
-      <div className="text-center font-semibold">{title}</div>
+    <div className="duel-panel duel-panel--team flex flex-col gap-4 w-full max-w-md mx-4 p-6">
+      <div className="text-center font-bold">{title}</div>
       <div className="flex flex-wrap justify-center gap-3">
         {items.map((name) => (
-          <SelectableCard key={name} name={name} onSelect={() => onSelectItem(name)} />
+          <SelectableCard
+            key={name}
+            name={name}
+            onSelect={() => onSelectItem(name)}
+          />
         ))}
       </div>
       <button className={actionButtonClassName} onClick={onBack}>
@@ -187,25 +197,32 @@ const SelectionPopup = ({
 );
 
 const BottomTeamCard = ({
+  id,
   name,
   hp,
   isActive,
   onSelect,
 }: {
+  id: number;
   name: string;
   hp: number;
   isActive: boolean;
   onSelect: () => void;
 }) => (
   <div
-    onClick={onSelect}
-    className={`flex items-center justify-center w-14 h-14 shrink-0 rounded-md border-2 cursor-pointer transition-all text-sm font-semibold ${
-      isActive
-        ? 'bg-(--primary) border-(--primary) text-white'
-        : 'bg-(--panel-soft) border-(--panel-border)'
-    } ${hp <= 0 ? 'opacity-40 grayscale' : ''}`}
+    className={`flex flex-col items-center gap-1 w-14 ${hp <= 0 ? 'opacity-40 grayscale' : ''}`}
   >
-    {abbreviateAvatarName(name)}
+    <div
+      onClick={onSelect}
+      className={`flex items-center justify-center w-14 h-14 shrink-0 rounded-md border-2 cursor-pointer transition-all text-sm font-bold ${
+        isActive
+          ? 'bg-(--secondary) border-(--secondary) text-white'
+          : 'duel-panel duel-panel--team'
+      }`}
+    >
+      {abbreviateAvatarName(name)}
+    </div>
+    <HpBar hp={hp} maxHp={getMaxHp(id)} isEnemy={false} />
   </div>
 );
 
@@ -225,8 +242,11 @@ export const DuelMapUI = ({
   const [isUtilitiesOpen, setIsUtilitiesOpen] = useState(false);
   const [isItemsOpen, setIsItemsOpen] = useState(false);
   const [lastActiveAvatarId, setLastActiveAvatarId] = useState(activeAvatarId);
-  const activeAvatar = [...team, ...enemyTeam].find(({ id }) => id === activeAvatarId);
-  const isActiveAvatarEnemy = !!activeAvatar && enemyTeam.some(({ id }) => id === activeAvatarId);
+  const activeAvatar = [...team, ...enemyTeam].find(
+    ({ id }) => id === activeAvatarId
+  );
+  const isActiveAvatarEnemy =
+    !!activeAvatar && enemyTeam.some(({ id }) => id === activeAvatarId);
   const isCardOpen = !!activeAvatar;
 
   if (activeAvatarId !== lastActiveAvatarId) {
@@ -247,44 +267,27 @@ export const DuelMapUI = ({
   return (
     <>
       <div
-        className={`fixed top-4 left-1/2 -translate-x-1/2 z-10 text-sm font-semibold transition-all duration-500 ${
+        className={`duel-banner fixed top-4 left-1/2 -translate-x-1/2 z-10 transition-all duration-500 ${
           isEndingTurn ? 'translate-y-[-150%] opacity-0' : 'opacity-100'
         }`}
       >
-        Turn {turn}
-      </div>
-      <div
-        className={`fixed top-4 left-4 z-10 flex flex-col gap-2 transition-all duration-500 ${
-          isCardOpen || isEndingTurn ? 'translate-x-[-150%] opacity-0' : 'opacity-100'
-        }`}
-      >
-        <div className="flex flex-col text-sm font-semibold">
-          <span>{UserInfo.name}</span>
-          <span className="game-label">lvl {UserInfo.lvl}</span>
+        <div className="duel-banner__inner px-8 py-2 text-base font-bold uppercase tracking-wide whitespace-nowrap">
+          Turn <span className="text-(--primary)">{turn}</span>
         </div>
-        <button
-          className={`${actionButtonClassName} h-8 w-20 px-0 text-xs`}
-          onClick={() => setIsItemsOpen(true)}
-        >
-          Items
-        </button>
-        {team.map(({ id, statistics }) => (
-          <MiniCard key={id} hp={statistics.hp} onSelect={() => onSelectAvatarId(id)} />
-        ))}
       </div>
-      <div
-        className={`fixed top-4 right-4 z-10 flex flex-col gap-2 transition-all duration-500 ${
-          isCardOpen || isEndingTurn ? 'translate-x-[150%] opacity-0' : 'opacity-100'
-        }`}
-      >
-        <div className="flex flex-col items-end text-sm font-semibold">
-          <span>{EnemyInfo.name}</span>
-          <span className="game-label">lvl {EnemyInfo.lvl}</span>
-        </div>
-        {enemyTeam.map(({ id, statistics }) => (
-          <MiniCard key={id} hp={statistics.hp} onSelect={() => onSelectAvatarId(id)} />
-        ))}
-      </div>
+      <DuelSidePanel
+        side="left"
+        members={team}
+        isVisible={!(isCardOpen || isEndingTurn)}
+        onSelectAvatarId={onSelectAvatarId}
+        onItemsClick={() => setIsItemsOpen(true)}
+      />
+      <DuelSidePanel
+        side="right"
+        members={enemyTeam}
+        isVisible={!(isCardOpen || isEndingTurn)}
+        onSelectAvatarId={onSelectAvatarId}
+      />
       {activeAvatar && (
         <button
           className="fixed top-4 right-4 z-20 text-xs font-semibold text-(--primary) hover:underline"
@@ -322,31 +325,37 @@ export const DuelMapUI = ({
         />
       )}
 
+      {/* BOTTOM BAR */}
       <div
-        className={`fixed bottom-4 left-1/2 -translate-x-1/2 z-10 flex gap-2 transition-all duration-500 ${
-          isEndingTurn ? 'translate-y-[150%] opacity-0' : 'opacity-100'
+        className={`fixed bottom-4 inset-x-4 z-10 transition-all duration-500 ${
+          isCardOpen || isEndingTurn
+            ? 'translate-y-[150%] opacity-0'
+            : 'opacity-100'
         }`}
       >
-        {team.map(({ id, name, statistics }) => (
-          <BottomTeamCard
-            key={id}
-            name={name}
-            hp={statistics.hp}
-            isActive={activeAvatarId === id}
-            onSelect={() => onSelectAvatarId(id)}
-          />
-        ))}
+        <div className="relative flex items-center justify-between px-4 py-3">
+          <HudCorners />
+          <div className="flex gap-2">
+            {team.map(({ id, name, statistics }) => (
+              <BottomTeamCard
+                key={id}
+                id={id}
+                name={name}
+                hp={statistics.hp}
+                isActive={activeAvatarId === id}
+                onSelect={() => onSelectAvatarId(id)}
+              />
+            ))}
+          </div>
+          <button
+            className={actionButtonClassName}
+            onClick={handleEndTurn}
+            disabled={isEndingTurn}
+          >
+            End Turn
+          </button>
+        </div>
       </div>
-
-      <button
-        className={`fixed bottom-4 right-4 z-10 transition-all duration-500 ${actionButtonClassName} ${
-          isEndingTurn ? 'translate-y-[150%] opacity-0' : 'opacity-100'
-        }`}
-        onClick={handleEndTurn}
-        disabled={isEndingTurn}
-      >
-        End Turn
-      </button>
     </>
   );
 };
