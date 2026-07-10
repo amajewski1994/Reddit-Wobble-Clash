@@ -1,8 +1,7 @@
 import { ThreeEvent, useLoader } from '@react-three/fiber';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Mesh, TextureLoader } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { mapTilesData as initialMapTilesData } from './createMapTilesData';
 import { MapCanvas } from '../shared/MapCanvas';
 import { MapTiles } from '../shared/MapTiles';
 import { Avatar } from '../shared/Avatar';
@@ -100,16 +99,17 @@ const RotateControls = ({
 };
 
 export const CreateMap = ({
+  tiles,
   selectedTileName,
+  onChangeTileName,
   selectedAvatarName,
   placedAvatars,
   activeSlotIndex,
   onPlaceAvatar,
   rotatingTileId,
   onRotatingTileIdChange,
+  onRotateTile,
 }: CreateMapProps) => {
-  const [tiles, setTiles] = useState(initialMapTilesData);
-
   const handleTileClick = (id: number) => {
     if (selectedAvatarName && activeSlotIndex !== null) {
       const targetTile = tiles.find((tile) => tile.id === id);
@@ -120,20 +120,10 @@ export const CreateMap = ({
     if (selectedTileName) {
       const isOccupied = placedAvatars.some((slot) => slot?.tileID === id);
       if (isImpassableTileName(selectedTileName) && isOccupied) return;
-      setTiles((prev) =>
-        prev.map((tile) => (tile.id === id ? { ...tile, tileName: selectedTileName } : tile))
-      );
+      onChangeTileName(id, selectedTileName);
       return;
     }
     onRotatingTileIdChange(rotatingTileId === id ? null : id);
-  };
-
-  const handleRotateTile = (id: number, delta: number) => {
-    setTiles((prev) =>
-      prev.map((tile) =>
-        tile.id === id ? { ...tile, rotationY: (tile.rotationY + delta + 360) % 360 } : tile
-      )
-    );
   };
 
   const rotatingTile = tiles.find((tile) => tile.id === rotatingTileId) ?? null;
@@ -141,7 +131,7 @@ export const CreateMap = ({
   return (
     <MapCanvas>
       <MapTiles tiles={tiles} onTileClick={handleTileClick} />
-      {rotatingTile && <RotateControls tile={rotatingTile} onRotate={handleRotateTile} />}
+      {rotatingTile && <RotateControls tile={rotatingTile} onRotate={onRotateTile} />}
       {placedAvatars.map((slot, index) => {
         if (!slot) return null;
         const tile = tiles.find((tile) => tile.id === slot.tileID);

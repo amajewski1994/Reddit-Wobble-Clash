@@ -1,11 +1,12 @@
 import './index.css';
 
-import { StrictMode, useState } from 'react';
+import { StrictMode, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { navigateTo } from '@devvit/web/client';
 import { useCounter } from './hooks/useCounter';
 import { CreateMap } from './components/createMapMode/createMap';
 import { CreateMapUI } from './components/createMapMode/createMapUI';
+import { mapTilesData as initialCreateMapTiles } from './components/createMapMode/createMapTilesData';
 import { DuelMap } from './components/duelMode/duelMap';
 import { DuelMapUI } from './components/duelMode/duelMapUI';
 import { StartScreen } from './components/startScreen/startScreen';
@@ -14,7 +15,8 @@ import {
   enemyTeam as initialEnemyTeam,
 } from './components/duelMode/teamsDate';
 import { GameInfo } from './data/game';
-import { TEAM_SLOT_COUNT } from './data/consts';
+import { TEAM_SLOT_COUNT, DEFAULT_MAP_TITLE } from './data/consts';
+import { calculateMapRating } from './utils/mapRating';
 import type { AttackOutcome } from './types/duelMap';
 import type { PlacedAvatar } from './types/createMap';
 
@@ -29,6 +31,8 @@ export const App = () => {
   const [placedAvatars, setPlacedAvatars] = useState<(PlacedAvatar | null)[]>(
     Array(TEAM_SLOT_COUNT).fill(null)
   );
+  const [createMapTiles, setCreateMapTiles] = useState(initialCreateMapTiles);
+  const [mapTitle, setMapTitle] = useState(DEFAULT_MAP_TITLE);
   const [rotatingTileId, setRotatingTileId] = useState<number | null>(null);
   const [team, setTeam] = useState(userTeam);
   const [enemyTeam, setEnemyTeam] = useState(initialEnemyTeam);
@@ -138,6 +142,25 @@ export const App = () => {
     setSelectedAvatarName(null);
   };
 
+  const handleChangeTileName = (id: number, tileName: string) => {
+    setCreateMapTiles((prev) =>
+      prev.map((tile) => (tile.id === id ? { ...tile, tileName } : tile))
+    );
+  };
+
+  const handleRotateCreateMapTile = (id: number, delta: number) => {
+    setCreateMapTiles((prev) =>
+      prev.map((tile) =>
+        tile.id === id ? { ...tile, rotationY: (tile.rotationY + delta + 360) % 360 } : tile
+      )
+    );
+  };
+
+  const mapRating = useMemo(
+    () => calculateMapRating(createMapTiles, placedAvatars, mapTitle),
+    [createMapTiles, placedAvatars, mapTitle]
+  );
+
   const handleEndTurn = () => {
     setTurn((prev) => prev + 1);
     setTeam((prev) =>
@@ -175,16 +198,22 @@ export const App = () => {
             activeSlotIndex={activeSlotIndex}
             onSelectSlot={setActiveSlotIndex}
             onRemoveAvatar={handleRemoveAvatar}
+            mapTitle={mapTitle}
+            onChangeMapTitle={setMapTitle}
+            mapRating={mapRating}
             onResetRotation={() => setRotatingTileId(null)}
           />
           <CreateMap
+            tiles={createMapTiles}
             selectedTileName={selectedTileName}
+            onChangeTileName={handleChangeTileName}
             selectedAvatarName={selectedAvatarName}
             placedAvatars={placedAvatars}
             activeSlotIndex={activeSlotIndex}
             onPlaceAvatar={handlePlaceAvatar}
             rotatingTileId={rotatingTileId}
             onRotatingTileIdChange={setRotatingTileId}
+            onRotateTile={handleRotateCreateMapTile}
           />
         </>
       )}

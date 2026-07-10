@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { TILE_NAMES, AVATAR_NAMES } from '../../data/consts';
+import { TILE_NAMES, AVATAR_NAMES, DEFAULT_MAP_TITLE } from '../../data/consts';
 import type { CreateMapUIProps } from '../../types/createMap';
 
 const SCROLL_STEP = 80;
@@ -7,12 +7,16 @@ const SCROLL_STEP = 80;
 const abbreviateLabel = (name: string) => {
   const parts = name.split('-');
   if (parts.length > 1) {
-    return parts.map((part) => part[0]).join('').toUpperCase();
+    return parts
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase();
   }
   return name.slice(0, 2).toUpperCase();
 };
 
-const actionButtonLayoutClassName = 'flex items-center justify-center h-10 px-4';
+const actionButtonLayoutClassName =
+  'flex items-center justify-center h-10 px-4';
 const actionButtonClassName = `game-button-primary ${actionButtonLayoutClassName}`;
 const successButtonClassName = `game-button-success ${actionButtonLayoutClassName}`;
 
@@ -124,7 +128,6 @@ const BottomTeamSlot = ({
 
 type Panel = 'tiles' | 'avatars' | null;
 
-const DEFAULT_MAP_TITLE = 'Untitled Map';
 const MIN_TITLE_LENGTH = 1;
 const MAX_TITLE_LENGTH = 20;
 
@@ -137,14 +140,20 @@ export const CreateMapUI = ({
   activeSlotIndex,
   onSelectSlot,
   onRemoveAvatar,
+  mapTitle,
+  onChangeMapTitle,
+  mapRating,
   onResetRotation,
 }: CreateMapUIProps) => {
   const [isTilesOpen, setIsTilesOpen] = useState(false);
-  const [mapTitle, setMapTitle] = useState(DEFAULT_MAP_TITLE);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(mapTitle);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const openPanel: Panel = isTilesOpen ? 'tiles' : activeSlotIndex !== null ? 'avatars' : null;
+  const openPanel: Panel = isTilesOpen
+    ? 'tiles'
+    : activeSlotIndex !== null
+      ? 'avatars'
+      : null;
 
   useEffect(() => {
     if (isEditingTitle) titleInputRef.current?.focus();
@@ -165,12 +174,18 @@ export const CreateMapUI = ({
 
   const commitTitle = () => {
     const trimmed = titleDraft.trim().slice(0, MAX_TITLE_LENGTH);
-    setMapTitle(trimmed.length >= MIN_TITLE_LENGTH ? trimmed : DEFAULT_MAP_TITLE);
+    onChangeMapTitle(
+      trimmed.length >= MIN_TITLE_LENGTH ? trimmed : DEFAULT_MAP_TITLE
+    );
     setIsEditingTitle(false);
   };
 
   return (
     <>
+      <div className="fixed top-1/5 left-4 z-10 flex flex-col items-start gap-1">
+        <span className="game-label">Map Rating</span>
+        <span className="text-lg font-bold">{mapRating.toFixed(1)}/5</span>
+      </div>
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
         {isEditingTitle ? (
           <input
@@ -186,7 +201,10 @@ export const CreateMapUI = ({
             className="bg-(--panel-soft) border-2 border-(--primary) rounded-md px-6 py-1.5 text-base font-bold uppercase tracking-wide text-center outline-none"
           />
         ) : (
-          <div className="duel-banner cursor-pointer" onClick={startEditingTitle}>
+          <div
+            className="duel-banner cursor-pointer"
+            onClick={startEditingTitle}
+          >
             <div className="duel-banner__inner px-8 py-2 text-base font-bold uppercase tracking-wide whitespace-nowrap">
               {mapTitle}
             </div>
@@ -201,7 +219,7 @@ export const CreateMapUI = ({
         )}
       </div>
       {!openPanel && (
-        <div className="fixed top-1/2 right-4 -translate-y-1/2 z-10 flex flex-col gap-2">
+        <div className="fixed top-1/5 right-4 z-10 flex flex-col gap-2">
           <button
             className={actionButtonClassName}
             onClick={() => {
