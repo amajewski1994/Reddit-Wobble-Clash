@@ -4,17 +4,31 @@ import { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { navigateTo } from '@devvit/web/client';
 import { useCounter } from './hooks/useCounter';
-import { Map } from './components/createMapMode/createMap';
-import { MapUI } from './components/createMapMode/createMapUI';
+import { CreateMap } from './components/createMapMode/createMap';
+import { CreateMapUI } from './components/createMapMode/createMapUI';
 import { DuelMap } from './components/duelMode/duelMap';
 import { DuelMapUI } from './components/duelMode/duelMapUI';
-import { userTeam, enemyTeam as initialEnemyTeam } from './components/duelMode/teamsDate';
+import { StartScreen } from './components/startScreen/startScreen';
+import {
+  userTeam,
+  enemyTeam as initialEnemyTeam,
+} from './components/duelMode/teamsDate';
 import { GameInfo } from './data/game';
+import { TEAM_SLOT_COUNT } from './data/consts';
 import type { AttackOutcome } from './types/duelMap';
+import type { PlacedAvatar } from './types/createMap';
+
+type Screen = 'start' | 'duel' | 'create';
 
 export const App = () => {
   // const { count, username, loading, increment, decrement } = useCounter();
+  const [screen, setScreen] = useState<Screen>('start');
   const [selectedTileName, setSelectedTileName] = useState<string | null>(null);
+  const [selectedAvatarName, setSelectedAvatarName] = useState<string | null>(null);
+  const [activeSlotIndex, setActiveSlotIndex] = useState<number | null>(null);
+  const [placedAvatars, setPlacedAvatars] = useState<(PlacedAvatar | null)[]>(
+    Array(TEAM_SLOT_COUNT).fill(null)
+  );
   const [rotatingTileId, setRotatingTileId] = useState<number | null>(null);
   const [team, setTeam] = useState(userTeam);
   const [enemyTeam, setEnemyTeam] = useState(initialEnemyTeam);
@@ -47,7 +61,10 @@ export const App = () => {
           ? {
               ...member,
               tileID: tileId,
-              statistics: { ...member.statistics, AP: Math.max(0, member.statistics.AP - 1) },
+              statistics: {
+                ...member.statistics,
+                AP: Math.max(0, member.statistics.AP - 1),
+              },
             }
           : member
       )
@@ -64,12 +81,21 @@ export const App = () => {
     const applyDamage = (member: (typeof team)[number]) => {
       if (member.id !== targetId || outcome !== 'hit') return member;
       const nextHp = member.statistics.hp - damage;
-      return { ...member, statistics: { ...member.statistics, hp: nextHp <= 0 ? 0 : nextHp } };
+      return {
+        ...member,
+        statistics: { ...member.statistics, hp: nextHp <= 0 ? 0 : nextHp },
+      };
     };
 
     const applyApCost = (member: (typeof team)[number]) => {
       if (member.id !== attackerId) return member;
-      return { ...member, statistics: { ...member.statistics, AP: Math.max(0, member.statistics.AP - 1) } };
+      return {
+        ...member,
+        statistics: {
+          ...member.statistics,
+          AP: Math.max(0, member.statistics.AP - 1),
+        },
+      };
     };
 
     setTeam((prev) => prev.map(applyDamage).map(applyApCost));
@@ -82,11 +108,34 @@ export const App = () => {
     setTeam((prev) =>
       prev.map((member) =>
         member.id === activeAvatarId
-          ? { ...member, statistics: { ...member.statistics, AP: Math.max(0, member.statistics.AP - 1) } }
+          ? {
+              ...member,
+              statistics: {
+                ...member.statistics,
+                AP: Math.max(0, member.statistics.AP - 1),
+              },
+            }
           : member
       )
     );
     handleSelectAvatarId(null);
+  };
+
+  const handlePlaceAvatar = (tileID: number) => {
+    if (activeSlotIndex === null || !selectedAvatarName) return;
+    const slotIndex = activeSlotIndex;
+    const avatarName = selectedAvatarName;
+    setPlacedAvatars((prev) =>
+      prev.map((slot, index) => (index === slotIndex ? { tileID, avatarName } : slot))
+    );
+    setActiveSlotIndex(null);
+    setSelectedAvatarName(null);
+  };
+
+  const handleRemoveAvatar = (index: number) => {
+    setPlacedAvatars((prev) => prev.map((slot, slotIndex) => (slotIndex === index ? null : slot)));
+    setActiveSlotIndex(null);
+    setSelectedAvatarName(null);
   };
 
   const handleEndTurn = () => {
@@ -95,48 +144,78 @@ export const App = () => {
       prev.map((member) => {
         const initial = userTeam.find(({ id }) => id === member.id);
         return initial
-          ? { ...member, statistics: { ...member.statistics, AP: initial.statistics.AP } }
+          ? {
+              ...member,
+              statistics: { ...member.statistics, AP: initial.statistics.AP },
+            }
           : member;
       })
     );
   };
 
+  if (screen === 'start') {
+    return (
+      <StartScreen
+        onSelectDuel={() => setScreen('duel')}
+        onSelectCreate={() => setScreen('create')}
+      />
+    );
+  }
+
   return (
     <div>
-      {/* <MapUI
-        selectedTileName={selectedTileName}
-        onSelectTileName={setSelectedTileName}
-        onResetRotation={() => setRotatingTileId(null)}
-      />
-      <Map
-        selectedTileName={selectedTileName}
-        rotatingTileId={rotatingTileId}
-        onRotatingTileIdChange={setRotatingTileId}
-      /> */}
+      {screen === 'create' && (
+        <>
+          <CreateMapUI
+            selectedTileName={selectedTileName}
+            onSelectTileName={setSelectedTileName}
+            selectedAvatarName={selectedAvatarName}
+            onSelectAvatarName={setSelectedAvatarName}
+            placedAvatars={placedAvatars}
+            activeSlotIndex={activeSlotIndex}
+            onSelectSlot={setActiveSlotIndex}
+            onRemoveAvatar={handleRemoveAvatar}
+            onResetRotation={() => setRotatingTileId(null)}
+          />
+          <CreateMap
+            selectedTileName={selectedTileName}
+            selectedAvatarName={selectedAvatarName}
+            placedAvatars={placedAvatars}
+            activeSlotIndex={activeSlotIndex}
+            onPlaceAvatar={handlePlaceAvatar}
+            rotatingTileId={rotatingTileId}
+            onRotatingTileIdChange={setRotatingTileId}
+          />
+        </>
+      )}
 
-      <DuelMapUI
-        team={team}
-        enemyTeam={enemyTeam}
-        activeAvatarId={activeAvatarId}
-        onSelectAvatarId={handleSelectAvatarId}
-        isMoveMode={isMoveMode}
-        isAttackMode={isAttackMode}
-        onAttack={handleAttack}
-        onMove={handleMove}
-        onUtilities={handleUtilities}
-        turn={turn}
-        onEndTurn={handleEndTurn}
-      />
-      <DuelMap
-        selectedTileName={selectedTileName}
-        team={team}
-        enemyTeam={enemyTeam}
-        activeAvatarId={activeAvatarId}
-        isMoveMode={isMoveMode}
-        isAttackMode={isAttackMode}
-        onMoveAvatarToTile={handleMoveAvatarToTile}
-        onAttackTile={handleAttackTile}
-      />
+      {screen === 'duel' && (
+        <>
+          <DuelMapUI
+            team={team}
+            enemyTeam={enemyTeam}
+            activeAvatarId={activeAvatarId}
+            onSelectAvatarId={handleSelectAvatarId}
+            isMoveMode={isMoveMode}
+            isAttackMode={isAttackMode}
+            onAttack={handleAttack}
+            onMove={handleMove}
+            onUtilities={handleUtilities}
+            turn={turn}
+            onEndTurn={handleEndTurn}
+          />
+          <DuelMap
+            selectedTileName={selectedTileName}
+            team={team}
+            enemyTeam={enemyTeam}
+            activeAvatarId={activeAvatarId}
+            isMoveMode={isMoveMode}
+            isAttackMode={isAttackMode}
+            onMoveAvatarToTile={handleMoveAvatarToTile}
+            onAttackTile={handleAttackTile}
+          />
+        </>
+      )}
     </div>
   );
 };
