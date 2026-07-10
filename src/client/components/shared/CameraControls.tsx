@@ -1,5 +1,6 @@
 import { extend, ThreeElement, useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
+import { MOUSE, TOUCH } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 extend({ OrbitControls });
@@ -18,5 +19,16 @@ export const CameraControls = () => {
     controlsRef.current?.update();
   }, []);
 
-  return <orbitControls ref={controlsRef} args={[camera, gl.domElement]} enableDamping />;
+  return (
+    <orbitControls
+      ref={controlsRef}
+      args={[camera, gl.domElement]}
+      enableDamping
+      enableRotate={false}
+      enableZoom={false}
+      screenSpacePanning={false}
+      mouseButtons={{ LEFT: MOUSE.PAN, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN }}
+      touches={{ ONE: TOUCH.PAN, TWO: TOUCH.PAN }}
+    />
+  );
 };
