@@ -1,16 +1,29 @@
 import { ThreeEvent, useLoader } from '@react-three/fiber';
 import { useEffect, useRef, useState } from 'react';
 import { Mesh, TextureLoader } from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { mapTilesData as initialMapTilesData } from './createMapTilesData';
 import { MapCanvas } from '../shared/MapCanvas';
 import { MapTiles } from '../shared/MapTiles';
+import { Avatar } from '../shared/Avatar';
+import { AVATAR_Y_OFFSET } from '../shared/Avatars';
 import { ROTATE_LEFT_ICON } from '../shared/tileAssets';
+import { AVATAR_NAMES, IMPASSABLE_TILE_NAME_PARTS } from '../../data/consts';
 import type { MapTileData } from '../../types/mapTile';
 import type { CreateMapProps } from '../../types/createMap';
 
 const ROTATE_STEP = 60;
 const ROTATE_ARROW_OFFSET = 0.6;
 const ROTATE_ARROW_HEIGHT = 0.1;
+
+const getAvatarObjectName = (avatarName: string) => `avatar_${avatarName}_v1`;
+
+const isImpassableTileName = (tileName: string) =>
+  IMPASSABLE_TILE_NAME_PARTS.some((part) => tileName.includes(part));
+
+AVATAR_NAMES.forEach((avatarName) =>
+  useLoader.preload(GLTFLoader, `/assets/characters/${getAvatarObjectName(avatarName)}.glb`)
+);
 
 const RotateArrow = ({
   direction,
@@ -86,15 +99,27 @@ const RotateControls = ({
   );
 };
 
-export const Map = ({
+export const CreateMap = ({
   selectedTileName,
+  selectedAvatarName,
+  placedAvatars,
+  activeSlotIndex,
+  onPlaceAvatar,
   rotatingTileId,
   onRotatingTileIdChange,
 }: CreateMapProps) => {
   const [tiles, setTiles] = useState(initialMapTilesData);
 
   const handleTileClick = (id: number) => {
+    if (selectedAvatarName && activeSlotIndex !== null) {
+      const targetTile = tiles.find((tile) => tile.id === id);
+      if (!targetTile || isImpassableTileName(targetTile.tileName)) return;
+      onPlaceAvatar(id);
+      return;
+    }
     if (selectedTileName) {
+      const isOccupied = placedAvatars.some((slot) => slot?.tileID === id);
+      if (isImpassableTileName(selectedTileName) && isOccupied) return;
       setTiles((prev) =>
         prev.map((tile) => (tile.id === id ? { ...tile, tileName: selectedTileName } : tile))
       );
@@ -117,6 +142,22 @@ export const Map = ({
     <MapCanvas>
       <MapTiles tiles={tiles} onTileClick={handleTileClick} />
       {rotatingTile && <RotateControls tile={rotatingTile} onRotate={handleRotateTile} />}
+      {placedAvatars.map((slot, index) => {
+        if (!slot) return null;
+        const tile = tiles.find((tile) => tile.id === slot.tileID);
+        if (!tile) return null;
+        return (
+          <Avatar
+            key={index}
+            name={slot.avatarName}
+            objectName={getAvatarObjectName(slot.avatarName)}
+            position={[tile.positionX, AVATAR_Y_OFFSET, tile.positionZ]}
+            rotationY={tile.rotationY}
+            action={null}
+            animateMovement={false}
+          />
+        );
+      })}
     </MapCanvas>
   );
 };

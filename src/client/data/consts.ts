@@ -12,3 +12,9 @@ export const TILE_NAMES = [
   'stone-rocks',
   'stone',
 ];
+
+export const IMPASSABLE_TILE_NAME_PARTS = ['hill', 'mountain'];
+
+export const AVATAR_NAMES = ['duelist', 'tank', 'tracker', 'wildheart'];
+
+export const TEAM_SLOT_COUNT = 4;

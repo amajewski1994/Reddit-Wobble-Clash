@@ -1,7 +1,7 @@
 import { useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { TILE_NAMES } from '../tileNames';
+import { TILE_NAMES } from '../../data/consts';
 
 export const TILE_PATHS = TILE_NAMES.map((name) => `/assets/tiles/${name}.glb`);
 export const ROTATE_LEFT_ICON = '/assets/images/curve-up-arrow.png';

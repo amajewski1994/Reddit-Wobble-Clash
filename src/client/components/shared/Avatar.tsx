@@ -80,12 +80,14 @@ export const Avatar = ({
   position,
   rotationY,
   action,
+  animateMovement = true,
 }: {
   name: string;
   objectName: string;
   position: [number, number, number];
   rotationY: number;
   action: AvatarAction | null;
+  animateMovement?: boolean;
 }) => {
   const path = `/assets/characters/${objectName}.glb`;
   const gltf = useLoader(GLTFLoader, path);
@@ -125,6 +127,7 @@ export const Avatar = ({
   } | null>(null);
   const isDeadRef = useRef(false);
   const prevPositionRef = useRef(position);
+  const isInitialRotationRef = useRef(true);
   const [damageDisplay, setDamageDisplay] = useState<{
     key: number;
     label: string;
@@ -178,10 +181,23 @@ export const Avatar = ({
   }, [scene, gltf.animations]);
 
   useEffect(() => {
+    if (isInitialRotationRef.current) {
+      isInitialRotationRef.current = false;
+      return;
+    }
+    groupRef.current.rotation.y = (rotationY * Math.PI) / 180;
+  }, [rotationY]);
+
+  useEffect(() => {
     const [prevX, prevY, prevZ] = prevPositionRef.current;
     prevPositionRef.current = position;
-    const [nextX, , nextZ] = position;
+    const [nextX, nextY, nextZ] = position;
     if (prevX === nextX && prevZ === nextZ) return;
+
+    if (!animateMovement) {
+      groupRef.current.position.set(nextX, nextY, nextZ);
+      return;
+    }
 
     const targetRotation = Math.atan2(nextX - prevX, nextZ - prevZ);
     moveRef.current = {
@@ -192,7 +208,7 @@ export const Avatar = ({
       toPosition: new Vector3(nextX, prevY, nextZ),
       elapsed: 0,
     };
-  }, [position]);
+  }, [position, animateMovement]);
 
   useEffect(() => {
     if (!action || isDeadRef.current) return;

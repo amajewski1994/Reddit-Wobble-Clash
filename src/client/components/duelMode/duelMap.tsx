@@ -8,23 +8,26 @@ import { MapTiles } from '../shared/MapTiles';
 import { Avatars } from '../shared/Avatars';
 import type { AttackOutcome, DuelMapProps } from '../../types/duelMap';
 import type { TeamMemberTileStatistics } from '../../types/team';
+import { IMPASSABLE_TILE_NAME_PARTS } from '../../data/consts';
 
-const AVATAR_PATHS = [...userTeam, ...enemyTeam].map(({ name }) => `/assets/characters/${name}.glb`);
+const AVATAR_PATHS = [...userTeam, ...enemyTeam].map(
+  ({ name }) => `/assets/characters/${name}.glb`
+);
 
 AVATAR_PATHS.forEach((path) => useLoader.preload(GLTFLoader, path));
 
 const NEIGHBOR_DISTANCE_THRESHOLD = 1.1;
-const IMPASSABLE_TILE_NAME_PARTS = ['hill', 'mountain'];
 
-const TILE_BP_KEY_BY_NAME_PART: Record<string, keyof TeamMemberTileStatistics> = {
-  grass: 'grassBP',
-  sand: 'sandBP',
-  stone: 'stoneBP',
-  dirt: 'dirtBP',
-  forest: 'forestBP',
-  desert: 'desertBP',
-  rocks: 'rocksBP',
-};
+const TILE_BP_KEY_BY_NAME_PART: Record<string, keyof TeamMemberTileStatistics> =
+  {
+    grass: 'grassBP',
+    sand: 'sandBP',
+    stone: 'stoneBP',
+    dirt: 'dirtBP',
+    forest: 'forestBP',
+    desert: 'desertBP',
+    rocks: 'rocksBP',
+  };
 
 const getTileBPBonus = (tileName: string, tileBP: TeamMemberTileStatistics) =>
   tileName.split('-').reduce((sum, part) => {
@@ -75,13 +78,20 @@ export const DuelMap = ({
 
     if (isMoveMode) {
       const occupiedTileIds = new Set(
-        allAvatars.filter(({ id }) => id !== activeAvatarId).map(({ tileID }) => tileID)
+        allAvatars
+          .filter(({ id }) => id !== activeAvatarId)
+          .map(({ tileID }) => tileID)
       );
       const ids = tiles
         .filter((tile) => {
           if (tile.id === activeTile.id) return false;
           if (occupiedTileIds.has(tile.id)) return true;
-          if (IMPASSABLE_TILE_NAME_PARTS.some((part) => tile.tileName.includes(part))) return true;
+          if (
+            IMPASSABLE_TILE_NAME_PARTS.some((part) =>
+              tile.tileName.includes(part)
+            )
+          )
+            return true;
           return !isNeighborTile(tile, activeTile);
         })
         .map((tile) => tile.id);
@@ -90,19 +100,31 @@ export const DuelMap = ({
 
     if (isAttackMode) {
       const enemyTileIds = new Set(
-        enemyTeam.filter(({ statistics }) => statistics.hp > 0).map(({ tileID }) => tileID)
+        enemyTeam
+          .filter(({ statistics }) => statistics.hp > 0)
+          .map(({ tileID }) => tileID)
       );
       const ids = tiles
         .filter((tile) => {
           if (tile.id === activeTile.id) return false;
-          return !(enemyTileIds.has(tile.id) && isNeighborTile(tile, activeTile));
+          return !(
+            enemyTileIds.has(tile.id) && isNeighborTile(tile, activeTile)
+          );
         })
         .map((tile) => tile.id);
       return new Set(ids);
     }
 
     return new Set<number>();
-  }, [tiles, isMoveMode, isAttackMode, activeTile, allAvatars, activeAvatarId, enemyTeam]);
+  }, [
+    tiles,
+    isMoveMode,
+    isAttackMode,
+    activeTile,
+    allAvatars,
+    activeAvatarId,
+    enemyTeam,
+  ]);
 
   const handleTileClick = (id: number) => {
     if (!activeTile || id === activeTile.id || dimmedTileIds.has(id)) return;
@@ -116,11 +138,20 @@ export const DuelMap = ({
       const targetTile = tiles.find((tile) => tile.id === id);
       const targetAvatar = enemyTeam.find(({ tileID }) => tileID === id);
       const attackerAvatar = allAvatars.find(({ id }) => id === activeAvatarId);
-      const attackerTile = tiles.find((tile) => tile.id === attackerAvatar?.tileID);
-      if (!targetTile || !targetAvatar || !attackerAvatar || !attackerTile) return;
+      const attackerTile = tiles.find(
+        (tile) => tile.id === attackerAvatar?.tileID
+      );
+      if (!targetTile || !targetAvatar || !attackerAvatar || !attackerTile)
+        return;
 
-      const attackBonus = getTileBPBonus(attackerTile.tileName, attackerAvatar.statistics.tileBP);
-      const defenceBonus = getTileBPBonus(targetTile.tileName, targetAvatar.statistics.tileBP);
+      const attackBonus = getTileBPBonus(
+        attackerTile.tileName,
+        attackerAvatar.statistics.tileBP
+      );
+      const defenceBonus = getTileBPBonus(
+        targetTile.tileName,
+        targetAvatar.statistics.tileBP
+      );
 
       const randomDodge = Math.random() * 100;
       const randomAccuracy = Math.random() * 100;
@@ -132,7 +163,9 @@ export const DuelMap = ({
             : 'hit';
       const damage =
         outcome === 'hit'
-          ? attackerAvatar.statistics.attack + attackBonus - (targetAvatar.statistics.defence + defenceBonus)
+          ? attackerAvatar.statistics.attack +
+            attackBonus -
+            (targetAvatar.statistics.defence + defenceBonus)
           : 0;
 
       setAttackEvent({
@@ -150,7 +183,11 @@ export const DuelMap = ({
 
   return (
     <MapCanvas>
-      <MapTiles tiles={tiles} onTileClick={handleTileClick} dimmedTileIds={dimmedTileIds} />
+      <MapTiles
+        tiles={tiles}
+        onTileClick={handleTileClick}
+        dimmedTileIds={dimmedTileIds}
+      />
       <Avatars team={allAvatars} tiles={tiles} attackEvent={attackEvent} />
     </MapCanvas>
   );

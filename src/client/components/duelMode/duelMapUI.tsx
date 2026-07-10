@@ -70,7 +70,7 @@ const FullCard = ({
 
   return (
     <div
-      className={`duel-panel ${isEnemy ? 'duel-panel--enemy' : 'duel-panel--team'} fixed top-1/2 right-4 -translate-y-1/2 z-10 w-56 flex flex-col gap-3 p-4 transition-all duration-300 ${
+      className={`duel-panel ${isEnemy ? 'duel-panel--enemy' : 'duel-panel--team'} fixed top-1/2 right-4 -translate-y-1/2 z-10 w-56 flex flex-col gap-1 p-4 transition-all duration-300 ${
         isMoveMode || isAttackMode || isUtilitiesOpen
           ? 'translate-x-[calc(100%+1rem)]'
           : ''
@@ -92,6 +92,14 @@ const FullCard = ({
       <div className="flex justify-between text-sm">
         <span className="game-label">AP</span>
         <span>{avatar.statistics.AP}</span>
+      </div>
+      <div className="flex justify-between text-sm">
+        <span className="game-label">Attack</span>
+        <span>{avatar.statistics.attack}</span>
+      </div>
+      <div className="flex justify-between text-sm">
+        <span className="game-label">Defence</span>
+        <span>{avatar.statistics.defence}</span>
       </div>
       <div className="flex justify-between text-sm">
         <span className="game-label">Dodge</span>

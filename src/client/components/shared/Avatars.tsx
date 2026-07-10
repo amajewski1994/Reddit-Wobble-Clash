@@ -4,7 +4,7 @@ import type { TeamMember } from '../../types/team';
 import type { AttackOutcome, AvatarAction } from '../../types/duelMap';
 import type { MapTileData } from '../../types/mapTile';
 
-const AVATAR_Y_OFFSET = 0.225;
+export const AVATAR_Y_OFFSET = 0.225;
 
 export const Avatars = ({
   team,
