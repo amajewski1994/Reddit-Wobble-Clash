@@ -12,7 +12,9 @@ const abbreviateLabel = (name: string) => {
   return name.slice(0, 2).toUpperCase();
 };
 
-const actionButtonClassName = 'game-button-primary flex items-center justify-center h-10 px-4';
+const actionButtonLayoutClassName = 'flex items-center justify-center h-10 px-4';
+const actionButtonClassName = `game-button-primary ${actionButtonLayoutClassName}`;
+const successButtonClassName = `game-button-success ${actionButtonLayoutClassName}`;
 
 const ScrollableSelectList = ({
   items,
@@ -122,6 +124,10 @@ const BottomTeamSlot = ({
 
 type Panel = 'tiles' | 'avatars' | null;
 
+const DEFAULT_MAP_TITLE = 'Untitled Map';
+const MIN_TITLE_LENGTH = 1;
+const MAX_TITLE_LENGTH = 20;
+
 export const CreateMapUI = ({
   selectedTileName,
   onSelectTileName,
@@ -134,7 +140,15 @@ export const CreateMapUI = ({
   onResetRotation,
 }: CreateMapUIProps) => {
   const [isTilesOpen, setIsTilesOpen] = useState(false);
+  const [mapTitle, setMapTitle] = useState(DEFAULT_MAP_TITLE);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(mapTitle);
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const openPanel: Panel = isTilesOpen ? 'tiles' : activeSlotIndex !== null ? 'avatars' : null;
+
+  useEffect(() => {
+    if (isEditingTitle) titleInputRef.current?.focus();
+  }, [isEditingTitle]);
 
   const closePanel = () => {
     setIsTilesOpen(false);
@@ -144,8 +158,48 @@ export const CreateMapUI = ({
     onResetRotation();
   };
 
+  const startEditingTitle = () => {
+    setTitleDraft(mapTitle);
+    setIsEditingTitle(true);
+  };
+
+  const commitTitle = () => {
+    const trimmed = titleDraft.trim().slice(0, MAX_TITLE_LENGTH);
+    setMapTitle(trimmed.length >= MIN_TITLE_LENGTH ? trimmed : DEFAULT_MAP_TITLE);
+    setIsEditingTitle(false);
+  };
+
   return (
     <>
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
+        {isEditingTitle ? (
+          <input
+            ref={titleInputRef}
+            value={titleDraft}
+            onChange={(event) => setTitleDraft(event.target.value)}
+            onBlur={commitTitle}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') commitTitle();
+              if (event.key === 'Escape') setIsEditingTitle(false);
+            }}
+            maxLength={MAX_TITLE_LENGTH}
+            className="bg-(--panel-soft) border-2 border-(--primary) rounded-md px-6 py-1.5 text-base font-bold uppercase tracking-wide text-center outline-none"
+          />
+        ) : (
+          <div className="duel-banner cursor-pointer" onClick={startEditingTitle}>
+            <div className="duel-banner__inner px-8 py-2 text-base font-bold uppercase tracking-wide whitespace-nowrap">
+              {mapTitle}
+            </div>
+          </div>
+        )}
+        {openPanel ? (
+          <button className={actionButtonClassName} onClick={closePanel}>
+            Back
+          </button>
+        ) : (
+          <button className={successButtonClassName}>Save</button>
+        )}
+      </div>
       {!openPanel && (
         <div className="fixed top-1/2 right-4 -translate-y-1/2 z-10 flex flex-col gap-2">
           <button
@@ -159,28 +213,19 @@ export const CreateMapUI = ({
           </button>
         </div>
       )}
-      {openPanel && (
-        <>
-          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-10">
-            <button className={actionButtonClassName} onClick={closePanel}>
-              Back
-            </button>
-          </div>
-          {openPanel === 'tiles' && (
-            <ScrollableSelectList
-              items={TILE_NAMES}
-              selected={selectedTileName}
-              onSelect={onSelectTileName}
-            />
-          )}
-          {openPanel === 'avatars' && (
-            <ScrollableSelectList
-              items={AVATAR_NAMES}
-              selected={selectedAvatarName}
-              onSelect={onSelectAvatarName}
-            />
-          )}
-        </>
+      {openPanel === 'tiles' && (
+        <ScrollableSelectList
+          items={TILE_NAMES}
+          selected={selectedTileName}
+          onSelect={onSelectTileName}
+        />
+      )}
+      {openPanel === 'avatars' && (
+        <ScrollableSelectList
+          items={AVATAR_NAMES}
+          selected={selectedAvatarName}
+          onSelect={onSelectAvatarName}
+        />
       )}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
         <div className="duel-banner">

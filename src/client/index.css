@@ -12,7 +12,7 @@
   --primary-hover: #ff5f1f;
 
   --secondary: #38bdf8;
-  --success: #22c55e;
+  --success: #1a9748;
   --warning: #facc15;
   --danger: #ef4444;
 
@@ -76,6 +76,18 @@ button:disabled {
   border: 1px solid var(--panel-border);
   border-radius: 12px;
   font-weight: 600;
+}
+
+.game-button-success {
+  background: var(--success);
+  color: white;
+  border-radius: 12px;
+  font-weight: 700;
+  transition: 160ms ease;
+}
+
+.game-button-success:hover {
+  filter: brightness(1.1);
 }
 
 .game-label {
