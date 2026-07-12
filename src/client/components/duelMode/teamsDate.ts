@@ -29,7 +29,7 @@ export const userTeam: TeamMember[] = [
   {
     id: 1,
     name: 'Tank',
-    objectName: 'avatar_tank_v1',
+    objectName: 'angryPink_v1',
     statistics: {
       hp: 100,
       attack: 150,
