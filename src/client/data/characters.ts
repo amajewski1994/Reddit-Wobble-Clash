@@ -1,8 +1,39 @@
-export const classes = [
+import type { Character } from '../types/characters';
+
+// MY INFO
+// Warrior - FrogWolf
+// Guardian - Jackpanda
+// Healer - AngryPink
+// Support - Fury
+// Champion - Stumpy
+// Sharpshooter - Pterodack
+// Nimble - Devil
+// Runner - Lynx
+// Grass Warden - Vegeturtle
+// Sand Warden - Armored
+// Stone Warden - Wrestler
+// Dirt Warden - Blueny
+// Veteran - Woody
+// Adventurer - Lobster
+// Rock Warden - Pinky
+
+export const characters: Character[] = [
   {
     id: 0,
     class: 'Warrior',
+    name: 'Twickle',
     description: 'A versatile warrior specializing in melee combat.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'FrogWolf_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'FrogWolf_v2'
+      }
+    ],
     statistics: {
       hp: 110,
       attack: 18,
@@ -20,12 +51,24 @@ export const classes = [
         rocksBP: 2,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 0,
   },
   {
     id: 1,
     class: 'Guardian',
+    name: 'Bumbold',
     description: 'A master of defense and protecting the team.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Jackpanda_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Jackpanda_v2'
+      }
+    ],
     statistics: {
       hp: 130,
       attack: 14,
@@ -43,12 +86,24 @@ export const classes = [
         rocksBP: 3,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 1,
   },
   {
     id: 2,
     class: 'Healer',
+    name: 'Aldric',
     description: 'Heals allies and keeps them alive.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'angryPink_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'angryPink_v2'
+      }
+    ],
     statistics: {
       hp: 90,
       attack: 10,
@@ -66,12 +121,24 @@ export const classes = [
         rocksBP: 2,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 2,
   },
   {
     id: 3,
     class: 'Support',
+    name: 'Mossloo',
     description: 'Boosts stats and supports the whole team.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Fury_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Fury_v2'
+      }
+    ],
     statistics: {
       hp: 95,
       attack: 12,
@@ -89,12 +156,24 @@ export const classes = [
         rocksBP: 2,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 3,
   },
   {
     id: 4,
     class: 'Champion',
+    name: 'Gorrath',
     description: 'A powerful warrior with the highest attack power.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Stumpy_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Stumpy_v2'
+      }
+    ],
     statistics: {
       hp: 120,
       attack: 25,
@@ -112,12 +191,24 @@ export const classes = [
         rocksBP: 2,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 4,
   },
   {
     id: 5,
     class: 'Sharpshooter',
+    name: 'Roan',
     description: 'A specialist in extremely accurate attacks.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Pterodack_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Pterodack_v2'
+      }
+    ],
     statistics: {
       hp: 90,
       attack: 17,
@@ -135,12 +226,24 @@ export const classes = [
         rocksBP: 2,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 5,
   },
   {
     id: 6,
     class: 'Nimble',
+    name: 'Ryze',
     description: 'A master of dodging blows with high agility.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Devil_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Devil_v2'
+      }
+    ],
     statistics: {
       hp: 85,
       attack: 15,
@@ -158,12 +261,24 @@ export const classes = [
         rocksBP: 2,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 6,
   },
   {
     id: 7,
     class: 'Runner',
+    name: 'Sable',
     description: 'An exceptionally fast hero that gains an extra Action Point.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Lynx_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Lynx_v2'
+      }
+    ],
     statistics: {
       hp: 95,
       attack: 14,
@@ -181,12 +296,24 @@ export const classes = [
         rocksBP: 2,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 7,
   },
   {
     id: 8,
     class: 'Grass Warden',
+    name: 'Wren',
     description: 'Draws power from grassy fields.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'VegeTurtle_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'VegeTurtle_v2'
+      }
+    ],
     statistics: {
       hp: 105,
       attack: 17,
@@ -204,12 +331,24 @@ export const classes = [
         rocksBP: 1,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 8,
   },
   {
     id: 9,
     class: 'Sand Warden',
+    name: 'Nimqui',
     description: 'Fights best on sandy terrain.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Armored_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Armored_v2'
+      }
+    ],
     statistics: {
       hp: 105,
       attack: 17,
@@ -227,12 +366,24 @@ export const classes = [
         rocksBP: 1,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 9,
   },
   {
     id: 10,
     class: 'Stone Warden',
+    name: 'Boran',
     description: 'Uses stone fields to boost its effectiveness.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Wrestler_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Wrestler_v2'
+      }
+    ],
     statistics: {
       hp: 110,
       attack: 17,
@@ -250,12 +401,24 @@ export const classes = [
         rocksBP: 4,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 10,
   },
   {
     id: 11,
     class: 'Dirt Warden',
+    name: 'Hollis',
     description: 'Excels on earthy, dirt terrain.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Blueny_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Blueny_v2'
+      }
+    ],
     statistics: {
       hp: 110,
       attack: 16,
@@ -273,12 +436,24 @@ export const classes = [
         rocksBP: 2,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 11,
   },
   {
     id: 12,
     class: 'Rock Warden',
+    name: 'Dorne',
     description: 'A specialist in fighting on rocky terrain.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Pinky_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Pinky_v2'
+      }
+    ],
     statistics: {
       hp: 110,
       attack: 17,
@@ -296,12 +471,24 @@ export const classes = [
         rocksBP: 5,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 14,
   },
   {
     id: 13,
     class: 'Veteran',
+    name: 'Barrick',
     description: 'An exceptionally resilient hero with a large amount of HP.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Woody_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Woody_v2'
+      }
+    ],
     statistics: {
       hp: 140,
       attack: 16,
@@ -319,12 +506,24 @@ export const classes = [
         rocksBP: 2,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 12,
   },
   {
     id: 14,
     class: 'Adventurer',
+    name: 'Finnick',
     description: 'A versatile class with no obvious weaknesses.',
+    objectName: [
+      {
+        id: 0,
+        lvl: 0,
+        name: 'Lobster_v1'
+      }, {
+        id: 1,
+        lvl: 5,
+        name: 'Lobster_v2'
+      }
+    ],
     statistics: {
       hp: 110,
       attack: 17,
@@ -342,6 +541,7 @@ export const classes = [
         rocksBP: 2,
       },
     },
-    utilities: ['test0', 'test1', 'test2', 'test3'],
+    abilitiesId: 13,
   },
 ];
+

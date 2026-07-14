@@ -24,7 +24,7 @@ export const userTeam: TeamMember[] = [
     },
     tileID: 0,
     rotationY: 0,
-    utilities: ['test1', 'test2', 'test3', 'test4'],
+    abilities: ['test1', 'test2', 'test3', 'test4'],
   },
   {
     id: 1,
@@ -49,7 +49,7 @@ export const userTeam: TeamMember[] = [
     },
     tileID: 1,
     rotationY: 0,
-    utilities: ['test5', 'test6', 'test7', 'test8'],
+    abilities: ['test5', 'test6', 'test7', 'test8'],
   },
   {
     id: 2,
@@ -74,7 +74,7 @@ export const userTeam: TeamMember[] = [
     },
     tileID: 12,
     rotationY: 0,
-    utilities: ['test9', 'test10', 'test11', 'test12'],
+    abilities: ['test9', 'test10', 'test11', 'test12'],
   },
 ];
 
@@ -102,6 +102,6 @@ export const enemyTeam: TeamMember[] = [
     },
     tileID: 13,
     rotationY: 0,
-    utilities: ['test1', 'test2', 'test3', 'test4'],
+    abilities: ['test1', 'test2', 'test3', 'test4'],
   },
 ];

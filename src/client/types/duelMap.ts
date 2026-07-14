@@ -9,7 +9,7 @@ export interface DuelMapUIProps {
   isAttackMode: boolean;
   onAttack: () => void;
   onMove: () => void;
-  onUtilities: () => void;
+  onAbilities: () => void;
   turn: number;
   onEndTurn: () => void;
 }

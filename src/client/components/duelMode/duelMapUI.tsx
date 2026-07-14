@@ -52,26 +52,26 @@ const FullCard = ({
   isEnemy,
   isMoveMode,
   isAttackMode,
-  isUtilitiesOpen,
+  isAbilitiesOpen,
   onAttack,
   onMove,
-  onUtilities,
+  onAbilities,
 }: {
   avatar: TeamMember;
   isEnemy: boolean;
   isMoveMode: boolean;
   isAttackMode: boolean;
-  isUtilitiesOpen: boolean;
+  isAbilitiesOpen: boolean;
   onAttack: () => void;
   onMove: () => void;
-  onUtilities: () => void;
+  onAbilities: () => void;
 }) => {
   const isDead = avatar.statistics.hp <= 0;
 
   return (
     <div
       className={`duel-panel ${isEnemy ? 'duel-panel--enemy' : 'duel-panel--team'} fixed top-1/2 right-4 -translate-y-1/2 z-10 w-56 flex flex-col gap-1 p-4 transition-all duration-300 ${
-        isMoveMode || isAttackMode || isUtilitiesOpen
+        isMoveMode || isAttackMode || isAbilitiesOpen
           ? 'translate-x-[calc(100%+1rem)]'
           : ''
       } ${isDead ? 'opacity-40 grayscale' : ''}`}
@@ -145,10 +145,10 @@ const FullCard = ({
           </button>
           <button
             className={actionButtonClassName}
-            onClick={onUtilities}
+            onClick={onAbilities}
             disabled={avatar.statistics.AP === 0 || isDead}
           >
-            Utilities
+            Abilities
           </button>
         </div>
       )}
@@ -247,7 +247,7 @@ export const DuelMapUI = ({
   onEndTurn,
 }: DuelMapUIProps) => {
   const [isEndingTurn, setIsEndingTurn] = useState(false);
-  const [isUtilitiesOpen, setIsUtilitiesOpen] = useState(false);
+  const [isAbilitiesOpen, setisAbilitiesOpen] = useState(false);
   const [isItemsOpen, setIsItemsOpen] = useState(false);
   const [lastActiveAvatarId, setLastActiveAvatarId] = useState(activeAvatarId);
   const activeAvatar = [...team, ...enemyTeam].find(
@@ -259,7 +259,7 @@ export const DuelMapUI = ({
 
   if (activeAvatarId !== lastActiveAvatarId) {
     setLastActiveAvatarId(activeAvatarId);
-    setIsUtilitiesOpen(false);
+    setisAbilitiesOpen(false);
   }
 
   const handleEndTurn = () => {
@@ -310,18 +310,18 @@ export const DuelMapUI = ({
           isEnemy={isActiveAvatarEnemy}
           isMoveMode={isMoveMode}
           isAttackMode={isAttackMode}
-          isUtilitiesOpen={isUtilitiesOpen}
+          isAbilitiesOpen={isAbilitiesOpen}
           onAttack={onAttack}
           onMove={onMove}
-          onUtilities={() => setIsUtilitiesOpen(true)}
+          onAbilities={() => setisAbilitiesOpen(true)}
         />
       )}
-      {activeAvatar && isUtilitiesOpen && (
+      {activeAvatar && isAbilitiesOpen && (
         <SelectionPopup
-          title="Utilities"
-          items={activeAvatar.utilities}
-          onSelectItem={() => setIsUtilitiesOpen(false)}
-          onBack={() => setIsUtilitiesOpen(false)}
+          title="Abilities"
+          items={activeAvatar.abilities}
+          onSelectItem={() => setisAbilitiesOpen(false)}
+          onBack={() => setisAbilitiesOpen(false)}
         />
       )}
       {isItemsOpen && (

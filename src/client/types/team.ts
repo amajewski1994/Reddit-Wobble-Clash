@@ -25,5 +25,5 @@ export type TeamMember = {
   statistics: TeamMemberStatistics;
   tileID: number;
   rotationY: number;
-  utilities: string[];
+  abilities: string[];
 };

@@ -107,7 +107,7 @@ export const App = () => {
     handleSelectAvatarId(null);
   };
 
-  const handleUtilities = () => {
+  const handleAbilities = () => {
     if (activeAvatarId === null) return;
     setTeam((prev) =>
       prev.map((member) =>
@@ -229,7 +229,7 @@ export const App = () => {
             isAttackMode={isAttackMode}
             onAttack={handleAttack}
             onMove={handleMove}
-            onUtilities={handleUtilities}
+            onAbilities={handleAbilities}
             turn={turn}
             onEndTurn={handleEndTurn}
           />
