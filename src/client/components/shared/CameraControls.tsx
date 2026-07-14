@@ -11,13 +11,50 @@ declare module '@react-three/fiber' {
   }
 }
 
-export const CameraControls = () => {
+type CameraControlsProps = {
+  minX?: number;
+  maxX?: number;
+  minZ?: number;
+  maxZ?: number;
+  minDistance?: number;
+  maxDistance?: number;
+};
+
+export const CameraControls = ({
+  minX = -6,
+  maxX = 6,
+  minZ = -6,
+  maxZ = 6,
+  minDistance = 6,
+  maxDistance = 20,
+}: CameraControlsProps = {}) => {
   const { camera, gl } = useThree();
   const controlsRef = useRef<OrbitControls>(null);
 
   useEffect(() => {
-    controlsRef.current?.update();
-  }, []);
+    const controls = controlsRef.current;
+    if (!controls) return;
+
+    controls.update();
+
+    const clampPan = () => {
+      const clampedX = Math.min(Math.max(controls.target.x, minX), maxX);
+      const clampedZ = Math.min(Math.max(controls.target.z, minZ), maxZ);
+
+      const deltaX = clampedX - controls.target.x;
+      const deltaZ = clampedZ - controls.target.z;
+
+      if (deltaX !== 0 || deltaZ !== 0) {
+        controls.target.x = clampedX;
+        controls.target.z = clampedZ;
+        camera.position.x += deltaX;
+        camera.position.z += deltaZ;
+      }
+    };
+
+    controls.addEventListener('change', clampPan);
+    return () => controls.removeEventListener('change', clampPan);
+  }, [camera, minX, maxX, minZ, maxZ]);
 
   return (
     <orbitControls
@@ -25,7 +62,9 @@ export const CameraControls = () => {
       args={[camera, gl.domElement]}
       enableDamping
       enableRotate={false}
-      enableZoom={false}
+      enableZoom
+      minDistance={minDistance}
+      maxDistance={maxDistance}
       screenSpacePanning={false}
       mouseButtons={{ LEFT: MOUSE.PAN, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN }}
       touches={{ ONE: TOUCH.PAN, TWO: TOUCH.PAN }}
