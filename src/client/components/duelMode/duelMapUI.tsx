@@ -4,6 +4,18 @@ import type { TeamMember, TeamMemberTileStatistics } from '../../types/team';
 import { UserInfo } from '../../data/userInfo';
 import { duelMapTilesData } from './duelMapTilesData';
 import { actionButtonClassName, getMaxHp, HpBar } from './duelMapShared';
+import {
+  getActiveStatusNames,
+  getEffectiveBonus,
+  getOwnPassiveDefenceBonus,
+  getPassiveAllyAttackBonus,
+  getPassiveAttackBonus,
+  getPassiveDefenceBonus,
+  getPassiveDodgeBonus,
+  getStatModifierTotal,
+} from '../../utils/abilities';
+import { getTileBPBonus } from '../../utils/tileBonus';
+import { isNeighborTile } from '../../utils/adjacency';
 import { DuelSidePanel } from './duelSidePanel';
 
 const END_TURN_HIDE_DURATION_MS = 3000;
@@ -35,8 +47,10 @@ const formatTileName = (tileName: string) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' / ');
 
-const getTileName = (tileID: number) =>
-  duelMapTilesData.find(({ id }) => id === tileID)?.tileName ?? '';
+const getTile = (tileID: number) =>
+  duelMapTilesData.find(({ id }) => id === tileID);
+
+const getTileName = (tileID: number) => getTile(tileID)?.tileName ?? '';
 
 const HudCorners = () => (
   <>
@@ -47,31 +61,114 @@ const HudCorners = () => (
   </>
 );
 
+const StatRow = ({
+  label,
+  value,
+  bonus,
+}: {
+  label: string;
+  value: number;
+  bonus: number;
+}) => (
+  <div className="flex justify-between text-sm">
+    <span className="game-label">{label}</span>
+    <span>
+      {value + bonus}
+      {bonus !== 0 && (
+        <span className="opacity-70">
+          {' '}
+          ({bonus > 0 ? '+' : ''}
+          {bonus})
+        </span>
+      )}
+    </span>
+  </div>
+);
+
 const FullCard = ({
   avatar,
+  opposingTeam,
+  allyTeam,
   isEnemy,
   isMoveMode,
   isAttackMode,
   isAbilitiesOpen,
+  isAbilityMode,
   onAttack,
   onMove,
   onAbilities,
 }: {
   avatar: TeamMember;
+  opposingTeam: TeamMember[];
+  allyTeam: TeamMember[];
   isEnemy: boolean;
   isMoveMode: boolean;
   isAttackMode: boolean;
   isAbilitiesOpen: boolean;
+  isAbilityMode: boolean;
   onAttack: () => void;
   onMove: () => void;
   onAbilities: () => void;
 }) => {
   const isDead = avatar.statistics.hp <= 0;
+  const avatarTile = getTile(avatar.tileID);
+  const avatarTileName = avatarTile?.tileName ?? '';
+  const tileBonus = getEffectiveBonus(
+    getTileBPBonus(avatarTileName, avatar.statistics.tileBP),
+    avatar
+  );
+  const abilityAttackBoost = getStatModifierTotal(
+    avatar,
+    'attack',
+    avatar.statistics.attack
+  );
+  const passiveAttackBoost = getEffectiveBonus(
+    getPassiveAttackBonus(avatar, opposingTeam, avatarTileName),
+    avatar
+  );
+  const allyAttackBoost = getEffectiveBonus(
+    getPassiveAllyAttackBonus(avatar, allyTeam, (ally) => {
+      const allyTile = getTile(ally.tileID);
+      return !!avatarTile && !!allyTile && isNeighborTile(allyTile, avatarTile);
+    }),
+    avatar
+  );
+  const defenceAbilityBoost = getStatModifierTotal(
+    avatar,
+    'defence',
+    avatar.statistics.defence
+  );
+  const passiveDefenceBoost = getEffectiveBonus(
+    getPassiveDefenceBonus(avatar, allyTeam, (ally) => {
+      const allyTile = getTile(ally.tileID);
+      return !!avatarTile && !!allyTile && isNeighborTile(allyTile, avatarTile);
+    }),
+    avatar
+  );
+  const ownPassiveDefenceBoost = getEffectiveBonus(
+    getOwnPassiveDefenceBonus(avatar, avatarTileName),
+    avatar
+  );
+  const attackBonus = tileBonus + abilityAttackBoost + passiveAttackBoost + allyAttackBoost;
+  const defenceBonus =
+    tileBonus + defenceAbilityBoost + passiveDefenceBoost + ownPassiveDefenceBoost;
+  const accuracyBonus = getStatModifierTotal(
+    avatar,
+    'accuracy',
+    avatar.statistics.accuracy
+  );
+  const passiveDodgeBoost = getEffectiveBonus(
+    getPassiveDodgeBonus(avatar, avatarTileName),
+    avatar
+  );
+  const dodgeBonus =
+    getStatModifierTotal(avatar, 'dodge', avatar.statistics.dodge) + passiveDodgeBoost;
+  const activeStatuses = getActiveStatusNames(avatar);
 
   return (
     <div
       className={`duel-panel ${isEnemy ? 'duel-panel--enemy' : 'duel-panel--team'} fixed top-1/2 right-4 -translate-y-1/2 z-10 w-56 flex flex-col gap-1 p-4 transition-all duration-300 ${
-        isMoveMode || isAttackMode || isAbilitiesOpen
+        isMoveMode || isAttackMode || isAbilitiesOpen || isAbilityMode
           ? 'translate-x-[calc(100%+1rem)]'
           : ''
       } ${isDead ? 'opacity-40 grayscale' : ''}`}
@@ -93,22 +190,38 @@ const FullCard = ({
         <span className="game-label">AP</span>
         <span>{avatar.statistics.AP}</span>
       </div>
-      <div className="flex justify-between text-sm">
-        <span className="game-label">Attack</span>
-        <span>{avatar.statistics.attack}</span>
-      </div>
-      <div className="flex justify-between text-sm">
-        <span className="game-label">Defence</span>
-        <span>{avatar.statistics.defence}</span>
-      </div>
-      <div className="flex justify-between text-sm">
-        <span className="game-label">Dodge</span>
-        <span>{avatar.statistics.dodge}</span>
-      </div>
-      <div className="flex justify-between text-sm">
-        <span className="game-label">Accuracy</span>
-        <span>{avatar.statistics.accuracy}</span>
-      </div>
+      <StatRow
+        label="Attack"
+        value={avatar.statistics.attack}
+        bonus={attackBonus}
+      />
+      <StatRow
+        label="Defence"
+        value={avatar.statistics.defence}
+        bonus={defenceBonus}
+      />
+      <StatRow
+        label="Dodge"
+        value={avatar.statistics.dodge}
+        bonus={dodgeBonus}
+      />
+      <StatRow
+        label="Accuracy"
+        value={avatar.statistics.accuracy}
+        bonus={accuracyBonus}
+      />
+      {activeStatuses.length > 0 && (
+        <div className="flex flex-wrap gap-1 border-t border-(--panel-border) pt-2">
+          {activeStatuses.map((status) => (
+            <span
+              key={status}
+              className="text-[10px] font-semibold uppercase game-label rounded border border-(--panel-border) px-1.5 py-0.5"
+            >
+              {status}
+            </span>
+          ))}
+        </div>
+      )}
       <div className="flex justify-between text-sm">
         <span className="game-label">Tile</span>
         <span>{formatTileName(getTileName(avatar.tileID))}</span>
@@ -156,21 +269,59 @@ const FullCard = ({
   );
 };
 
+type SelectionItem = {
+  name: string;
+  description?: string | undefined;
+  disabled?: boolean | undefined;
+  isPassive?: boolean | undefined;
+  cooldown?: number | null | undefined;
+  remainingCooldown?: number | undefined;
+};
+
 const SelectableCard = ({
   name,
+  description,
+  disabled,
+  isPassive,
+  cooldown,
+  remainingCooldown,
   onSelect,
 }: {
   name: string;
+  description?: string | undefined;
+  disabled?: boolean | undefined;
+  isPassive?: boolean | undefined;
+  cooldown?: number | null | undefined;
+  remainingCooldown?: number | undefined;
   onSelect: () => void;
 }) => (
   <div
-    onClick={onSelect}
-    className="duel-panel duel-panel--team flex flex-col items-center gap-2 w-28 p-2 cursor-pointer transition-opacity hover:opacity-80"
+    onClick={disabled ? undefined : onSelect}
+    className={`duel-panel duel-panel--team flex flex-col items-center gap-2 w-28 p-2 transition-opacity ${
+      disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
+    }`}
   >
     <div className="flex items-center justify-center w-full h-20 rounded border border-dashed border-(--panel-border) game-label">
       Zdjęcie
     </div>
     <span className="text-xs font-semibold text-center">{name}</span>
+    {description && (
+      <span className="text-[10px] text-center opacity-70">{description}</span>
+    )}
+    {isPassive ? (
+      <span className="text-[10px] font-semibold uppercase game-label">
+        Passive
+      </span>
+    ) : remainingCooldown && remainingCooldown > 0 ? (
+      <span className="text-[10px] game-label">
+        Unlocks in {remainingCooldown}{' '}
+        {remainingCooldown === 1 ? 'turn' : 'turns'}
+      </span>
+    ) : (
+      typeof cooldown === 'number' && (
+        <span className="text-[10px] game-label">Cooldown: {cooldown}</span>
+      )
+    )}
   </div>
 );
 
@@ -181,7 +332,7 @@ const SelectionPopup = ({
   onBack,
 }: {
   title: string;
-  items: string[];
+  items: SelectionItem[];
   onSelectItem: (name: string) => void;
   onBack: () => void;
 }) => (
@@ -189,13 +340,20 @@ const SelectionPopup = ({
     <div className="duel-panel duel-panel--team flex flex-col gap-4 w-full max-w-md mx-4 p-6">
       <div className="text-center font-bold">{title}</div>
       <div className="flex flex-wrap justify-center gap-3">
-        {items.map((name) => (
-          <SelectableCard
-            key={name}
-            name={name}
-            onSelect={() => onSelectItem(name)}
-          />
-        ))}
+        {items.map(
+          ({ name, description, disabled, isPassive, cooldown, remainingCooldown }) => (
+            <SelectableCard
+              key={name}
+              name={name}
+              description={description}
+              disabled={disabled}
+              isPassive={isPassive}
+              cooldown={cooldown}
+              remainingCooldown={remainingCooldown}
+              onSelect={() => onSelectItem(name)}
+            />
+          )
+        )}
       </div>
       <button className={actionButtonClassName} onClick={onBack}>
         ← Back
@@ -243,6 +401,9 @@ export const DuelMapUI = ({
   isAttackMode,
   onAttack,
   onMove,
+  selectedAbilityName,
+  onSelectAbility,
+  onCancelAbility,
   turn,
   onEndTurn,
 }: DuelMapUIProps) => {
@@ -304,13 +465,27 @@ export const DuelMapUI = ({
           ← Back
         </button>
       )}
+      {activeAvatar && selectedAbilityName && (
+        <button
+          className="fixed top-12 right-4 z-20 text-xs font-semibold text-(--primary) hover:underline"
+          onClick={() => {
+            onCancelAbility();
+            setisAbilitiesOpen(true);
+          }}
+        >
+          ← Back to Abilities
+        </button>
+      )}
       {activeAvatar && (
         <FullCard
           avatar={activeAvatar}
+          opposingTeam={isActiveAvatarEnemy ? team : enemyTeam}
+          allyTeam={isActiveAvatarEnemy ? enemyTeam : team}
           isEnemy={isActiveAvatarEnemy}
           isMoveMode={isMoveMode}
           isAttackMode={isAttackMode}
           isAbilitiesOpen={isAbilitiesOpen}
+          isAbilityMode={!!selectedAbilityName}
           onAttack={onAttack}
           onMove={onMove}
           onAbilities={() => setisAbilitiesOpen(true)}
@@ -319,15 +494,40 @@ export const DuelMapUI = ({
       {activeAvatar && isAbilitiesOpen && (
         <SelectionPopup
           title="Abilities"
-          items={activeAvatar.abilities}
-          onSelectItem={() => setisAbilitiesOpen(false)}
+          items={[
+            {
+              name: activeAvatar.abilities.passive.name,
+              description: activeAvatar.abilities.passive.description,
+              disabled: true,
+              isPassive: true,
+              cooldown: activeAvatar.abilities.passive.cooldown,
+            },
+            ...activeAvatar.abilities.active.map(
+              ({ name, description, cooldown }) => {
+                const remainingCooldown =
+                  activeAvatar.abilityCooldowns[name] ?? 0;
+                return {
+                  name,
+                  description,
+                  disabled: remainingCooldown > 0,
+                  isPassive: false,
+                  cooldown,
+                  remainingCooldown,
+                };
+              }
+            ),
+          ]}
+          onSelectItem={(name) => {
+            setisAbilitiesOpen(false);
+            onSelectAbility(name);
+          }}
           onBack={() => setisAbilitiesOpen(false)}
         />
       )}
       {isItemsOpen && (
         <SelectionPopup
           title="Items"
-          items={UserInfo.items}
+          items={UserInfo.items.map((name) => ({ name }))}
           onSelectItem={() => setIsItemsOpen(false)}
           onBack={() => setIsItemsOpen(false)}
         />

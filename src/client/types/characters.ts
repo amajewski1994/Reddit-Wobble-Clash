@@ -34,14 +34,27 @@ export type Character = {
   abilitiesId: number;
 };
 
+export type AbilityCategory =
+  | 'heal'
+  | 'boost'
+  | 'reduce'
+  | 'attack'
+  | 'cleanse'
+  | 'utility';
+
 export type Ability = {
   name: string;
   description: string;
+  category: AbilityCategory;
+  cooldown: number | null;
 };
 
+export type PassiveAbility = Ability & { cooldown: null };
+export type ActiveAbility = Ability & { cooldown: number };
+
 export type ClassAbilities = {
-  passive: Ability;
-  active: Ability[];
+  passive: PassiveAbility;
+  active: ActiveAbility[];
 };
 
 export type CharacterAbilities = {

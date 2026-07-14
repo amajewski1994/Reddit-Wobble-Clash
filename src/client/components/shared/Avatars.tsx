@@ -1,45 +1,56 @@
 import { useMemo } from 'react';
 import { Avatar } from './Avatar';
 import type { TeamMember } from '../../types/team';
-import type { AttackOutcome, AvatarAction } from '../../types/duelMap';
+import type { AvatarAction, DuelActionEvent } from '../../types/duelMap';
 import type { MapTileData } from '../../types/mapTile';
+import { getAbilityAnimationClip } from '../../utils/abilities';
 
 export const AVATAR_Y_OFFSET = 0.225;
 
 export const Avatars = ({
   team,
   tiles,
-  attackEvent,
+  actionEvent,
 }: {
   team: TeamMember[];
   tiles: MapTileData[];
-  attackEvent: {
-    attackerId: number;
-    targetId: number;
-    targetX: number;
-    targetZ: number;
-    damage: number;
-    outcome: AttackOutcome;
-    isDead: boolean;
-  } | null;
+  actionEvent: DuelActionEvent | null;
 }) => {
   const actionsById = useMemo(() => {
     const map = new Map<number, AvatarAction>();
-    if (attackEvent) {
-      map.set(attackEvent.attackerId, {
+    if (!actionEvent) return map;
+    if (actionEvent.kind === 'attack') {
+      map.set(actionEvent.attackerId, {
         type: 'attack',
-        targetX: attackEvent.targetX,
-        targetZ: attackEvent.targetZ,
+        targetX: actionEvent.targetX,
+        targetZ: actionEvent.targetZ,
       });
-      map.set(attackEvent.targetId, {
+      map.set(actionEvent.targetId, {
         type: 'hurt',
-        outcome: attackEvent.outcome,
-        damage: attackEvent.damage,
-        isDead: attackEvent.isDead,
+        outcome: actionEvent.outcome,
+        damage: actionEvent.damage,
+        isDead: actionEvent.isDead,
       });
+    } else {
+      const isSelfTarget = actionEvent.casterId === actionEvent.targetId;
+      const animationClip = getAbilityAnimationClip(actionEvent.label);
+      map.set(actionEvent.casterId, {
+        type: 'ability',
+        playAnimation: true,
+        animationClip,
+        label: isSelfTarget ? actionEvent.label : null,
+      });
+      if (!isSelfTarget) {
+        map.set(actionEvent.targetId, {
+          type: 'ability',
+          playAnimation: false,
+          animationClip,
+          label: actionEvent.label,
+        });
+      }
     }
     return map;
-  }, [attackEvent]);
+  }, [actionEvent]);
 
   return (
     <>

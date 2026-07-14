@@ -27,12 +27,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'FrogWolf_v1'
-      }, {
+        name: 'FrogWolf_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'FrogWolf_v2'
-      }
+        name: 'FrogWolf_v2',
+      },
     ],
     statistics: {
       hp: 110,
@@ -62,12 +63,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Jackpanda_v1'
-      }, {
+        name: 'Jackpanda_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Jackpanda_v2'
-      }
+        name: 'Jackpanda_v2',
+      },
     ],
     statistics: {
       hp: 130,
@@ -97,12 +99,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'angryPink_v1'
-      }, {
+        name: 'angryPink_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'angryPink_v2'
-      }
+        name: 'angryPink_v2',
+      },
     ],
     statistics: {
       hp: 90,
@@ -132,15 +135,16 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Fury_v1'
-      }, {
+        name: 'Fury_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Fury_v2'
-      }
+        name: 'Fury_v2',
+      },
     ],
     statistics: {
-      hp: 95,
+      hp: 10,
       attack: 12,
       defence: 6,
       AP: 3,
@@ -167,12 +171,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Stumpy_v1'
-      }, {
+        name: 'Stumpy_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Stumpy_v2'
-      }
+        name: 'Stumpy_v2',
+      },
     ],
     statistics: {
       hp: 120,
@@ -202,12 +207,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Pterodack_v1'
-      }, {
+        name: 'Pterodack_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Pterodack_v2'
-      }
+        name: 'Pterodack_v2',
+      },
     ],
     statistics: {
       hp: 90,
@@ -237,12 +243,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Devil_v1'
-      }, {
+        name: 'Devil_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Devil_v2'
-      }
+        name: 'Devil_v2',
+      },
     ],
     statistics: {
       hp: 85,
@@ -272,12 +279,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Lynx_v1'
-      }, {
+        name: 'Lynx_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Lynx_v2'
-      }
+        name: 'Lynx_v2',
+      },
     ],
     statistics: {
       hp: 95,
@@ -307,12 +315,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'VegeTurtle_v1'
-      }, {
+        name: 'VegeTurtle_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'VegeTurtle_v2'
-      }
+        name: 'VegeTurtle_v2',
+      },
     ],
     statistics: {
       hp: 105,
@@ -342,12 +351,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Armored_v1'
-      }, {
+        name: 'Armored_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Armored_v2'
-      }
+        name: 'Armored_v2',
+      },
     ],
     statistics: {
       hp: 105,
@@ -377,12 +387,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Wrestler_v1'
-      }, {
+        name: 'Wrestler_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Wrestler_v2'
-      }
+        name: 'Wrestler_v2',
+      },
     ],
     statistics: {
       hp: 110,
@@ -412,12 +423,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Blueny_v1'
-      }, {
+        name: 'Blueny_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Blueny_v2'
-      }
+        name: 'Blueny_v2',
+      },
     ],
     statistics: {
       hp: 110,
@@ -447,12 +459,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Pinky_v1'
-      }, {
+        name: 'Pinky_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Pinky_v2'
-      }
+        name: 'Pinky_v2',
+      },
     ],
     statistics: {
       hp: 110,
@@ -482,12 +495,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Woody_v1'
-      }, {
+        name: 'Woody_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Woody_v2'
-      }
+        name: 'Woody_v2',
+      },
     ],
     statistics: {
       hp: 140,
@@ -517,12 +531,13 @@ export const characters: Character[] = [
       {
         id: 0,
         lvl: 0,
-        name: 'Lobster_v1'
-      }, {
+        name: 'Lobster_v1',
+      },
+      {
         id: 1,
         lvl: 5,
-        name: 'Lobster_v2'
-      }
+        name: 'Lobster_v2',
+      },
     ],
     statistics: {
       hp: 110,
@@ -544,4 +559,3 @@ export const characters: Character[] = [
     abilitiesId: 13,
   },
 ];
-

@@ -1,5 +1,5 @@
 import { useFrame, useLoader } from '@react-three/fiber';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AnimationAction,
   AnimationClip,
@@ -18,17 +18,26 @@ import type { AttackOutcome, AvatarAction } from '../../types/duelMap';
 const ROTATE_DURATION = 0.3;
 const MOVE_DURATION = 0.8;
 const HURT_DELAY = 1;
+const ABILITY_LABEL_DELAY = 1;
 const DAMAGE_NUMBER_DURATION = 1;
 const DAMAGE_NUMBER_RISE = 0.8;
+const LABEL_FONT = 'bold 40px sans-serif';
+const LABEL_HEIGHT = 64;
+const LABEL_PADDING_X = 16;
+const LABEL_SPRITE_HEIGHT = 0.4;
 
 const normalizeAngle = (angle: number) => Math.atan2(Math.sin(angle), Math.cos(angle));
 
 const createLabelTexture = (label: string, color: string) => {
+  const measureContext = document.createElement('canvas').getContext('2d')!;
+  measureContext.font = LABEL_FONT;
+  const textWidth = measureContext.measureText(label).width;
+
   const canvas = document.createElement('canvas');
-  canvas.width = 128;
-  canvas.height = 64;
+  canvas.width = Math.ceil(textWidth) + LABEL_PADDING_X * 2;
+  canvas.height = LABEL_HEIGHT;
   const context = canvas.getContext('2d')!;
-  context.font = 'bold 40px sans-serif';
+  context.font = LABEL_FONT;
   context.textAlign = 'center';
   context.textBaseline = 'middle';
   context.lineWidth = 6;
@@ -36,7 +45,7 @@ const createLabelTexture = (label: string, color: string) => {
   context.strokeText(label, canvas.width / 2, canvas.height / 2);
   context.fillStyle = color;
   context.fillText(label, canvas.width / 2, canvas.height / 2);
-  return new CanvasTexture(canvas);
+  return { texture: new CanvasTexture(canvas), width: canvas.width, height: canvas.height };
 };
 
 const DamageNumber = ({
@@ -51,7 +60,15 @@ const DamageNumber = ({
   onComplete: () => void;
 }) => {
   const spriteRef = useRef<Sprite>(null!);
-  const texture = useMemo(() => createLabelTexture(label, color), [label, color]);
+  const { texture, width, height } = useMemo(
+    () => createLabelTexture(label, color),
+    [label, color]
+  );
+  const scale: [number, number, number] = [
+    LABEL_SPRITE_HEIGHT * (width / height),
+    LABEL_SPRITE_HEIGHT,
+    1,
+  ];
   const elapsedRef = useRef(0);
 
   useEffect(() => {
@@ -68,7 +85,7 @@ const DamageNumber = ({
   });
 
   return (
-    <sprite ref={spriteRef} position={origin} scale={[0.8, 0.4, 1]}>
+    <sprite ref={spriteRef} position={origin} scale={scale}>
       <spriteMaterial map={texture} transparent depthTest={false} />
     </sprite>
   );
@@ -107,6 +124,8 @@ export const Avatar = ({
     hurt: undefined,
     death: undefined,
   });
+  const abilityClipActionsRef = useRef<Map<string, AnimationAction>>(new Map());
+  const currentAbilityActionRef = useRef<AnimationAction | undefined>(undefined);
   const moveRef = useRef<{
     phase: 'rotating' | 'moving';
     fromRotation: number;
@@ -121,10 +140,13 @@ export const Avatar = ({
     rotationDelta: number;
     elapsed: number;
     clipDuration: number;
-    clipName: 'attack' | 'hurt' | 'death' | 'none';
+    clipName: 'attack' | 'hurt' | 'death' | 'ability' | 'none';
     outcome?: AttackOutcome;
     damage?: number;
   } | null>(null);
+  const pendingAbilityLabelRef = useRef<{ label: string; elapsed: number } | null>(
+    null
+  );
   const isDeadRef = useRef(false);
   const prevPositionRef = useRef(position);
   const isInitialRotationRef = useRef(true);
@@ -172,6 +194,8 @@ export const Avatar = ({
       hurt: hurtAction,
       death: deathAction,
     };
+    abilityClipActionsRef.current = new Map();
+    currentAbilityActionRef.current = undefined;
     idleAction?.play();
     mixerRef.current = mixer;
     return () => {
@@ -179,6 +203,24 @@ export const Avatar = ({
       mixerRef.current = null;
     };
   }, [scene, gltf.animations]);
+
+  const getAbilityAction = useCallback(
+    (clipName: string): AnimationAction | undefined => {
+      const cached = abilityClipActionsRef.current.get(clipName);
+      if (cached) return cached;
+      const mixer = mixerRef.current;
+      const clip = gltf.animations.find(
+        (animationClip: AnimationClip) => animationClip.name === clipName
+      );
+      if (!mixer || !clip) return undefined;
+      const clipAction = mixer.clipAction(clip);
+      clipAction.setLoop(LoopOnce, 1);
+      clipAction.clampWhenFinished = true;
+      abilityClipActionsRef.current.set(clipName, clipAction);
+      return clipAction;
+    },
+    [gltf.animations]
+  );
 
   useEffect(() => {
     if (isInitialRotationRef.current) {
@@ -230,6 +272,27 @@ export const Avatar = ({
       return;
     }
 
+    if (action.type === 'ability') {
+      if (action.label !== null) {
+        pendingAbilityLabelRef.current = { label: action.label, elapsed: 0 };
+      }
+      if (!action.playAnimation) return;
+      const ability = getAbilityAction(action.animationClip);
+      const { idle } = actionsRef.current;
+      idle?.fadeOut(0.1);
+      ability?.reset().fadeIn(0.1).play();
+      currentAbilityActionRef.current = ability;
+      actionStateRef.current = {
+        phase: 'playing',
+        fromRotation: groupRef.current.rotation.y,
+        rotationDelta: 0,
+        elapsed: 0,
+        clipDuration: ability?.getClip().duration ?? 0.6,
+        clipName: 'ability',
+      };
+      return;
+    }
+
     const isHit = action.outcome === 'hit';
     if (isHit && action.isDead) isDeadRef.current = true;
 
@@ -245,10 +308,25 @@ export const Avatar = ({
       outcome: action.outcome,
       damage: action.damage,
     };
-  }, [action]);
+  }, [action, getAbilityAction]);
 
   useFrame((_, delta) => {
     mixerRef.current?.update(delta);
+
+    const pendingLabel = pendingAbilityLabelRef.current;
+    if (pendingLabel) {
+      pendingLabel.elapsed += delta;
+      if (pendingLabel.elapsed >= ABILITY_LABEL_DELAY) {
+        pendingAbilityLabelRef.current = null;
+        const { x, y, z } = groupRef.current.position;
+        setDamageDisplay({
+          key: Date.now(),
+          label: pendingLabel.label,
+          color: '#facc15',
+          origin: [x, y + 1, z],
+        });
+      }
+    }
 
     const move = moveRef.current;
     if (move) {
@@ -324,6 +402,9 @@ export const Avatar = ({
           const { idle, attack, hurt } = actionsRef.current;
           if (activeAction.clipName === 'attack') attack?.fadeOut(0.2);
           if (activeAction.clipName === 'hurt') hurt?.fadeOut(0.2);
+          if (activeAction.clipName === 'ability') {
+            currentAbilityActionRef.current?.fadeOut(0.2);
+          }
           idle?.reset().fadeIn(0.2).play();
         }
       }

@@ -1,12 +1,4 @@
-import {
-  userTeam as initialUserTeam,
-  enemyTeam as initialEnemyTeam,
-} from './teamsDate';
-
-const INITIAL_MEMBERS = [...initialUserTeam, ...initialEnemyTeam];
-
-export const getMaxHp = (id: number) =>
-  INITIAL_MEMBERS.find((member) => member.id === id)?.statistics.hp ?? 100;
+export { getMaxHp } from '../../utils/maxHp';
 
 export const actionButtonClassName =
   'game-button-primary duel-button-cut flex items-center justify-center gap-1 h-7 p-3 font-bold uppercase tracking-wide text-sm';

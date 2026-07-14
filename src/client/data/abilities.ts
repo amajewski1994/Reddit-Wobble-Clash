@@ -1,5 +1,7 @@
 import type { CharacterAbilities } from '../types/characters';
 
+//
+
 export const abilities: CharacterAbilities[] = [
   {
     id: 0,
@@ -7,20 +9,28 @@ export const abilities: CharacterAbilities[] = [
     abilities: {
       passive: {
         name: 'Battle Spirit',
-        description: 'After defeating an enemy, gains +2 Attack (max +6).',
+        description: 'Gains +2 Attack for each defeated enemy.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Power Strike',
           description: 'Next attack deals 50% more damage.',
+          category: 'boost',
+          cooldown: 2,
         },
         {
           name: 'Cleansing Strike',
-          description: 'Removes all positive effects from the target.',
+          description: 'Removes all bonuses from the target for 3 turns.',
+          category: 'reduce',
+          cooldown: 3,
         },
         {
           name: 'Second Wind',
           description: 'Restore 20 HP.',
+          category: 'heal',
+          cooldown: 3,
         },
       ],
     },
@@ -32,19 +42,27 @@ export const abilities: CharacterAbilities[] = [
       passive: {
         name: 'Protector',
         description: 'Adjacent allies gain +1 Defence.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Shield Wall',
           description: 'Gain +4 Defence for 2 turns.',
+          category: 'boost',
+          cooldown: 4,
         },
         {
           name: 'Protect',
           description: 'Take damage instead of an adjacent ally for 1 turn.',
+          category: 'utility',
+          cooldown: 2,
         },
         {
           name: 'Taunt',
-          description: 'Adjacent enemies lose 10 Accuracy for 1 turn.',
+          description: 'Removes 10 Accuracy from the target for 3 turns.',
+          category: 'reduce',
+          cooldown: 2,
         },
       ],
     },
@@ -56,19 +74,27 @@ export const abilities: CharacterAbilities[] = [
       passive: {
         name: 'Natural Recovery',
         description: 'Restore 5 HP at the start of each turn.',
+        category: 'heal',
+        cooldown: null,
       },
       active: [
         {
           name: 'Heal',
-          description: 'Restore HP to a target ally.',
+          description: 'Restore 20 HP to a target ally.',
+          category: 'heal',
+          cooldown: 2,
         },
         {
           name: 'Group Heal',
-          description: 'Restore HP to all adjacent allies.',
+          description: 'Restore 20 HP to all allies.',
+          category: 'heal',
+          cooldown: 4,
         },
         {
           name: 'Cleanse',
-          description: 'Remove all negative effects from an ally.',
+          description: 'Add +5 defence for 1 turn.',
+          category: 'boost',
+          cooldown: 4,
         },
       ],
     },
@@ -80,19 +106,27 @@ export const abilities: CharacterAbilities[] = [
       passive: {
         name: 'Encouragement',
         description: 'Adjacent allies gain +1 Attack.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Inspire',
-          description: 'Target ally gains +3 Attack.',
+          description: 'Target ally gains +3 Attack for 2 turns.',
+          category: 'boost',
+          cooldown: 3,
         },
         {
           name: 'Fortify',
-          description: 'Target ally gains +3 Defence.',
+          description: 'Target ally gains +3 Defence for 2 turns.',
+          category: 'boost',
+          cooldown: 3,
         },
         {
           name: 'Quick Step',
-          description: 'Target ally gains +1 AP next turn.',
+          description: 'Target ally gains +1 AP.',
+          category: 'boost',
+          cooldown: 2,
         },
       ],
     },
@@ -103,20 +137,28 @@ export const abilities: CharacterAbilities[] = [
     abilities: {
       passive: {
         name: 'Crushing Blows',
-        description: 'The first attack in battle deals double damage.',
+        description: 'First attack in battle deals +100% damage.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Smash',
-          description: 'Perform a powerful melee attack.',
+          description: 'Attack with +50% attack value.',
+          category: 'attack',
+          cooldown: 3,
         },
         {
           name: 'Cleave',
-          description: 'Attack all adjacent enemies.',
+          description: 'Attack two enemies.',
+          category: 'attack',
+          cooldown: 3,
         },
         {
           name: 'Rage',
           description: 'Gain +5 Attack for 2 turns.',
+          category: 'boost',
+          cooldown: 4,
         },
       ],
     },
@@ -128,19 +170,27 @@ export const abilities: CharacterAbilities[] = [
       passive: {
         name: 'Eagle Eye',
         description: 'Ignore enemy Dodge bonuses.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Precise Shot',
           description: 'This attack cannot be dodged.',
+          category: 'attack',
+          cooldown: 2,
         },
         {
           name: 'Focus',
-          description: 'Gain +5 Attack and +10 Accuracy for the next attack.',
+          description: 'Gain +50 Accuracy for 1 turn.',
+          category: 'boost',
+          cooldown: 3,
         },
         {
           name: 'Double Shot',
-          description: 'Attack twice with reduced damage.',
+          description: 'Gains +5 Attack for 1 turn.',
+          category: 'boost',
+          cooldown: 3,
         },
       ],
     },
@@ -151,21 +201,28 @@ export const abilities: CharacterAbilities[] = [
     abilities: {
       passive: {
         name: 'Evasion',
-        description: 'Gain +10 Dodge.',
+        description: 'Ignore enemy Accuracy bonuses.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Dash',
-          description: 'Move up to 3 tiles instantly.',
+          description: 'Move up to 2 tiles.',
+          category: 'utility',
+          cooldown: 2,
         },
         {
           name: 'Counter Step',
-          description:
-            'After a successful Dodge, your next attack deals 50% more damage.',
+          description: 'Gains + 30 Accuracy for 2 turns.',
+          category: 'boost',
+          cooldown: 3,
         },
         {
           name: 'Blur',
-          description: 'Gain +15 Dodge for 1 turn.',
+          description: 'Gain +20 Dodge for 2 turns.',
+          category: 'boost',
+          cooldown: 4,
         },
       ],
     },
@@ -176,20 +233,28 @@ export const abilities: CharacterAbilities[] = [
     abilities: {
       passive: {
         name: 'Fast Feet',
-        description: 'Gain +1 AP.',
+        description: 'Gain +1 AP each turn.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Sprint',
-          description: 'This movement may travel up to 2 tiles instead of 1.',
+          description: 'Move up to 2 tiles.',
+          category: 'utility',
+          cooldown: 1,
         },
         {
           name: 'Relay',
-          description: 'Give 1 AP to a target ally.',
+          description: 'Add 1 AP to a target ally.',
+          category: 'boost',
+          cooldown: 3,
         },
         {
           name: 'Hit and Run',
-          description: 'Move after attacking.',
+          description: 'Move in random direction after attack.',
+          category: 'utility',
+          cooldown: 2,
         },
       ],
     },
@@ -200,20 +265,28 @@ export const abilities: CharacterAbilities[] = [
     abilities: {
       passive: {
         name: "Nature's Blessing",
-        description: 'Restore 5 HP each turn while standing on Grass.',
+        description: 'Restore 10 HP each turn while standing on the Grass.',
+        category: 'heal',
+        cooldown: null,
       },
       active: [
         {
           name: 'Root Trap',
           description: 'Target enemy loses 1 AP next turn.',
+          category: 'reduce',
+          cooldown: 2,
         },
         {
           name: 'Vine Shield',
-          description: 'Gain +3 Defence while on Grass.',
+          description: 'Gain +3 Defence while on Grass for 3 turns.',
+          category: 'boost',
+          cooldown: 3,
         },
         {
           name: 'Bloom',
-          description: 'Gain +3 Attack while on Grass.',
+          description: 'Gain +7 Attack while on Grass for 3 turns.',
+          category: 'boost',
+          cooldown: 4,
         },
       ],
     },
@@ -224,20 +297,28 @@ export const abilities: CharacterAbilities[] = [
     abilities: {
       passive: {
         name: 'Desert Walker',
-        description: 'Gain +10 Dodge while on Sand.',
+        description: 'Gain +10 Dodge while standing on the Sand.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Sandstorm',
-          description: 'Enemies lose 10 Accuracy for 1 turn.',
+          description: 'Target enemy lose 20 Accuracy for 1 turn.',
+          category: 'reduce',
+          cooldown: 2,
         },
         {
           name: 'Sand Shield',
-          description: 'Reduce incoming damage for 2 turns.',
+          description: 'Gain +3 defence for 2 turns.',
+          category: 'boost',
+          cooldown: 3,
         },
         {
           name: 'Dune Rush',
-          description: 'Move one extra tile while on Sand.',
+          description: 'Move up to 3 tiles while standing on the Sand.',
+          category: 'utility',
+          cooldown: 1,
         },
       ],
     },
@@ -248,20 +329,28 @@ export const abilities: CharacterAbilities[] = [
     abilities: {
       passive: {
         name: 'Stone Skin',
-        description: 'Gain +3 Defence while on Stone.',
+        description: 'Gain +5 Defence while standing on the Stone.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Stone Smash',
-          description: 'Powerful melee attack.',
+          description: 'Attack with +50% attack value.',
+          category: 'attack',
+          cooldown: 3,
         },
         {
           name: 'Fortify',
           description: 'Gain +5 Defence for 2 turns.',
+          category: 'boost',
+          cooldown: 3,
         },
         {
           name: 'Earthquake',
-          description: 'Deal damage to all adjacent enemies.',
+          description: 'Attack 2 enemies.',
+          category: 'attack',
+          cooldown: 3,
         },
       ],
     },
@@ -272,20 +361,28 @@ export const abilities: CharacterAbilities[] = [
     abilities: {
       passive: {
         name: 'Solid Ground',
-        description: 'Move one extra tile while on Dirt.',
+        description: 'Gain 100% Accuracy while standing on the Dirt.',
+        category: 'utility',
+        cooldown: null,
       },
       active: [
         {
           name: 'Mud Trap',
           description: 'Target enemy loses 1 AP next turn.',
+          category: 'reduce',
+          cooldown: 2,
         },
         {
           name: 'Dig In',
-          description: 'Gain +4 Defence.',
+          description: 'Gain +4 Defence for 2 turns.',
+          category: 'boost',
+          cooldown: 3,
         },
         {
           name: 'Earth Boost',
-          description: 'Gain +4 Attack while on Dirt.',
+          description: 'Gain +10 Attack while on Dirt for 2 turns.',
+          category: 'boost',
+          cooldown: 4,
         },
       ],
     },
@@ -297,19 +394,27 @@ export const abilities: CharacterAbilities[] = [
       passive: {
         name: 'Toughness',
         description: 'Gain +20 maximum HP.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Endure',
-          description: 'HP cannot drop below 1 this turn.',
+          description: 'HP cannot drop below 1 until next turn.',
+          category: 'utility',
+          cooldown: 4,
         },
         {
           name: 'Recover',
           description: 'Restore 30 HP.',
+          category: 'heal',
+          cooldown: 4,
         },
         {
           name: 'Stand Firm',
           description: 'Become immune to all damage for 1 turn.',
+          category: 'utility',
+          cooldown: 5,
         },
       ],
     },
@@ -320,20 +425,28 @@ export const abilities: CharacterAbilities[] = [
     abilities: {
       passive: {
         name: 'Jack of All Trades',
-        description: 'Gain +1 Attack and +1 Defence.',
+        description: 'Gain +10 Attack and +5 Defence.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Adapt',
-          description: 'Randomly gain +3 Attack or +3 Defence for 2 turns.',
+          description: 'Randomly gain +10 Attack or +5 Defence for 2 turns.',
+          category: 'boost',
+          cooldown: 4,
         },
         {
           name: 'Lucky Find',
           description: 'Refresh a random ability of a target ally.',
+          category: 'utility',
+          cooldown: 4,
         },
         {
           name: 'Motivation',
-          description: 'Target ally gains +3 AP next turn.',
+          description: 'Target ally gains +3 AP.',
+          category: 'boost',
+          cooldown: 6,
         },
       ],
     },
@@ -345,19 +458,27 @@ export const abilities: CharacterAbilities[] = [
       passive: {
         name: 'Mountain Strength',
         description: 'Gain +3 Attack while on Rocks.',
+        category: 'boost',
+        cooldown: null,
       },
       active: [
         {
           name: 'Boulder Slam',
-          description: 'Perform a powerful melee attack.',
+          description: 'This attack cannot be missed.',
+          category: 'attack',
+          cooldown: 1,
         },
         {
           name: 'Stone Guard',
-          description: 'Gain +5 Defence while on Rocks.',
+          description: 'Gain +5 Defence while on Rocks for 3 turns.',
+          category: 'boost',
+          cooldown: 3,
         },
         {
           name: 'Avalanche',
-          description: 'Deal damage to all adjacent enemies.',
+          description: 'Attack 2 enemies.',
+          category: 'attack',
+          cooldown: 3,
         },
       ],
     },
