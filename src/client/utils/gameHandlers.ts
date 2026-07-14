@@ -15,6 +15,7 @@ import type { AttackOutcome } from '../types/duelMap';
 import type { PlacedAvatar } from '../types/createMap';
 import type { MapTileData } from '../types/mapTile';
 import type { TeamMember } from '../types/team';
+import { PICK_TEAM_SIZE } from '../data/consts';
 
 type GameHandlersDeps = {
   team: TeamMember[];
@@ -33,6 +34,7 @@ type GameHandlersDeps = {
   setPlacedAvatars: Dispatch<SetStateAction<(PlacedAvatar | null)[]>>;
   setCreateMapTiles: Dispatch<SetStateAction<MapTileData[]>>;
   setTurn: Dispatch<SetStateAction<number>>;
+  setSelectedCharacterIds: Dispatch<SetStateAction<number[]>>;
 };
 
 export const createGameHandlers = (deps: GameHandlersDeps) => {
@@ -53,7 +55,18 @@ export const createGameHandlers = (deps: GameHandlersDeps) => {
     setPlacedAvatars,
     setCreateMapTiles,
     setTurn,
+    setSelectedCharacterIds,
   } = deps;
+
+  const handleToggleCharacterSelection = (characterId: number) => {
+    setSelectedCharacterIds((prev) =>
+      prev.includes(characterId)
+        ? prev.filter((id) => id !== characterId)
+        : prev.length < PICK_TEAM_SIZE
+          ? [...prev, characterId]
+          : prev
+    );
+  };
 
   const handleSelectAvatarId = (id: number | null) => {
     setActiveAvatarId(id);
@@ -348,5 +361,6 @@ export const createGameHandlers = (deps: GameHandlersDeps) => {
     handleChangeTileName,
     handleRotateCreateMapTile,
     handleEndTurn,
+    handleToggleCharacterSelection,
   };
 };

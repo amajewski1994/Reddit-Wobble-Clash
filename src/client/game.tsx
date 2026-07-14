@@ -10,17 +10,25 @@ import { mapTilesData as initialCreateMapTiles } from './components/createMapMod
 import { DuelMap } from './components/duelMode/duelMap';
 import { DuelMapUI } from './components/duelMode/duelMapUI';
 import { StartScreen } from './components/startScreen/startScreen';
+import { PickModeCanvas } from './components/pickMode/pickModeCanvas';
+import { PickModeUI } from './components/pickMode/pickModeUI';
 import {
   userTeam,
   enemyTeam as initialEnemyTeam,
+  setUserTeamFromCharacterIds,
 } from './components/duelMode/teamsDate';
+import { characters } from './data/characters';
 import { GameInfo } from './data/game';
-import { TEAM_SLOT_COUNT, DEFAULT_MAP_TITLE } from './data/consts';
+import {
+  TEAM_SLOT_COUNT,
+  DEFAULT_MAP_TITLE,
+  PICK_TEAM_SIZE,
+} from './data/consts';
 import { calculateMapRating } from './utils/mapRating';
 import { createGameHandlers } from './utils/gameHandlers';
 import type { PlacedAvatar } from './types/createMap';
 
-type Screen = 'start' | 'duel' | 'create';
+type Screen = 'start' | 'duel' | 'create' | 'pick';
 
 export const App = () => {
   // const { count, username, loading, increment, decrement } = useCounter();
@@ -43,6 +51,13 @@ export const App = () => {
     string | null
   >(null);
   const [turn, setTurn] = useState(GameInfo.turn);
+  const [selectedCharacterIds, setSelectedCharacterIds] = useState<number[]>(
+    []
+  );
+  const [previewCharacterId, setPreviewCharacterId] = useState(
+    characters[0]!.id
+  );
+  const [victoryToken, setVictoryToken] = useState(0);
 
   const {
     handleSelectAvatarId,
@@ -61,6 +76,7 @@ export const App = () => {
     handleChangeTileName,
     handleRotateCreateMapTile,
     handleEndTurn,
+    handleToggleCharacterSelection,
   } = createGameHandlers({
     team,
     setTeam,
@@ -78,17 +94,38 @@ export const App = () => {
     setPlacedAvatars,
     setCreateMapTiles,
     setTurn,
+    setSelectedCharacterIds,
   });
+
+  const previewCharacter =
+    characters.find((character) => character.id === previewCharacterId) ??
+    characters[0]!;
 
   const mapRating = useMemo(
     () => calculateMapRating(createMapTiles, placedAvatars, mapTitle),
     [createMapTiles, placedAvatars, mapTitle]
   );
 
+  const leavePickMode = () => {
+    setSelectedCharacterIds([]);
+    setScreen('start');
+  };
+
+  const handlePickCharacter = (characterId: number) => {
+    handleToggleCharacterSelection(characterId);
+    setVictoryToken((token) => token + 1);
+  };
+
+  const handleConfirmPick = () => {
+    setTeam(setUserTeamFromCharacterIds(selectedCharacterIds));
+    setSelectedCharacterIds([]);
+    setScreen('duel');
+  };
+
   if (screen === 'start') {
     return (
       <StartScreen
-        onSelectDuel={() => setScreen('duel')}
+        onSelectPick={() => setScreen('pick')}
         onSelectCreate={() => setScreen('create')}
       />
     );
@@ -96,6 +133,23 @@ export const App = () => {
 
   return (
     <div>
+      {screen === 'pick' && (
+        <>
+          <PickModeUI
+            characters={characters}
+            selectedCharacterIds={selectedCharacterIds}
+            onToggleCharacter={handleToggleCharacterSelection}
+            onPick={handlePickCharacter}
+            previewCharacterId={previewCharacter.id}
+            onPreviewCharacter={setPreviewCharacterId}
+            onConfirm={handleConfirmPick}
+            onBack={leavePickMode}
+            maxTeamSize={PICK_TEAM_SIZE}
+          />
+          <PickModeCanvas character={previewCharacter} victoryToken={victoryToken} />
+        </>
+      )}
+
       {screen === 'create' && (
         <>
           <CreateMapUI

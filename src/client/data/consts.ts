@@ -19,4 +19,6 @@ export const AVATAR_NAMES = ['duelist', 'tank', 'tracker', 'wildheart'];
 
 export const TEAM_SLOT_COUNT = 4;
 
+export const PICK_TEAM_SIZE = 4;
+
 export const DEFAULT_MAP_TITLE = 'Untitled Map';

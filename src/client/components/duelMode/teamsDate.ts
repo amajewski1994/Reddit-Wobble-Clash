@@ -68,7 +68,7 @@ const buildTeamMember = ({
   };
 };
 
-const userTeamBase: TeamMemberBase[] = [
+let userTeamBase: TeamMemberBase[] = [
   { id: 0, tileID: 12, rotationY: 0, characterId: 4 },
   { id: 1, tileID: 1, rotationY: 0, characterId: 1 },
   { id: 2, tileID: 0, rotationY: 0, characterId: 2 },
@@ -78,5 +78,29 @@ const enemyTeamBase: TeamMemberBase[] = [
   { id: 100, tileID: 13, rotationY: 0, characterId: 3 },
 ];
 
-export const userTeam: TeamMember[] = userTeamBase.map(buildTeamMember);
+// Starting tiles/facing handed out to a team built from Pick Mode, in slot
+// order — the same near-side tiles the default userTeamBase uses plus one
+// more, so a picked team lands on passable ground next to the others.
+const PICKED_TEAM_SLOTS: { tileID: number; rotationY: number }[] = [
+  { tileID: 12, rotationY: 0 },
+  { tileID: 1, rotationY: 0 },
+  { tileID: 0, rotationY: 0 },
+  { tileID: 10, rotationY: 0 },
+];
+
+export let userTeam: TeamMember[] = userTeamBase.map(buildTeamMember);
 export const enemyTeam: TeamMember[] = enemyTeamBase.map(buildTeamMember);
+
+export const setUserTeamFromCharacterIds = (
+  characterIds: number[]
+): TeamMember[] => {
+  userTeamBase = characterIds.map((characterId, index) => ({
+    id: index,
+    characterId,
+    tileID: PICKED_TEAM_SLOTS[index % PICKED_TEAM_SLOTS.length]!.tileID,
+    rotationY:
+      PICKED_TEAM_SLOTS[index % PICKED_TEAM_SLOTS.length]!.rotationY,
+  }));
+  userTeam = userTeamBase.map(buildTeamMember);
+  return userTeam;
+};
