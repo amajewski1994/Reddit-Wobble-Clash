@@ -1,107 +1,59 @@
 import type { TeamMember } from '../../types/team';
+import { characters } from '../../data/characters';
+import { abilities } from '../../data/abilities';
 
-export const userTeam: TeamMember[] = [
-  {
-    id: 0,
-    name: 'Duelist',
-    objectName: 'avatar_duelist_v1',
-    statistics: {
-      hp: 100,
-      attack: 10,
-      defence: 1,
-      AP: 3,
-      dodge: 10,
-      accuracy: 90,
-      tileBP: {
-        grassBP: 3,
-        sandBP: 1,
-        stoneBP: 4,
-        dirtBP: 5,
-        forestBP: 5,
-        desertBP: 3,
-        rocksBP: 1,
-      },
-    },
-    tileID: 0,
-    rotationY: 0,
-    abilities: ['test1', 'test2', 'test3', 'test4'],
-  },
-  {
-    id: 1,
-    name: 'Tank',
-    objectName: 'angryPink_v1',
-    statistics: {
-      hp: 100,
-      attack: 150,
-      defence: 2,
-      AP: 3,
-      dodge: 10,
-      accuracy: 90,
-      tileBP: {
-        grassBP: 1,
-        sandBP: 5,
-        stoneBP: 1,
-        dirtBP: 3,
-        forestBP: 1,
-        desertBP: 3,
-        rocksBP: 4,
-      },
-    },
-    tileID: 1,
-    rotationY: 0,
-    abilities: ['test5', 'test6', 'test7', 'test8'],
-  },
-  {
-    id: 2,
-    name: 'Tracker',
-    objectName: 'avatar_tracker_v1',
-    statistics: {
-      hp: 100,
-      attack: 150,
-      defence: 2,
-      AP: 3,
-      dodge: 10,
-      accuracy: 90,
-      tileBP: {
-        grassBP: 3,
-        sandBP: 1,
-        stoneBP: 5,
-        dirtBP: 1,
-        forestBP: 1,
-        desertBP: 5,
-        rocksBP: 3,
-      },
-    },
-    tileID: 12,
-    rotationY: 0,
-    abilities: ['test9', 'test10', 'test11', 'test12'],
-  },
+type TeamMemberBase = Pick<
+  TeamMember,
+  'id' | 'tileID' | 'rotationY' | 'characterId'
+>;
+
+const buildTeamMember = ({
+  id,
+  tileID,
+  rotationY,
+  characterId,
+}: TeamMemberBase): TeamMember => {
+  const character = characters.find(({ id }) => id === characterId);
+  if (!character) {
+    throw new Error(`Character with id ${characterId} not found`);
+  }
+
+  const baseObjectVariant = character.objectName[0];
+  if (!baseObjectVariant) {
+    throw new Error(`Character with id ${characterId} has no objectName`);
+  }
+
+  const characterAbilities = abilities.find(
+    ({ id }) => id === character.abilitiesId
+  );
+  const abilityNames = characterAbilities
+    ? [
+        characterAbilities.abilities.passive.name,
+        ...characterAbilities.abilities.active.map(({ name }) => name),
+      ]
+    : [];
+
+  return {
+    id,
+    name: character.name,
+    objectName: baseObjectVariant.name,
+    statistics: character.statistics,
+    tileID,
+    rotationY,
+    abilities: abilityNames,
+    characterId,
+  };
+};
+
+const userTeamBase: TeamMemberBase[] = [
+  { id: 0, tileID: 0, rotationY: 0, characterId: 0 },
+  { id: 1, tileID: 1, rotationY: 0, characterId: 1 },
+  { id: 2, tileID: 12, rotationY: 0, characterId: 2 },
 ];
 
-export const enemyTeam: TeamMember[] = [
-  {
-    id: 100,
-    name: 'Wildheart',
-    objectName: 'avatar_wildheart_v1',
-    statistics: {
-      hp: 100,
-      attack: 15,
-      defence: 2,
-      AP: 3,
-      dodge: 90,
-      accuracy: 90,
-      tileBP: {
-        grassBP: 1,
-        sandBP: 4,
-        stoneBP: 1,
-        dirtBP: 4,
-        forestBP: 2,
-        desertBP: 5,
-        rocksBP: 2,
-      },
-    },
-    tileID: 13,
-    rotationY: 0,
-    abilities: ['test1', 'test2', 'test3', 'test4'],
-  },
+const enemyTeamBase: TeamMemberBase[] = [
+  { id: 100, tileID: 13, rotationY: 0, characterId: 3 },
 ];
+
+export const userTeam: TeamMember[] = userTeamBase.map(buildTeamMember);
+export const enemyTeam: TeamMember[] = enemyTeamBase.map(buildTeamMember);

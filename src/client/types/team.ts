@@ -15,7 +15,7 @@ export type TeamMemberStatistics = {
   AP: number;
   dodge: number;
   accuracy: number;
-  tileBP: TeamMemberTileStatistics
+  tileBP: TeamMemberTileStatistics;
 };
 
 export type TeamMember = {
@@ -26,4 +26,6 @@ export type TeamMember = {
   tileID: number;
   rotationY: number;
   abilities: string[];
+
+  characterId: number;
 };

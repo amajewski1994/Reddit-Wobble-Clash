@@ -2,19 +2,12 @@ import { useLoader } from '@react-three/fiber';
 import { useMemo, useState } from 'react';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { duelMapTilesData as initialMapTilesData } from './duelMapTilesData';
-import { userTeam, enemyTeam } from './teamsDate';
 import { MapCanvas } from '../shared/MapCanvas';
 import { MapTiles } from '../shared/MapTiles';
 import { Avatars } from '../shared/Avatars';
 import type { AttackOutcome, DuelMapProps } from '../../types/duelMap';
 import type { TeamMemberTileStatistics } from '../../types/team';
 import { IMPASSABLE_TILE_NAME_PARTS } from '../../data/consts';
-
-const AVATAR_PATHS = [...userTeam, ...enemyTeam].map(
-  ({ name }) => `/assets/characters/${name}.glb`
-);
-
-AVATAR_PATHS.forEach((path) => useLoader.preload(GLTFLoader, path));
 
 const NEIGHBOR_DISTANCE_THRESHOLD = 1.1;
 
@@ -66,6 +59,12 @@ export const DuelMap = ({
   } | null>(null);
 
   const allAvatars = useMemo(() => [...team, ...enemyTeam], [team, enemyTeam]);
+
+  useMemo(() => {
+    allAvatars.forEach(({ objectName }) =>
+      useLoader.preload(GLTFLoader, `/assets/characters/${objectName}.glb`)
+    );
+  }, [allAvatars]);
 
   const activeTile = useMemo(() => {
     const activeAvatar = team.find(({ id }) => id === activeAvatarId);
