@@ -1,6 +1,6 @@
 import './index.css';
 
-import { StrictMode, useEffect, useMemo, useState } from 'react';
+import { StrictMode, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { navigateTo } from '@devvit/web/client';
 import { useAssetsLoading } from './hooks/useAssetsLoading';
@@ -36,12 +36,15 @@ import type { PlacedAvatar } from '../shared/types/createMap';
 import type { DuelActionEvent } from '../shared/types/duelMap';
 
 import { publishMap } from './api/publishMap';
+import { getCurrentUser } from './api/getCurrentUser';
+import { recordMapResult } from './api/recordMapResult';
+import { UserInfo } from './data/userInfo';
 
 import { duelMapTilesData } from './components/duelMode/duelMapTilesData';
 import { loadCurrentMap } from './api/loadCurrentMap';
 import { buildPublishedDuelTiles } from './utils/buildPublishedDuelTiles';
 
-import type { PublishedMap } from '../shared/types/savedMap';
+import type { MapStats, PublishedMap } from '../shared/types/savedMap';
 import type { DuelMapTileData } from '../shared/types/mapTile';
 
 type Screen = 'start' | 'duel' | 'create' | 'pick' | 'gameOver';
@@ -91,7 +94,9 @@ export const App = () => {
   const [saveMapError, setSaveMapError] = useState<string | null>(null);
 
   const [activePublishedMap, setActivePublishedMap] = useState<PublishedMap | null>(null);
+  const [mapStats, setMapStats] = useState<MapStats | null>(null);
   const [isLoadingPublishedMap, setIsLoadingPublishedMap] = useState(true);
+  const hasRecordedResultRef = useRef(false);
 
 const [, setPublishedMapLoadError] =
   useState<string | null>(null);
@@ -174,15 +179,17 @@ useEffect(() => {
 
   const initializeFromCurrentPost = async (): Promise<void> => {
     try {
-      const map = await loadCurrentMap();
+      const result = await loadCurrentMap();
 
       if (cancelled) return;
 
-      if (map) {
-        setActivePublishedMap(map);
+      if (result) {
+        setActivePublishedMap(result.map);
+        setMapStats(result.stats);
         setScreen('start');
       } else {
         setActivePublishedMap(null);
+        setMapStats(null);
         setScreen('start');
       }
     } catch (error) {
@@ -191,6 +198,7 @@ useEffect(() => {
       if (cancelled) return;
 
       setActivePublishedMap(null);
+      setMapStats(null);
       setPublishedMapLoadError(
         error instanceof Error
           ? error.message
@@ -205,6 +213,20 @@ useEffect(() => {
   };
 
   void initializeFromCurrentPost();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
+useEffect(() => {
+  let cancelled = false;
+
+  void getCurrentUser().then((username) => {
+    if (!cancelled && username) {
+      UserInfo.name = username;
+    }
+  });
 
   return () => {
     cancelled = true;
@@ -251,13 +273,6 @@ useEffect(() => {
 
   const leavePickMode = () => {
   setSelectedCharacterIds([]);
-
-  if (activePublishedMap) {
-    // Wyjście z Pick Mode posta nie powinno uruchamiać
-    // zwykłego trybu z losową mapą.
-    return;
-  }
-
   setScreen('start');
 };
 
@@ -355,6 +370,17 @@ useEffect(() => {
     return () => clearTimeout(timeoutId);
   }, [gameResult]);
 
+  useEffect(() => {
+    if (!gameResult || hasRecordedResultRef.current || !activePublishedMap) {
+      return;
+    }
+    hasRecordedResultRef.current = true;
+
+    void recordMapResult(gameResult).then((stats) => {
+      if (stats) setMapStats(stats);
+    });
+  }, [gameResult, activePublishedMap]);
+
   const handleRestart = () => {
     setTeam([]);
     setEnemyTeam([]);
@@ -370,6 +396,7 @@ useEffect(() => {
     setPreviewCharacterId(characters[0]!.id);
     setVictoryToken(0);
     setIsConfirmingPick(false);
+    hasRecordedResultRef.current = false;
     setScreen('start');
   };
 
@@ -395,6 +422,7 @@ useEffect(() => {
         onSelectCreate={() => setScreen('create')}
         showCreate={!activePublishedMap}
         enemies={activePublishedMapEnemies}
+        stats={mapStats}
       />
     );
   }

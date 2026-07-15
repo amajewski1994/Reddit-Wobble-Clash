@@ -1,16 +1,13 @@
-import type { PublishedMap } from '../../shared/types/savedMap';
+import type {
+  LoadCurrentMapErrorResponse,
+  LoadCurrentMapResponse,
+  MapStats,
+  PublishedMap,
+} from '../../shared/types/savedMap';
 
-type LoadCurrentMapSuccessResponse = {
-  success: true;
-  map: PublishedMap;
-};
-
-type LoadCurrentMapErrorResponse = {
-  success: false;
-  error: string;
-};
-
-export async function loadCurrentMap(): Promise<PublishedMap | null> {
+export async function loadCurrentMap(): Promise<
+  { map: PublishedMap; stats: MapStats } | null
+> {
   const response = await fetch('/api/maps/current');
 
   // Aktualny post nie ma przypisanej mapy.
@@ -19,7 +16,7 @@ export async function loadCurrentMap(): Promise<PublishedMap | null> {
     return null;
   }
 
-  let result: LoadCurrentMapSuccessResponse | LoadCurrentMapErrorResponse;
+  let result: LoadCurrentMapResponse | LoadCurrentMapErrorResponse;
 
   try {
     result = await response.json();
@@ -33,5 +30,5 @@ export async function loadCurrentMap(): Promise<PublishedMap | null> {
     );
   }
 
-  return result.map;
+  return { map: result.map, stats: result.stats };
 }

@@ -1,5 +1,5 @@
 export const EnemyInfo = {
-  name: 'enemy test',
+  name: 'Enemy',
   lvl: 10,
   exp: 1000,
   wins: 0,

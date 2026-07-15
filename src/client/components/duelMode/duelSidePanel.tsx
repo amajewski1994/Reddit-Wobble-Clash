@@ -71,11 +71,11 @@ export const DuelSidePanel = ({
         </div>
         <div className="flex flex-col items-center justify-center text-sm font-bold">
           <span>{info.name}</span>
-          <span
+          {/* <span
             className={`text-xs font-semibold ${isEnemy ? 'text-(--danger)' : 'text-(--secondary)'}`}
           >
             lvl {info.lvl}
-          </span>
+          </span> */}
         </div>
       </div>
       {/* {onItemsClick && (

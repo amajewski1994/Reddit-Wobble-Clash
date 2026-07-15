@@ -1,3 +1,7 @@
+export type UserResponse = {
+  username: string;
+};
+
 export type InitResponse = {
   type: 'init';
   postId: string;

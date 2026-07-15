@@ -4,6 +4,7 @@ import type {
   DecrementResponse,
   IncrementResponse,
   InitResponse,
+  UserResponse,
 } from '../../shared/api';
 
 type ErrorResponse = {
@@ -12,6 +13,36 @@ type ErrorResponse = {
 };
 
 export const api = new Hono();
+
+api.get('/user', async (c) => {
+  const { userId } = context;
+
+  if (!userId) {
+    return c.json<ErrorResponse>(
+      { status: 'error', message: 'User not logged in' },
+      401
+    );
+  }
+
+  try {
+    const user = await reddit.getUserById(userId);
+
+    if (!user) {
+      return c.json<ErrorResponse>(
+        { status: 'error', message: 'User not found' },
+        404
+      );
+    }
+
+    return c.json<UserResponse>({ username: user.username });
+  } catch (error) {
+    console.error('Failed to fetch current user:', error);
+    return c.json<ErrorResponse>(
+      { status: 'error', message: 'Nie udało się pobrać danych użytkownika.' },
+      500
+    );
+  }
+});
 
 api.get('/init', async (c) => {
   const { postId } = context;

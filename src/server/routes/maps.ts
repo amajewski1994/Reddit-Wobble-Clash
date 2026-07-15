@@ -4,6 +4,8 @@ import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type {
   LoadCurrentMapErrorResponse,
   LoadCurrentMapResponse,
+  MapStatsErrorResponse,
+  MapStatsResponse,
   PublishMapErrorResponse,
   PublishMapResponse,
 } from '../../shared/types/savedMap';
@@ -92,9 +94,12 @@ mapsRouter.get('/current', async (c) => {
       );
     }
 
+    const stats = await MapService.getStats();
+
     return c.json<LoadCurrentMapResponse>({
       success: true,
       map,
+      stats,
     });
   } catch (error) {
     if (error instanceof MapServiceError) {
@@ -113,6 +118,66 @@ mapsRouter.get('/current', async (c) => {
       {
         success: false,
         error: 'Nie udało się pobrać mapy.',
+      },
+      500
+    );
+  }
+});
+
+const isGameResultBody = (
+  value: unknown
+): value is { result: 'win' | 'lost' } =>
+  typeof value === 'object' &&
+  value !== null &&
+  ((value as { result?: unknown }).result === 'win' ||
+    (value as { result?: unknown }).result === 'lost');
+
+mapsRouter.post('/current/result', async (c) => {
+  let body: unknown;
+
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json<MapStatsResponse | MapStatsErrorResponse>(
+      {
+        success: false,
+        error: 'Request nie zawiera poprawnego JSON-u.',
+      },
+      400
+    );
+  }
+
+  if (!isGameResultBody(body)) {
+    return c.json<MapStatsResponse | MapStatsErrorResponse>(
+      {
+        success: false,
+        error: 'Nieprawidłowy wynik gry.',
+      },
+      400
+    );
+  }
+
+  try {
+    const stats = await MapService.recordGameResult(body.result);
+
+    return c.json<MapStatsResponse>({ success: true, stats });
+  } catch (error) {
+    if (error instanceof MapServiceError) {
+      return c.json<MapStatsResponse | MapStatsErrorResponse>(
+        {
+          success: false,
+          error: error.message,
+        },
+        error.statusCode as ContentfulStatusCode
+      );
+    }
+
+    console.error('Unhandled record game result error:', error);
+
+    return c.json<MapStatsResponse | MapStatsErrorResponse>(
+      {
+        success: false,
+        error: 'Nie udało się zapisać wyniku gry.',
       },
       500
     );

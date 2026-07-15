@@ -27,11 +27,11 @@ const TeamSummary = ({
   >
     <div className="flex flex-col items-center gap-0.5">
       <span className="text-sm font-bold">{name}</span>
-      <span
+      {/* <span
         className={`text-[10px] font-semibold ${isEnemy ? 'text-(--danger)' : 'text-(--secondary)'}`}
       >
         lvl {lvl}
-      </span>
+      </span> */}
     </div>
     <div className="flex flex-col gap-1.5">
       {members.map(({ id, name: memberName, statistics }) => (

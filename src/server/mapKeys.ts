@@ -5,4 +5,6 @@ export const mapKeys = {
     `published-map:publishing:${userId}`,
 
   authorMaps: (userId: string): string => `published-map:author:${userId}`,
+
+  stats: (postId: string): string => `published-map:stats:${postId}`,
 };

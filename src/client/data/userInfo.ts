@@ -1,5 +1,5 @@
 export const UserInfo = {
-  name: 'test',
+  name: 'Player',
   lvl: 1,
   exp: 1000,
   wins: 0,

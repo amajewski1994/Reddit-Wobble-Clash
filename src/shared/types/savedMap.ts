@@ -31,12 +31,29 @@ export interface PublishMapErrorResponse {
   error: string;
 }
 
+export interface MapStats {
+  played: number;
+  wins: number;
+  losses: number;
+}
+
 export interface LoadCurrentMapResponse {
   success: true;
   map: PublishedMap;
+  stats: MapStats;
 }
 
 export interface LoadCurrentMapErrorResponse {
+  success: false;
+  error: string;
+}
+
+export interface MapStatsResponse {
+  success: true;
+  stats: MapStats;
+}
+
+export interface MapStatsErrorResponse {
   success: false;
   error: string;
 }

@@ -1,6 +1,10 @@
 import { context, reddit, redis } from '@devvit/web/server';
 
-import type { PublishedMap, SaveMapRequest } from '../../shared/types/savedMap';
+import type {
+  MapStats,
+  PublishedMap,
+  SaveMapRequest,
+} from '../../shared/types/savedMap';
 
 import { mapKeys } from '../mapKeys';
 
@@ -108,5 +112,36 @@ export const MapService = {
 
       throw new MapServiceError('Zapis mapy jest uszkodzony.', 500);
     }
+  },
+
+  async getStats(): Promise<MapStats> {
+    const postId = context.postId;
+
+    if (!postId) {
+      return { played: 0, wins: 0, losses: 0 };
+    }
+
+    const raw = await redis.hGetAll(mapKeys.stats(postId));
+
+    return {
+      played: Number(raw.played ?? 0),
+      wins: Number(raw.wins ?? 0),
+      losses: Number(raw.losses ?? 0),
+    };
+  },
+
+  async recordGameResult(result: 'win' | 'lost'): Promise<MapStats> {
+    const postId = context.postId;
+
+    if (!postId) {
+      throw new MapServiceError('Nie udało się określić posta.', 400);
+    }
+
+    const key = mapKeys.stats(postId);
+
+    await redis.hIncrBy(key, 'played', 1);
+    await redis.hIncrBy(key, result === 'win' ? 'wins' : 'losses', 1);
+
+    return MapService.getStats();
   },
 };
