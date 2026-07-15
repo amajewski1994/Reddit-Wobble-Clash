@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { PickModeUIProps } from '../../types/pickMode';
+import { abilities } from '../../data/abilities';
 
 const actionButtonLayoutClassName =
   'flex items-center justify-center h-10 px-4';
@@ -7,6 +8,35 @@ const actionButtonClassName = `game-button-primary ${actionButtonLayoutClassName
 const successButtonClassName = `game-button-success ${actionButtonLayoutClassName}`;
 
 const abbreviateName = (name: string) => name.slice(0, 2).toUpperCase();
+
+const AbilityCard = ({
+  name,
+  description,
+  isPassive,
+  cooldown,
+}: {
+  name: string;
+  description: string;
+  isPassive?: boolean;
+  cooldown?: number | null;
+}) => (
+  <div className="duel-panel duel-panel--team flex flex-col items-center gap-2 w-28 p-2">
+    <div className="flex items-center justify-center w-full h-20 rounded border border-dashed border-(--panel-border) game-label">
+      Zdjęcie
+    </div>
+    <span className="text-xs font-semibold text-center">{name}</span>
+    <span className="text-[10px] text-center opacity-70">{description}</span>
+    {isPassive ? (
+      <span className="text-[10px] font-semibold uppercase game-label">
+        Passive
+      </span>
+    ) : (
+      typeof cooldown === 'number' && (
+        <span className="text-[10px] game-label">Cooldown: {cooldown}</span>
+      )
+    )}
+  </div>
+);
 
 export const PickModeUI = ({
   characters,
@@ -39,6 +69,10 @@ export const PickModeUI = ({
     : false;
   const isTeamFull = selectedCharacterIds.length >= maxTeamSize;
   const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isAbilitiesOpen, setIsAbilitiesOpen] = useState(false);
+  const previewAbilities = previewCharacter
+    ? abilities.find((entry) => entry.id === previewCharacter.abilitiesId)
+    : undefined;
 
   return (
     <>
@@ -48,10 +82,27 @@ export const PickModeUI = ({
             Pick Your Team
           </div>
         </div>
-        <button className={actionButtonClassName} onClick={onBack}>
-          Back
-        </button>
+        {previewCharacter && (
+          <button
+            onClick={() => onPick(previewCharacter.id)}
+            disabled={isPreviewSelected || isTeamFull}
+            className={`${actionButtonLayoutClassName} rounded-md font-bold ${
+              isPreviewSelected
+                ? 'bg-(--success) text-white disabled:opacity-100'
+                : 'game-button-primary disabled:opacity-40'
+            }`}
+          >
+            {isPreviewSelected ? 'Picked' : 'Pick'}
+          </button>
+        )}
       </div>
+
+      <button
+        className={`game-button-secondary fixed top-4 right-4 z-10 flex items-center justify-center h-8 px-3 text-sm`}
+        onClick={onBack}
+      >
+        Back
+      </button>
 
       {characters.length > 1 && (
         <button
@@ -147,24 +198,56 @@ export const PickModeUI = ({
                 <span>{previewCharacter.statistics.accuracy}%</span>
               </div>
             </div>
+            <button
+              className="game-button-primary flex items-center justify-center w-full h-8 px-1 text-xs mt-1"
+              onClick={() => setIsAbilitiesOpen(true)}
+            >
+              Abilities
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isAbilitiesOpen && previewCharacter && previewAbilities && (
+        <div
+          className="fixed inset-0 z-30 flex items-center justify-center bg-black/60"
+          onClick={() => setIsAbilitiesOpen(false)}
+        >
+          <div
+            className="duel-panel duel-panel--team w-80 flex flex-col gap-4 p-4"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-center font-bold flex-1">
+                {previewCharacter.name} — Abilities
+              </span>
+              <button
+                className="text-(--muted) hover:text-(--foreground) text-sm font-bold leading-none"
+                onClick={() => setIsAbilitiesOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="flex flex-wrap justify-center gap-3">
+              <AbilityCard
+                name={previewAbilities.abilities.passive.name}
+                description={previewAbilities.abilities.passive.description}
+                isPassive
+              />
+              {previewAbilities.abilities.active.map((ability) => (
+                <AbilityCard
+                  key={ability.name}
+                  name={ability.name}
+                  description={ability.description}
+                  cooldown={ability.cooldown}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}
 
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
-        {previewCharacter && (
-          <button
-            onClick={() => onPick(previewCharacter.id)}
-            disabled={isPreviewSelected || isTeamFull}
-            className={`${actionButtonLayoutClassName} rounded-md font-bold ${
-              isPreviewSelected
-                ? 'bg-(--success) text-white disabled:opacity-100'
-                : 'game-button-primary disabled:opacity-40'
-            }`}
-          >
-            {isPreviewSelected ? 'Picked' : 'Pick'}
-          </button>
-        )}
         <div className="duel-banner">
           <div className="duel-banner__inner px-6 py-1.5 text-base font-bold uppercase tracking-wide">
             Your Team ({selectedCharacterIds.length}/{maxTeamSize})
