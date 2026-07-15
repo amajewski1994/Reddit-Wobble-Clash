@@ -76,7 +76,7 @@ export const PickModeCanvas = ({ character, victoryToken }: PickModeCanvasProps)
 
   return (
     <>
-      {!isBackgroundLoaded && <LoadingSpinner />}
+      <LoadingSpinner visible={!isBackgroundLoaded} />
       <Canvas
         camera={{ position: PICK_CAMERA_POSITION, fov: 40 }}
         gl={{ alpha: true }}

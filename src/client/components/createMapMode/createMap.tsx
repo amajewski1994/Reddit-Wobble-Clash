@@ -1,5 +1,5 @@
 import { ThreeEvent, useLoader } from '@react-three/fiber';
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { Mesh, TextureLoader } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MapCanvas } from '../shared/MapCanvas';
@@ -22,11 +22,6 @@ const getAvatarVariant = (avatarName: string) =>
 
 const isImpassableTileName = (tileName: string) =>
   IMPASSABLE_TILE_NAME_PARTS.some((part) => tileName.includes(part));
-
-characters.forEach((character) => {
-  const variant = character.objectName[0];
-  if (variant) useLoader.preload(GLTFLoader, `/assets/characters/${variant.name}.glb`);
-});
 
 const RotateArrow = ({
   direction,
@@ -114,6 +109,18 @@ export const CreateMap = ({
   onRotatingTileIdChange,
   onRotateTile,
 }: CreateMapProps) => {
+  // Preloading here (during CreateMap's first render) rather than at module
+  // scope means it happens after useAssetsLoading has already subscribed
+  // to the loading manager, so isAssetsLoading actually picks it up and
+  // shows the spinner — a module-level preload fires before that
+  // subscription exists and gets missed.
+  useMemo(() => {
+    characters.forEach((character) => {
+      const variant = character.objectName[0];
+      if (variant) useLoader.preload(GLTFLoader, `/assets/characters/${variant.name}.glb`);
+    });
+  }, []);
+
   const handleTileClick = (id: number) => {
     if (selectedAvatarName && activeSlotIndex !== null) {
       if (id > MAX_AVATAR_TILE_ID) return;

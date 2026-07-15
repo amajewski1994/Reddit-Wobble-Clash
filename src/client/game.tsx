@@ -54,8 +54,9 @@ type Screen = 'start' | 'duel' | 'create' | 'pick' | 'gameOver';
 // out before cutting to the summary screen.
 const DEATH_ANIMATION_DELAY_MS = 5000;
 
-// Shown between confirming a Pick Mode team and entering the duel screen.
-const CONFIRM_PICK_LOADING_DELAY_MS = 5000;
+// Shown between confirming a Pick Mode team and entering the duel screen,
+// and between picking Create on the start screen and entering create mode.
+const SCREEN_TRANSITION_LOADING_DELAY_MS = 5000;
 
 export const App = () => {
   // const { count, username, loading, increment, decrement } = useCounter();
@@ -89,6 +90,7 @@ export const App = () => {
   );
   const [victoryToken, setVictoryToken] = useState(0);
   const [isConfirmingPick, setIsConfirmingPick] = useState(false);
+  const [isEnteringCreateMode, setIsEnteringCreateMode] = useState(false);
 
   const [isSavingMap, setIsSavingMap] = useState(false);
   const [saveMapError, setSaveMapError] = useState<string | null>(null);
@@ -337,9 +339,22 @@ useEffect(() => {
     const timeoutId = setTimeout(() => {
       setIsConfirmingPick(false);
       setScreen('duel');
-    }, CONFIRM_PICK_LOADING_DELAY_MS);
+    }, SCREEN_TRANSITION_LOADING_DELAY_MS);
     return () => clearTimeout(timeoutId);
   }, [isConfirmingPick]);
+
+  const handleSelectCreate = () => {
+    setIsEnteringCreateMode(true);
+    setScreen('create');
+  };
+
+  useEffect(() => {
+    if (!isEnteringCreateMode) return;
+    const timeoutId = setTimeout(() => {
+      setIsEnteringCreateMode(false);
+    }, SCREEN_TRANSITION_LOADING_DELAY_MS);
+    return () => clearTimeout(timeoutId);
+  }, [isEnteringCreateMode]);
 
   // Adjusting state during render (rather than in an effect) avoids an
   // extra commit — see
@@ -396,13 +411,10 @@ useEffect(() => {
     setPreviewCharacterId(characters[0]!.id);
     setVictoryToken(0);
     setIsConfirmingPick(false);
+    setIsEnteringCreateMode(false);
     hasRecordedResultRef.current = false;
     setScreen('start');
   };
-
-  if (isLoadingPublishedMap) {
-  return <LoadingSpinner />;
-}
 
   if (screen === 'gameOver' && gameResult) {
     return (
@@ -417,19 +429,24 @@ useEffect(() => {
 
   if (screen === 'start') {
     return (
-      <StartScreen
-        onSelectPick={() => setScreen('pick')}
-        onSelectCreate={() => setScreen('create')}
-        showCreate={!activePublishedMap}
-        enemies={activePublishedMapEnemies}
-        stats={mapStats}
-      />
+      <>
+        <StartScreen
+          onSelectPick={() => setScreen('pick')}
+          onSelectCreate={handleSelectCreate}
+          showCreate={!activePublishedMap}
+          enemies={activePublishedMapEnemies}
+          stats={mapStats}
+        />
+        <LoadingSpinner visible={isLoadingPublishedMap} />
+      </>
     );
   }
 
   return (
     <div>
-      {(isAssetsLoading || isConfirmingPick) && <LoadingSpinner />}
+      <LoadingSpinner
+        visible={isAssetsLoading || isConfirmingPick || isEnteringCreateMode}
+      />
       {screen === 'pick' && (
         <>
           <PickModeUI
