@@ -4,7 +4,7 @@ export const LoadingSpinner = () => {
       <img
         src="/assets/loading_spinner.png"
         alt="Loading..."
-        className="w-16 h-16 animate-spin"
+        className="w-20 h-20 animate-spin"
       />
     </div>
   );

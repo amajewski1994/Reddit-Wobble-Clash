@@ -10,8 +10,18 @@ export const StartScreen = ({
   onSelectPick,
   onSelectCreate,
 }: StartScreenProps) => (
-  <div className="fixed inset-0 z-10 flex flex-col items-center justify-center gap-10 bg-(--background)">
-    <h1 className="text-3xl font-bold uppercase tracking-wide">Wobble Clash</h1>
+  <div
+    className="fixed inset-0 z-10 flex flex-col items-center justify-center gap-10 bg-(--background) bg-cover bg-center"
+    style={{
+      backgroundImage:
+        'linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("/assets/splash%20-%20background.png")',
+    }}
+  >
+    <img
+      src="/assets/logo.png"
+      alt="Wobble Clash"
+      className="w-64 max-w-[60%] h-auto"
+    />
     <div className="flex gap-6">
       <button className={modeButtonClassName} onClick={onSelectPick}>
         <span className="text-4xl">⚔️</span>

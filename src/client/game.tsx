@@ -42,6 +42,9 @@ type Screen = 'start' | 'duel' | 'create' | 'pick' | 'gameOver';
 // out before cutting to the summary screen.
 const DEATH_ANIMATION_DELAY_MS = 5000;
 
+// Shown between confirming a Pick Mode team and entering the duel screen.
+const CONFIRM_PICK_LOADING_DELAY_MS = 5000;
+
 export const App = () => {
   // const { count, username, loading, increment, decrement } = useCounter();
   const [screen, setScreen] = useState<Screen>('start');
@@ -73,6 +76,7 @@ export const App = () => {
     characters[0]!.id
   );
   const [victoryToken, setVictoryToken] = useState(0);
+  const [isConfirmingPick, setIsConfirmingPick] = useState(false);
   const isAssetsLoading = useAssetsLoading();
 
   const {
@@ -139,8 +143,17 @@ export const App = () => {
     setTeam(setUserTeamFromCharacterIds(selectedCharacterIds));
     setEnemyTeam(setEnemyTeamFromRandomCharacterIds());
     setSelectedCharacterIds([]);
-    setScreen('duel');
+    setIsConfirmingPick(true);
   };
+
+  useEffect(() => {
+    if (!isConfirmingPick) return;
+    const timeoutId = setTimeout(() => {
+      setIsConfirmingPick(false);
+      setScreen('duel');
+    }, CONFIRM_PICK_LOADING_DELAY_MS);
+    return () => clearTimeout(timeoutId);
+  }, [isConfirmingPick]);
 
   // Adjusting state during render (rather than in an effect) avoids an
   // extra commit — see
@@ -185,6 +198,7 @@ export const App = () => {
     setSelectedCharacterIds([]);
     setPreviewCharacterId(characters[0]!.id);
     setVictoryToken(0);
+    setIsConfirmingPick(false);
     setScreen('start');
   };
 
@@ -210,7 +224,7 @@ export const App = () => {
 
   return (
     <div>
-      {isAssetsLoading && <LoadingSpinner />}
+      {(isAssetsLoading || isConfirmingPick) && <LoadingSpinner />}
       {screen === 'pick' && (
         <>
           <PickModeUI
