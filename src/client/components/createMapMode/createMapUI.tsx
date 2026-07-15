@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { TILE_NAMES, DEFAULT_MAP_TITLE } from '../../data/consts';
 import { characters } from '../../data/characters';
 import { getCharacterImageUrl } from '../../utils/characterImages';
+import { getTileImageUrl } from '../../utils/tileImages';
 import type { CreateMapUIProps } from '../../../shared/types/createMap';
 
 const AVATAR_NAMES = characters.map((character) => character.name);
@@ -87,6 +88,7 @@ const ScrollableSelectList = ({
         {items.map((name) => {
           const isSelected = selected === name;
           const character = getCharacterByName(name);
+          const isTile = TILE_NAMES.includes(name);
           return (
             <div
               key={name}
@@ -100,6 +102,12 @@ const ScrollableSelectList = ({
               {character ? (
                 <img
                   src={getCharacterImageUrl(character.image)}
+                  alt={name}
+                  className="w-full h-full object-cover"
+                />
+              ) : isTile ? (
+                <img
+                  src={getTileImageUrl(name)}
                   alt={name}
                   className="w-full h-full object-cover"
                 />

@@ -33,6 +33,7 @@ import {
 import { calculateMapRating } from './utils/mapRating';
 import { createGameHandlers } from './utils/gameHandlers';
 import { preloadCharacterImages } from './utils/preloadCharacterImages';
+import { preloadTileImages } from './utils/preloadTileImages';
 import type { PlacedAvatar } from '../shared/types/createMap';
 import type { DuelActionEvent } from '../shared/types/duelMap';
 
@@ -89,7 +90,7 @@ export const App = () => {
   );
   const [victoryToken, setVictoryToken] = useState(0);
   const [isConfirmingPick, setIsConfirmingPick] = useState(false);
-  const [isLoadingCharacterImages, setIsLoadingCharacterImages] = useState(false);
+  const [isLoadingModeImages, setIsLoadingModeImages] = useState(false);
 
   const [isSavingMap, setIsSavingMap] = useState(false);
   const [saveMapError, setSaveMapError] = useState<string | null>(null);
@@ -343,17 +344,17 @@ useEffect(() => {
   }, [isConfirmingPick]);
 
   const handleSelectPick = () => {
-    setIsLoadingCharacterImages(true);
+    setIsLoadingModeImages(true);
     void preloadCharacterImages().then(() => {
-      setIsLoadingCharacterImages(false);
+      setIsLoadingModeImages(false);
       setScreen('pick');
     });
   };
 
   const handleSelectCreate = () => {
-    setIsLoadingCharacterImages(true);
-    void preloadCharacterImages().then(() => {
-      setIsLoadingCharacterImages(false);
+    setIsLoadingModeImages(true);
+    void Promise.all([preloadCharacterImages(), preloadTileImages()]).then(() => {
+      setIsLoadingModeImages(false);
       setScreen('create');
     });
   };
@@ -413,7 +414,7 @@ useEffect(() => {
     setPreviewCharacterId(characters[0]!.id);
     setVictoryToken(0);
     setIsConfirmingPick(false);
-    setIsLoadingCharacterImages(false);
+    setIsLoadingModeImages(false);
     hasRecordedResultRef.current = false;
     setScreen('start');
   };
@@ -439,7 +440,7 @@ useEffect(() => {
           enemies={activePublishedMapEnemies}
           stats={mapStats}
         />
-        <LoadingSpinner visible={isLoadingPublishedMap || isLoadingCharacterImages} />
+        <LoadingSpinner visible={isLoadingPublishedMap || isLoadingModeImages} />
       </>
     );
   }
