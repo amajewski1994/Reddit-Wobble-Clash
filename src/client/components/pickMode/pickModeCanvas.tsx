@@ -14,7 +14,7 @@ const PICK_CAMERA_TARGET: [number, number, number] = [0, 0.6, 0];
 const AVATAR_FACING_CAMERA_ROTATION_Y = 0;
 const PEDESTAL_Y = -0.02;
 const VICTORY_ANIMATION_CLIP = 'Victory';
-const BACKGROUND_IMAGE_SRC = '/assets/WC%20-%20background.png';
+const BACKGROUND_IMAGE_SRC = '/assets/images/WC%20-%20background.png';
 
 characters.forEach((character) => {
   const baseVariant = character.objectName[0];

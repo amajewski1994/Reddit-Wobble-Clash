@@ -59,7 +59,6 @@ const DEATH_ANIMATION_DELAY_MS = 5000;
 const SCREEN_TRANSITION_LOADING_DELAY_MS = 5000;
 
 export const App = () => {
-  // const { count, username, loading, increment, decrement } = useCounter();
   const [screen, setScreen] = useState<Screen>('start');
   const [selectedTileName, setSelectedTileName] = useState<string | null>(null);
   const [selectedAvatarName, setSelectedAvatarName] = useState<string | null>(null);

@@ -40,16 +40,11 @@ export const LoadingSpinner = ({ visible = true }: LoadingSpinnerProps) => {
       }`}
       style={{
         backgroundImage:
-          'linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url("/assets/splash%20-%20background.png")',
+          'linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url("/assets/images/splash%20-%20background.png")',
       }}
     >
-      {/* <img
-        src="/assets/logo.png"
-        alt="Wobble Clash"
-        className="w-64 max-w-[60%] h-auto"
-      /> */}
       <img
-        src="/assets/loading_spinner.png"
+        src="/assets/images/loading_spinner.png"
         alt="Loading..."
         className="w-40 h-40 animate-spin"
       />

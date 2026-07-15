@@ -1,9 +1,9 @@
 import { Canvas, useLoader } from '@react-three/fiber';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { RepeatWrapping, TextureLoader } from 'three';
 import { CameraControls } from './CameraControls';
 
-const DEFAULT_BACKGROUND_TEXTURE_URL = '/assets/splash%20-%20background.png';
+const DEFAULT_BACKGROUND_TEXTURE_URL = '/assets/images/splash%20-%20background.png';
 
 // A flat plane in world space (rather than scene.background, which is
 // screen-locked and ignores camera movement) so panning with
@@ -17,15 +17,20 @@ const BACKGROUND_DARKEN_COLOR = '#cccccc';
 const SceneBackground = ({ backgroundUrl }: { backgroundUrl: string }) => {
   const texture = useLoader(TextureLoader, backgroundUrl);
 
-  useEffect(() => {
-    texture.wrapS = RepeatWrapping;
-    texture.wrapT = RepeatWrapping;
+  // Cloned rather than mutated in place, since TextureLoader caches and
+  // reuses the same texture instance for a given URL — mutating it
+  // directly would leak these settings into any other user of that URL.
+  const backgroundTexture = useMemo(() => {
+    const clonedTexture = texture.clone();
+    clonedTexture.wrapS = RepeatWrapping;
+    clonedTexture.wrapT = RepeatWrapping;
 
     // The plane is square, but the source image usually isn't — repeating
     // it 1:1 on both axes would squash it to fit each square tile. Crop
     // each tile to the image's real aspect ratio instead (same idea as
     // CSS `background-size: cover`) so it repeats undistorted.
-    const imageAspect = texture.image.naturalWidth / texture.image.naturalHeight;
+    const imageAspect =
+      clonedTexture.image.naturalWidth / clonedTexture.image.naturalHeight;
     const repeatX =
       imageAspect > 1
         ? BACKGROUND_TEXTURE_REPEAT / imageAspect
@@ -35,20 +40,21 @@ const SceneBackground = ({ backgroundUrl }: { backgroundUrl: string }) => {
         ? BACKGROUND_TEXTURE_REPEAT
         : BACKGROUND_TEXTURE_REPEAT * imageAspect;
 
-    texture.repeat.set(repeatX, repeatY);
+    clonedTexture.repeat.set(repeatX, repeatY);
 
     // Center the image on the plane's origin (where the camera starts and
     // pans around) instead of anchoring it to the texture's raw (0, 0)
     // corner. Without this, a repeat/tile seam can land in the middle of
     // the viewport, making the image look cut in half.
-    texture.offset.set(0.5 - repeatX / 2, 0.5 - repeatY / 2);
-    texture.needsUpdate = true;
+    clonedTexture.offset.set(0.5 - repeatX / 2, 0.5 - repeatY / 2);
+    clonedTexture.needsUpdate = true;
+    return clonedTexture;
   }, [texture]);
 
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.05, 0]}>
       <planeGeometry args={[BACKGROUND_PLANE_SIZE, BACKGROUND_PLANE_SIZE]} />
-      <meshBasicMaterial map={texture} color={BACKGROUND_DARKEN_COLOR} />
+      <meshBasicMaterial map={backgroundTexture} color={BACKGROUND_DARKEN_COLOR} />
     </mesh>
   );
 };

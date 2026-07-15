@@ -10,12 +10,12 @@ export const Splash = () => {
       className="flex relative flex-col justify-center items-center min-h-screen gap-8 bg-cover bg-center"
       style={{
         backgroundImage:
-          'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.85) 100%), url("/assets/splash%20-%20background.png")',
+          'radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.85) 100%), url("/assets/images/splash%20-%20background.png")',
       }}
     >
       <img
         className="object-contain w-2/3 max-w-105 mx-auto"
-        src="/assets/logo.png"
+        src="/assets/images/logo.png"
         alt="Wobble Clash"
       />
       <button

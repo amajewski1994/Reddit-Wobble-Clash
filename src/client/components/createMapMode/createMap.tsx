@@ -141,7 +141,7 @@ export const CreateMap = ({
   const rotatingTile = tiles.find((tile) => tile.id === rotatingTileId) ?? null;
 
   return (
-    <MapCanvas backgroundUrl="/assets/duel%20-%20background.png">
+    <MapCanvas backgroundUrl="/assets/images/duel%20-%20background.png">
       <MapTiles tiles={tiles} onTileClick={handleTileClick} />
       {rotatingTile && <RotateControls tile={rotatingTile} onRotate={onRotateTile} />}
       {placedAvatars.map((slot, index) => {

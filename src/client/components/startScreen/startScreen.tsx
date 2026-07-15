@@ -43,11 +43,11 @@ export const StartScreen = ({
     className="fixed inset-0 z-10 flex flex-col items-center justify-center gap-10 bg-(--background) bg-cover bg-center"
     style={{
       backgroundImage:
-        'linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("/assets/splash%20-%20background.png")',
+        'linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("/assets/images/splash%20-%20background.png")',
     }}
   >
     <img
-      src="/assets/logo.png"
+      src="/assets/images/logo.png"
       alt="Wobble Clash"
       className="w-64 max-w-[60%] h-auto"
     />
