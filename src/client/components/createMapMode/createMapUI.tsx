@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { TILE_NAMES, AVATAR_NAMES, DEFAULT_MAP_TITLE } from '../../data/consts';
+import { TILE_NAMES, DEFAULT_MAP_TITLE } from '../../data/consts';
+import { characters } from '../../data/characters';
 import type { CreateMapUIProps } from '../../types/createMap';
+
+const AVATAR_NAMES = characters.map((character) => character.name);
 
 const SCROLL_STEP = 80;
 
@@ -19,6 +22,22 @@ const actionButtonLayoutClassName =
   'flex items-center justify-center h-10 px-4';
 const actionButtonClassName = `game-button-primary ${actionButtonLayoutClassName}`;
 const successButtonClassName = `game-button-success ${actionButtonLayoutClassName}`;
+
+const MAX_MAP_RATING = 5;
+const MIN_SAVE_RATING_STARS = 3;
+
+const MapRatingStars = ({ rating }: { rating: number }) => (
+  <div className="flex gap-0.5 text-sm leading-none">
+    {Array.from({ length: MAX_MAP_RATING }, (_, index) => (
+      <span
+        key={index}
+        className={index < Math.round(rating) ? 'text-(--warning)' : 'text-(--muted-dark)'}
+      >
+        ★
+      </span>
+    ))}
+  </div>
+);
 
 const ScrollableSelectList = ({
   items,
@@ -111,7 +130,7 @@ const BottomTeamSlot = ({
           : 'border-dashed border-(--panel-border) bg-(--panel-soft)'
     }`}
   >
-    {avatarName ? abbreviateLabel(avatarName) : null}
+    {avatarName ? abbreviateLabel(avatarName) : <span className="text-(--muted)">Tap</span>}
     {isActive && avatarName && (
       <button
         onClick={(event) => {
@@ -144,6 +163,7 @@ export const CreateMapUI = ({
   onChangeMapTitle,
   mapRating,
   onResetRotation,
+  onBack,
 }: CreateMapUIProps) => {
   const [isTilesOpen, setIsTilesOpen] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -182,9 +202,15 @@ export const CreateMapUI = ({
 
   return (
     <>
-      <div className="fixed top-1/5 left-4 z-10 flex flex-col items-start gap-1">
+      <button
+        className="game-button-secondary fixed top-4 right-4 z-10 flex items-center justify-center h-8 px-3 text-sm"
+        onClick={onBack}
+      >
+        Back
+      </button>
+      <div className="fixed top-1/5 left-4 z-10 game-panel opacity-75 flex flex-col items-start gap-1 px-4 py-3">
         <span className="game-label">Map Rating</span>
-        <span className="text-lg font-bold">{mapRating.toFixed(1)}/5</span>
+        <MapRatingStars rating={mapRating} />
       </div>
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2">
         {isEditingTitle ? (
@@ -215,7 +241,15 @@ export const CreateMapUI = ({
             Back
           </button>
         ) : (
-          <button className={successButtonClassName}>Save</button>
+          <button
+            className={successButtonClassName}
+            disabled={
+              placedAvatars.some((slot) => slot === null) ||
+              Math.round(mapRating) < MIN_SAVE_RATING_STARS
+            }
+          >
+            Save
+          </button>
         )}
       </div>
       {!openPanel && (

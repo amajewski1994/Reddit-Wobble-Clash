@@ -10,6 +10,6 @@ export const calculateMapRating = (
   const usedTileTypesCount = new Set(tiles.map((tile) => tile.tileName)).size;
   const enemiesCount = placedAvatars.filter((slot) => slot !== null).length;
   const isNameChanged = mapTitle !== DEFAULT_MAP_TITLE;
-  const rawRating = usedTileTypesCount * 0.1 + enemiesCount * 0.2 + (isNameChanged ? 0.1 : 0);
+  const rawRating = usedTileTypesCount * 0.3 + enemiesCount * 0.3 + (isNameChanged ? 0.1 : 0);
   return Math.min(5, Math.round(rawRating * 10) / 10);
 };

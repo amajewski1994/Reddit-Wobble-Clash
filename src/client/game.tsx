@@ -134,6 +134,14 @@ export const App = () => {
     setScreen('start');
   };
 
+  const leaveCreateMode = () => {
+    setSelectedTileName(null);
+    setSelectedAvatarName(null);
+    setActiveSlotIndex(null);
+    setRotatingTileId(null);
+    setScreen('start');
+  };
+
   const handlePickCharacter = (characterId: number) => {
     handleToggleCharacterSelection(characterId);
     setVictoryToken((token) => token + 1);
@@ -257,6 +265,7 @@ export const App = () => {
             onChangeMapTitle={setMapTitle}
             mapRating={mapRating}
             onResetRotation={() => setRotatingTileId(null)}
+            onBack={leaveCreateMode}
           />
           <CreateMap
             tiles={createMapTiles}

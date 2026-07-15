@@ -18,6 +18,7 @@ export interface CreateMapUIProps {
   onChangeMapTitle: (title: string) => void;
   mapRating: number;
   onResetRotation: () => void;
+  onBack: () => void;
 }
 
 export interface CreateMapProps {

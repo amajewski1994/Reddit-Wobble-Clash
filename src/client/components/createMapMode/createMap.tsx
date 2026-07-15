@@ -7,22 +7,26 @@ import { MapTiles } from '../shared/MapTiles';
 import { Avatar } from '../shared/Avatar';
 import { AVATAR_Y_OFFSET } from '../shared/Avatars';
 import { ROTATE_LEFT_ICON } from '../shared/tileAssets';
-import { AVATAR_NAMES, IMPASSABLE_TILE_NAME_PARTS } from '../../data/consts';
+import { IMPASSABLE_TILE_NAME_PARTS } from '../../data/consts';
+import { characters } from '../../data/characters';
 import type { MapTileData } from '../../types/mapTile';
 import type { CreateMapProps } from '../../types/createMap';
 
 const ROTATE_STEP = 60;
 const ROTATE_ARROW_OFFSET = 0.6;
 const ROTATE_ARROW_HEIGHT = 0.1;
+const MAX_AVATAR_TILE_ID = 74;
 
-const getAvatarObjectName = (avatarName: string) => `avatar_${avatarName}_v1`;
+const getAvatarVariant = (avatarName: string) =>
+  characters.find((character) => character.name === avatarName)?.objectName[0];
 
 const isImpassableTileName = (tileName: string) =>
   IMPASSABLE_TILE_NAME_PARTS.some((part) => tileName.includes(part));
 
-AVATAR_NAMES.forEach((avatarName) =>
-  useLoader.preload(GLTFLoader, `/assets/characters/${getAvatarObjectName(avatarName)}.glb`)
-);
+characters.forEach((character) => {
+  const variant = character.objectName[0];
+  if (variant) useLoader.preload(GLTFLoader, `/assets/characters/${variant.name}.glb`);
+});
 
 const RotateArrow = ({
   direction,
@@ -112,6 +116,7 @@ export const CreateMap = ({
 }: CreateMapProps) => {
   const handleTileClick = (id: number) => {
     if (selectedAvatarName && activeSlotIndex !== null) {
+      if (id > MAX_AVATAR_TILE_ID) return;
       const targetTile = tiles.find((tile) => tile.id === id);
       if (!targetTile || isImpassableTileName(targetTile.tileName)) return;
       onPlaceAvatar(id);
@@ -136,11 +141,14 @@ export const CreateMap = ({
         if (!slot) return null;
         const tile = tiles.find((tile) => tile.id === slot.tileID);
         if (!tile) return null;
+        const variant = getAvatarVariant(slot.avatarName);
+        if (!variant) return null;
         return (
           <Avatar
             key={index}
             name={slot.avatarName}
-            objectName={getAvatarObjectName(slot.avatarName)}
+            objectName={variant.name}
+            scale={variant.scale}
             position={[tile.positionX, AVATAR_Y_OFFSET, tile.positionZ]}
             rotationY={tile.rotationY}
             action={null}
