@@ -6,7 +6,7 @@
     "customConditions": ["browser"],
     "rootDir": "../src/client"
   },
-  "include": ["../src/client/**/*"],
+  "include": ["../src/client/**/*", "../src/shared/types"],
   "exclude": [],
   "references": [
     {

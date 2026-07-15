@@ -6,8 +6,8 @@ import { AVATAR_Y_OFFSET } from '../shared/Avatars';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { useImagePreload } from '../../hooks/useImagePreload';
 import { characters } from '../../data/characters';
-import type { PickModeCanvasProps } from '../../types/pickMode';
-import type { AvatarAction } from '../../types/duelMap';
+import type { PickModeCanvasProps } from '../../../shared/types/pickMode';
+import type { AvatarAction } from '../../../shared/types/duelMap';
 
 const PICK_CAMERA_POSITION: [number, number, number] = [0, 0.9, 2.4];
 const PICK_CAMERA_TARGET: [number, number, number] = [0, 0.6, 0];

@@ -13,7 +13,7 @@ import {
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { clone as cloneSkinnedScene } from 'three/examples/jsm/utils/SkeletonUtils.js';
-import type { AttackOutcome, AvatarAction } from '../../types/duelMap';
+import type { AttackOutcome, AvatarAction } from '../../../shared/types/duelMap';
 
 const ROTATE_DURATION = 0.3;
 const MOVE_DURATION = 0.8;

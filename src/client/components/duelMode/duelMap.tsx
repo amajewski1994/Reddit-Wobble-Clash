@@ -1,12 +1,12 @@
 import { useLoader } from '@react-three/fiber';
 import { useMemo, useState } from 'react';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { duelMapTilesData as initialMapTilesData } from './duelMapTilesData';
+// import { duelMapTilesData as initialMapTilesData } from './duelMapTilesData';
 import { MapCanvas } from '../shared/MapCanvas';
 import { MapTiles } from '../shared/MapTiles';
 import { Avatars } from '../shared/Avatars';
-import type { DuelMapProps } from '../../types/duelMap';
-import type { TeamMember } from '../../types/team';
+import type { DuelMapProps } from '../../../shared/types/duelMap';
+import type { TeamMember } from '../../../shared/types/team';
 import { IMPASSABLE_TILE_NAME_PARTS } from '../../data/consts';
 import {
   getAbilityTargetType,
@@ -72,6 +72,7 @@ const getTilesReachableWithinRange = <
 };
 
 export const DuelMap = ({
+  tiles,
   selectedTileName,
   team,
   enemyTeam,
@@ -89,7 +90,6 @@ export const DuelMap = ({
   onHitAndRunMove,
   onUseMoveAbility,
 }: DuelMapProps) => {
-  const [tiles, setTiles] = useState(initialMapTilesData);
   const [pendingAttackTargetIds, setPendingAttackTargetIds] = useState<
     number[]
   >([]);

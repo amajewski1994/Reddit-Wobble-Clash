@@ -5,6 +5,7 @@ import { api } from './routes/api';
 import { forms } from './routes/forms';
 import { menu } from './routes/menu';
 import { triggers } from './routes/triggers';
+import { mapsRouter } from './routes/maps';
 
 const app = new Hono();
 const internal = new Hono();
@@ -15,6 +16,8 @@ internal.route('/triggers', triggers);
 
 app.route('/api', api);
 app.route('/internal', internal);
+
+app.route('/api/maps', mapsRouter);
 
 serve({
   fetch: app.fetch,

@@ -5,3 +5,7 @@ export interface MapTileData {
   rotationY: number;
   tileName: string;
 }
+
+export interface DuelMapTileData extends MapTileData {
+  blocked: boolean;
+}

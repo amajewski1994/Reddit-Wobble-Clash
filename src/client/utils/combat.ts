@@ -1,5 +1,5 @@
-import type { TeamMember } from '../types/team';
-import type { AttackOutcome } from '../types/duelMap';
+import type { TeamMember } from '../../shared/types/team';
+import type { AttackOutcome } from '../../shared/types/duelMap';
 import {
   findProtector,
   getCrushingBlowsMultiplier,
@@ -48,10 +48,14 @@ export const resolveAttack = (
   const clickedTargetTeam = enemyTeam.some(({ id }) => id === clickedTarget.id)
     ? enemyTeam
     : team;
-  const protector = findProtector(clickedTarget, clickedTargetTeam, (member) => {
-    const protectorTile = tiles.find((tile) => tile.id === member.tileID);
-    return !!protectorTile && isNeighborTile(protectorTile, targetTile);
-  });
+  const protector = findProtector(
+    clickedTarget,
+    clickedTargetTeam,
+    (member) => {
+      const protectorTile = tiles.find((tile) => tile.id === member.tileID);
+      return !!protectorTile && isNeighborTile(protectorTile, targetTile);
+    }
+  );
   const targetAvatar = protector ?? clickedTarget;
   const defenderTile = protector
     ? (tiles.find((tile) => tile.id === protector.tileID) ?? targetTile)
@@ -118,7 +122,11 @@ export const resolveAttack = (
   const ignoresTargetDodgeBonuses = isIgnoringEnemyDodgeBonuses(attackerAvatar);
   const targetDodgeBonus = ignoresTargetDodgeBonuses
     ? 0
-    : getStatModifierTotal(targetAvatar, 'dodge', targetAvatar.statistics.dodge) +
+    : getStatModifierTotal(
+        targetAvatar,
+        'dodge',
+        targetAvatar.statistics.dodge
+      ) +
       getEffectiveBonus(
         getPassiveDodgeBonus(targetAvatar, defenderTile.tileName),
         targetAvatar

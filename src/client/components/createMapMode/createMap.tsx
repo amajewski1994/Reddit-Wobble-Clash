@@ -9,8 +9,8 @@ import { AVATAR_Y_OFFSET } from '../shared/Avatars';
 import { ROTATE_LEFT_ICON } from '../shared/tileAssets';
 import { IMPASSABLE_TILE_NAME_PARTS } from '../../data/consts';
 import { characters } from '../../data/characters';
-import type { MapTileData } from '../../types/mapTile';
-import type { CreateMapProps } from '../../types/createMap';
+import type { MapTileData } from '../../../shared/types/mapTile';
+import type { CreateMapProps } from '../../../shared/types/createMap';
 
 const ROTATE_STEP = 60;
 const ROTATE_ARROW_OFFSET = 0.6;

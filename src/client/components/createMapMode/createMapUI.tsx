@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { TILE_NAMES, DEFAULT_MAP_TITLE } from '../../data/consts';
 import { characters } from '../../data/characters';
-import type { CreateMapUIProps } from '../../types/createMap';
+import type { CreateMapUIProps } from '../../../shared/types/createMap';
 
 const AVATAR_NAMES = characters.map((character) => character.name);
 
@@ -163,6 +163,9 @@ export const CreateMapUI = ({
   onChangeMapTitle,
   mapRating,
   onResetRotation,
+  onSave,
+  isSaving,
+  saveError,
   onBack,
 }: CreateMapUIProps) => {
   const [isTilesOpen, setIsTilesOpen] = useState(false);
@@ -242,15 +245,24 @@ export const CreateMapUI = ({
           </button>
         ) : (
           <button
+            type="button"
             className={successButtonClassName}
+            onClick={() => void onSave()}
             disabled={
+              isSaving ||
               placedAvatars.some((slot) => slot === null) ||
               Math.round(mapRating) < MIN_SAVE_RATING_STARS
             }
           >
-            Save
+            {isSaving ? 'Publishing...' : 'Save & Publish'}
           </button>
         )}
+
+        {saveError && (
+  <div className="game-panel px-3 py-2 text-sm text-(--danger)">
+    {saveError}
+  </div>
+)}
       </div>
       {!openPanel && (
         <div className="fixed top-1/5 right-4 z-10 flex flex-col gap-2">

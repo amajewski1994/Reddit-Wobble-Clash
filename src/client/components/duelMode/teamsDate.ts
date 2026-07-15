@@ -1,7 +1,10 @@
-import type { TeamMember } from '../../types/team';
+import type { TeamMember } from '../../../shared/types/team';
 import { characters } from '../../data/characters';
 import { abilities } from '../../data/abilities';
 import { duelMapTilesData } from './duelMapTilesData';
+
+import type { PlacedAvatar } from '../../../shared/types/createMap';
+import type { DuelMapTileData } from '../../../shared/types/mapTile';
 
 type TeamMemberBase = Pick<
   TeamMember,
@@ -80,20 +83,34 @@ let userTeamBase: TeamMemberBase[] = [];
 // blocked terrain. Checked against duelMapTilesData's `blocked` field.
 const drawStartingTileIds = (
   count: number,
-  range: { min: number; max: number }
+  range: { min: number; max: number },
+  tiles: DuelMapTileData[] = duelMapTilesData,
+  occupiedTileIds: Set<number> = new Set()
 ): number[] => {
-  const eligibleTileIds = duelMapTilesData
+  const eligibleTileIds = tiles
     .filter(
-      ({ id, blocked }) => id >= range.min && id <= range.max && !blocked
+      ({ id, blocked }) =>
+        id >= range.min &&
+        id <= range.max &&
+        !blocked &&
+        !occupiedTileIds.has(id)
     )
     .map(({ id }) => id);
 
+  if (eligibleTileIds.length < count) {
+    throw new Error(
+      `Not enough free starting tiles. Required: ${count}, available: ${eligibleTileIds.length}`
+    );
+  }
+
   const pool = [...eligibleTileIds];
   const drawn: number[] = [];
+
   for (let i = 0; i < count; i++) {
     const index = Math.floor(Math.random() * pool.length);
     drawn.push(pool.splice(index, 1)[0]!);
   }
+
   return drawn;
 };
 
@@ -138,19 +155,26 @@ export let userTeam: TeamMember[] = userTeamBase.map(buildTeamMember);
 export let enemyTeam: TeamMember[] = enemyTeamBase.map(buildTeamMember);
 
 export const setUserTeamFromCharacterIds = (
-  characterIds: number[]
+  characterIds: number[],
+  tiles: DuelMapTileData[] = duelMapTilesData,
+  occupiedTileIds: Set<number> = new Set()
 ): TeamMember[] => {
   const tileIds = drawStartingTileIds(
     characterIds.length,
-    USER_STARTING_TILE_ID_RANGE
+    USER_STARTING_TILE_ID_RANGE,
+    tiles,
+    occupiedTileIds
   );
+
   userTeamBase = characterIds.map((characterId, index) => ({
     id: index,
     characterId,
     tileID: tileIds[index]!,
     rotationY: PICKED_TEAM_SLOTS[index % PICKED_TEAM_SLOTS.length]!.rotationY,
   }));
+
   userTeam = userTeamBase.map(buildTeamMember);
+
   return userTeam;
 };
 
@@ -169,5 +193,41 @@ export const setEnemyTeamFromRandomCharacterIds = (): TeamMember[] => {
     rotationY: ENEMY_TEAM_SLOTS[index % ENEMY_TEAM_SLOTS.length]!.rotationY,
   }));
   enemyTeam = enemyTeamBase.map(buildTeamMember);
+  return enemyTeam;
+};
+
+export const setEnemyTeamFromPlacedAvatars = (
+  placedAvatars: PlacedAvatar[],
+  tiles: DuelMapTileData[]
+): TeamMember[] => {
+  enemyTeamBase = placedAvatars.map((placedAvatar, index) => {
+    const character = characters.find(
+      ({ name }) => name === placedAvatar.avatarName
+    );
+
+    if (!character) {
+      throw new Error(`Character "${placedAvatar.avatarName}" not found`);
+    }
+
+    const tile = tiles.find(({ id }) => id === placedAvatar.tileID);
+
+    if (!tile) {
+      throw new Error(`Tile ${placedAvatar.tileID} not found`);
+    }
+
+    if (tile.blocked) {
+      throw new Error(`Enemy cannot be placed on blocked tile ${tile.id}`);
+    }
+
+    return {
+      id: 100 + index,
+      characterId: character.id,
+      tileID: placedAvatar.tileID,
+      rotationY: tile.rotationY,
+    };
+  });
+
+  enemyTeam = enemyTeamBase.map(buildTeamMember);
+
   return enemyTeam;
 };

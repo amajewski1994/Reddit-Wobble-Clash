@@ -1,4 +1,4 @@
-import type { CharacterAbilities } from '../types/characters';
+import type { CharacterAbilities } from '../../shared/types/characters';
 
 //
 

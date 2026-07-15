@@ -3,7 +3,6 @@ import './index.css';
 import { StrictMode, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { navigateTo } from '@devvit/web/client';
-import { useCounter } from './hooks/useCounter';
 import { useAssetsLoading } from './hooks/useAssetsLoading';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
 import { CreateMap } from './components/createMapMode/createMap';
@@ -22,6 +21,7 @@ import {
   enemyTeam as initialEnemyTeam,
   setUserTeamFromCharacterIds,
   setEnemyTeamFromRandomCharacterIds,
+  setEnemyTeamFromPlacedAvatars,
 } from './components/duelMode/teamsDate';
 import { characters } from './data/characters';
 import { GameInfo } from './data/game';
@@ -32,8 +32,17 @@ import {
 } from './data/consts';
 import { calculateMapRating } from './utils/mapRating';
 import { createGameHandlers } from './utils/gameHandlers';
-import type { PlacedAvatar } from './types/createMap';
-import type { DuelActionEvent } from './types/duelMap';
+import type { PlacedAvatar } from '../shared/types/createMap';
+import type { DuelActionEvent } from '../shared/types/duelMap';
+
+import { publishMap } from './api/publishMap';
+
+import { duelMapTilesData } from './components/duelMode/duelMapTilesData';
+import { loadCurrentMap } from './api/loadCurrentMap';
+import { buildPublishedDuelTiles } from './utils/buildPublishedDuelTiles';
+
+import type { PublishedMap } from '../shared/types/savedMap';
+import type { DuelMapTileData } from '../shared/types/mapTile';
 
 type Screen = 'start' | 'duel' | 'create' | 'pick' | 'gameOver';
 
@@ -77,6 +86,16 @@ export const App = () => {
   );
   const [victoryToken, setVictoryToken] = useState(0);
   const [isConfirmingPick, setIsConfirmingPick] = useState(false);
+
+  const [isSavingMap, setIsSavingMap] = useState(false);
+  const [saveMapError, setSaveMapError] = useState<string | null>(null);
+
+  const [activePublishedMap, setActivePublishedMap] = useState<PublishedMap | null>(null);
+  const [isLoadingPublishedMap, setIsLoadingPublishedMap] = useState(true);
+
+const [, setPublishedMapLoadError] =
+  useState<string | null>(null);
+
   const isAssetsLoading = useAssetsLoading();
 
   const {
@@ -129,10 +148,118 @@ export const App = () => {
     [createMapTiles, placedAvatars, mapTitle]
   );
 
-  const leavePickMode = () => {
-    setSelectedCharacterIds([]);
-    setScreen('start');
+  const activePublishedMapEnemies = useMemo(() => {
+    if (!activePublishedMap) return [];
+
+    return activePublishedMap.enemies
+      .map(({ avatarName }) =>
+        characters.find((character) => character.name === avatarName)
+      )
+      .filter((character) => character !== undefined);
+  }, [activePublishedMap]);
+
+  const activeDuelTiles = useMemo<DuelMapTileData[]>(() => {
+  if (!activePublishedMap) {
+    return duelMapTilesData;
+  }
+
+  return buildPublishedDuelTiles(
+    initialCreateMapTiles,
+    activePublishedMap
+  );
+}, [activePublishedMap]);
+
+useEffect(() => {
+  let cancelled = false;
+
+  const initializeFromCurrentPost = async (): Promise<void> => {
+    try {
+      const map = await loadCurrentMap();
+
+      if (cancelled) return;
+
+      if (map) {
+        setActivePublishedMap(map);
+        setScreen('start');
+      } else {
+        setActivePublishedMap(null);
+        setScreen('start');
+      }
+    } catch (error) {
+      console.error('Could not load published map:', error);
+
+      if (cancelled) return;
+
+      setActivePublishedMap(null);
+      setPublishedMapLoadError(
+        error instanceof Error
+          ? error.message
+          : 'Nie udało się pobrać mapy.'
+      );
+      setScreen('start');
+    } finally {
+      if (!cancelled) {
+        setIsLoadingPublishedMap(false);
+      }
+    }
   };
+
+  void initializeFromCurrentPost();
+
+  return () => {
+    cancelled = true;
+  };
+}, []);
+
+  const handleSaveMap = async (): Promise<void> => {
+  if (isSavingMap) return;
+
+  setIsSavingMap(true);
+  setSaveMapError(null);
+
+  try {
+    const enemies: PlacedAvatar[] = placedAvatars.filter(
+      (avatar): avatar is PlacedAvatar => avatar !== null
+    );
+
+    const result = await publishMap({
+  title: mapTitle.trim(),
+  rating: mapRating,
+  tiles: createMapTiles.map(({ id, tileName, rotationY }) => ({
+    id,
+    tileName,
+    rotationY,
+  })),
+  enemies,
+});
+
+    if (result.postUrl) {
+      navigateTo(result.postUrl);
+    }
+
+    console.log('Mapa została opublikowana:', result.postId);
+  } catch (error) {
+    setSaveMapError(
+      error instanceof Error
+        ? error.message
+        : 'Nie udało się opublikować mapy.'
+    );
+  } finally {
+    setIsSavingMap(false);
+  }
+};
+
+  const leavePickMode = () => {
+  setSelectedCharacterIds([]);
+
+  if (activePublishedMap) {
+    // Wyjście z Pick Mode posta nie powinno uruchamiać
+    // zwykłego trybu z losową mapą.
+    return;
+  }
+
+  setScreen('start');
+};
 
   const leaveCreateMode = () => {
     setSelectedTileName(null);
@@ -148,11 +275,47 @@ export const App = () => {
   };
 
   const handleConfirmPick = () => {
-    setTeam(setUserTeamFromCharacterIds(selectedCharacterIds));
-    setEnemyTeam(setEnemyTeamFromRandomCharacterIds());
+  try {
+    if (activePublishedMap) {
+      const occupiedEnemyTileIds = new Set(
+        activePublishedMap.enemies.map(({ tileID }) => tileID)
+      );
+
+      const nextTeam = setUserTeamFromCharacterIds(
+        selectedCharacterIds,
+        activeDuelTiles,
+        occupiedEnemyTileIds
+      );
+
+      const nextEnemyTeam = setEnemyTeamFromPlacedAvatars(
+        activePublishedMap.enemies,
+        activeDuelTiles
+      );
+
+      setTeam(nextTeam);
+      setEnemyTeam(nextEnemyTeam);
+    } else {
+      setTeam(
+        setUserTeamFromCharacterIds(selectedCharacterIds)
+      );
+
+      setEnemyTeam(
+        setEnemyTeamFromRandomCharacterIds()
+      );
+    }
+
     setSelectedCharacterIds([]);
     setIsConfirmingPick(true);
-  };
+  } catch (error) {
+    console.error('Could not start duel:', error);
+
+    setPublishedMapLoadError(
+      error instanceof Error
+        ? error.message
+        : 'Nie udało się rozpocząć pojedynku.'
+    );
+  }
+};
 
   useEffect(() => {
     if (!isConfirmingPick) return;
@@ -210,6 +373,10 @@ export const App = () => {
     setScreen('start');
   };
 
+  if (isLoadingPublishedMap) {
+  return <LoadingSpinner />;
+}
+
   if (screen === 'gameOver' && gameResult) {
     return (
       <GameOverScreen
@@ -226,6 +393,8 @@ export const App = () => {
       <StartScreen
         onSelectPick={() => setScreen('pick')}
         onSelectCreate={() => setScreen('create')}
+        showCreate={!activePublishedMap}
+        enemies={activePublishedMapEnemies}
       />
     );
   }
@@ -254,18 +423,22 @@ export const App = () => {
         <>
           <CreateMapUI
             selectedTileName={selectedTileName}
-            onSelectTileName={setSelectedTileName}
-            selectedAvatarName={selectedAvatarName}
-            onSelectAvatarName={setSelectedAvatarName}
-            placedAvatars={placedAvatars}
-            activeSlotIndex={activeSlotIndex}
-            onSelectSlot={setActiveSlotIndex}
-            onRemoveAvatar={handleRemoveAvatar}
-            mapTitle={mapTitle}
-            onChangeMapTitle={setMapTitle}
-            mapRating={mapRating}
-            onResetRotation={() => setRotatingTileId(null)}
-            onBack={leaveCreateMode}
+  onSelectTileName={setSelectedTileName}
+  selectedAvatarName={selectedAvatarName}
+  onSelectAvatarName={setSelectedAvatarName}
+  placedAvatars={placedAvatars}
+  activeSlotIndex={activeSlotIndex}
+  onSelectSlot={setActiveSlotIndex}
+  onRemoveAvatar={handleRemoveAvatar}
+  mapTitle={mapTitle}
+  onChangeMapTitle={setMapTitle}
+  mapRating={mapRating}
+  onResetRotation={() => setRotatingTileId(null)}
+  onSave={handleSaveMap}
+  isSaving={isSavingMap}
+  saveError={saveMapError}
+  onBack={leaveCreateMode}
+
           />
           <CreateMap
             tiles={createMapTiles}
@@ -285,6 +458,7 @@ export const App = () => {
       {screen === 'duel' && (
         <>
           <DuelMapUI
+          tiles={activeDuelTiles}
             team={team}
             enemyTeam={enemyTeam}
             activeAvatarId={activeAvatarId}
@@ -301,6 +475,7 @@ export const App = () => {
             isEnemyTurn={isEnemyTurn || isDuelDecided}
           />
           <DuelMap
+          tiles={activeDuelTiles}
             selectedTileName={selectedTileName}
             team={team}
             enemyTeam={enemyTeam}
@@ -319,6 +494,7 @@ export const App = () => {
             onUseMoveAbility={handleUseMoveAbility}
           />
           <EnemyTurn
+          tiles={activeDuelTiles}
             isEnemyTurn={isEnemyTurn && !isDuelDecided}
             team={team}
             enemyTeam={enemyTeam}

@@ -1,4 +1,4 @@
-import type { TeamMemberTileStatistics } from '../types/team';
+import type { TeamMemberTileStatistics } from '../../shared/types/team';
 
 const TILE_BP_KEY_BY_NAME_PART: Record<string, keyof TeamMemberTileStatistics> =
   {

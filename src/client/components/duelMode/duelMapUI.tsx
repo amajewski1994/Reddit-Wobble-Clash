@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import type { DuelMapUIProps } from '../../types/duelMap';
-import type { TeamMember, TeamMemberTileStatistics } from '../../types/team';
+import type { DuelMapUIProps } from '../../../shared/types/duelMap';
+import type { TeamMember, TeamMemberTileStatistics } from '../../../shared/types/team';
 import { UserInfo } from '../../data/userInfo';
-import { duelMapTilesData } from './duelMapTilesData';
+// import { duelMapTilesData } from './duelMapTilesData';
 import { actionButtonClassName, getMaxHp, HpBar } from './duelMapShared';
 import {
   getActiveStatusNames,
@@ -17,19 +17,9 @@ import {
 import { getTileBPBonus } from '../../utils/tileBonus';
 import { isNeighborTile } from '../../utils/adjacency';
 import { DuelSidePanel } from './duelSidePanel';
+import { DuelMapTileData } from '../../../shared/types/mapTile';
 
 const END_TURN_HIDE_DURATION_MS = 3000;
-
-const abbreviateAvatarName = (name: string) => {
-  return name
-    .split('_')
-    .map((part) => {
-      const versionMatch = part.match(/^v(\d+)$/i);
-      if (versionMatch) return versionMatch[1];
-      return part.charAt(0).toUpperCase();
-    })
-    .join('');
-};
 
 const TILE_BP_LABELS: Record<keyof TeamMemberTileStatistics, string> = {
   grassBP: 'Grass',
@@ -47,10 +37,10 @@ const formatTileName = (tileName: string) =>
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' / ');
 
-const getTile = (tileID: number) =>
-  duelMapTilesData.find(({ id }) => id === tileID);
+// const getTile = (tileID: number) =>
+//   duelMapTilesData.find(({ id }) => id === tileID);
 
-const getTileName = (tileID: number) => getTile(tileID)?.tileName ?? '';
+// const getTileName = (tileID: number) => getTile(tileID)?.tileName ?? '';
 
 const StatRow = ({
   label,
@@ -77,6 +67,7 @@ const StatRow = ({
 );
 
 const FullCard = ({
+  tiles,
   avatar,
   opposingTeam,
   allyTeam,
@@ -89,6 +80,7 @@ const FullCard = ({
   onMove,
   onAbilities,
 }: {
+  tiles: DuelMapTileData[]
   avatar: TeamMember;
   opposingTeam: TeamMember[];
   allyTeam: TeamMember[];
@@ -101,6 +93,9 @@ const FullCard = ({
   onMove: () => void;
   onAbilities: () => void;
 }) => {
+  const getTile = (tileID: number) =>
+  tiles.find(({ id }) => id === tileID);
+
   const isDead = avatar.statistics.hp <= 0;
   const avatarTile = getTile(avatar.tileID);
   const avatarTileName = avatarTile?.tileName ?? '';
@@ -215,7 +210,7 @@ const FullCard = ({
       )}
       <div className="flex justify-between text-sm">
         <span className="game-label">Tile</span>
-        <span>{formatTileName(getTileName(avatar.tileID))}</span>
+        <span>{formatTileName(avatarTileName)}</span>
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-1 border-t border-(--panel-border) pt-2">
         {(Object.keys(TILE_BP_LABELS) as (keyof typeof TILE_BP_LABELS)[]).map(
@@ -353,37 +348,8 @@ const SelectionPopup = ({
   </div>
 );
 
-const BottomTeamCard = ({
-  id,
-  name,
-  hp,
-  isActive,
-  onSelect,
-}: {
-  id: number;
-  name: string;
-  hp: number;
-  isActive: boolean;
-  onSelect: () => void;
-}) => (
-  <div
-    className={`flex flex-col items-center gap-1 w-14 ${hp <= 0 ? 'opacity-40 grayscale' : ''}`}
-  >
-    <div
-      onClick={onSelect}
-      className={`flex items-center justify-center w-14 h-14 shrink-0 rounded-md border-2 cursor-pointer transition-all text-sm font-bold ${
-        isActive
-          ? 'bg-(--secondary) border-(--secondary) text-white'
-          : 'duel-panel duel-panel--team'
-      }`}
-    >
-      {abbreviateAvatarName(name)}
-    </div>
-    <HpBar hp={hp} maxHp={getMaxHp(id)} isEnemy={false} />
-  </div>
-);
-
 export const DuelMapUI = ({
+  tiles,
   team,
   enemyTeam,
   activeAvatarId,
@@ -433,9 +399,13 @@ export const DuelMapUI = ({
         }`}
       >
         <div className="duel-banner__inner px-8 py-2 text-base font-bold uppercase tracking-wide whitespace-nowrap">
-          {isEnemyTurn
-            ? 'Enemy Turn'
-            : `Turn ${<span className="text-(--primary)">{turn}</span>}`}
+          {isEnemyTurn ? (
+            'Enemy Turn'
+          ) : (
+            <>
+              Turn <span className="text-(--primary)">{turn}</span>
+            </>
+          )}
         </div>
       </div>
       <DuelSidePanel
@@ -472,6 +442,7 @@ export const DuelMapUI = ({
       )}
       {activeAvatar && (
         <FullCard
+        tiles={tiles}
           avatar={activeAvatar}
           opposingTeam={isActiveAvatarEnemy ? team : enemyTeam}
           allyTeam={isActiveAvatarEnemy ? enemyTeam : team}

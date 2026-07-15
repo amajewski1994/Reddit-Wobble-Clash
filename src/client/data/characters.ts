@@ -1,4 +1,4 @@
-import type { Character } from '../types/characters';
+import type { Character } from '../../shared/types/characters';
 
 // MY INFO
 // Warrior - FrogWolf

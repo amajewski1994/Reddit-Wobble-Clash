@@ -11,10 +11,10 @@ import {
   getPassiveTurnStartHeal,
   isEndureActive,
 } from './abilities';
-import type { AttackOutcome } from '../types/duelMap';
-import type { PlacedAvatar } from '../types/createMap';
-import type { MapTileData } from '../types/mapTile';
-import type { TeamMember } from '../types/team';
+import type { AttackOutcome } from '../../shared/types/duelMap';
+import type { PlacedAvatar } from '../../shared/types/createMap';
+import type { MapTileData } from '../../shared/types/mapTile';
+import type { TeamMember } from '../../shared/types/team';
 import { PICK_TEAM_SIZE } from '../data/consts';
 
 type GameHandlersDeps = {
@@ -302,9 +302,7 @@ export const createGameHandlers = (deps: GameHandlersDeps) => {
       duelMapTilesData.find((tile) => tile.id === member.tileID)?.tileName ??
       '';
     const turnStartHeal =
-      member.statistics.hp > 0
-        ? getPassiveTurnStartHeal(member, tileName)
-        : 0;
+      member.statistics.hp > 0 ? getPassiveTurnStartHeal(member, tileName) : 0;
 
     return {
       ...member,

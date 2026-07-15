@@ -1,4 +1,4 @@
-import type { TeamMember } from '../../types/team';
+import type { TeamMember } from '../../../shared/types/team';
 import { UserInfo } from '../../data/userInfo';
 import { EnemyInfo } from '../../data/enemyInfo';
 

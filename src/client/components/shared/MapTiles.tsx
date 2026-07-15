@@ -1,5 +1,5 @@
 import { Tile } from './Tile';
-import type { MapTilesProps } from '../../types/mapTiles';
+import type { MapTilesProps } from '../../../shared/types/mapTiles';
 
 export const MapTiles = ({ tiles, onTileClick, dimmedTileIds }: MapTilesProps) => {
   return (

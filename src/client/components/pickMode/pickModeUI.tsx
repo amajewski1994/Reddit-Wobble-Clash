@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { PickModeUIProps } from '../../types/pickMode';
+import type { PickModeUIProps } from '../../../shared/types/pickMode';
 import { abilities } from '../../data/abilities';
 
 const actionButtonLayoutClassName =

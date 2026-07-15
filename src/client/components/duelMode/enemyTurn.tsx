@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
-import type { TeamMember } from '../../types/team';
-import type { AttackOutcome, DuelActionEvent } from '../../types/duelMap';
-import type { ActiveAbility, AbilityCategory } from '../../types/characters';
-import { duelMapTilesData } from './duelMapTilesData';
+import type { TeamMember } from '../../../shared/types/team';
+import type { AttackOutcome, DuelActionEvent } from '../../../shared/types/duelMap';
+import type { ActiveAbility, AbilityCategory } from '../../../shared/types/characters';
+import type { DuelMapTileData } from '../../../shared/types/mapTile';
 import { characters } from '../../data/characters';
 import {
   getNeighborTileAwayFrom,
@@ -24,6 +24,7 @@ import {
 const MOVE_DELAY_MS = 2000;
 
 type EnemyTurnProps = {
+  tiles: DuelMapTileData[];
   isEnemyTurn: boolean;
   team: TeamMember[];
   enemyTeam: TeamMember[];
@@ -113,13 +114,14 @@ const pickRandomTargets = <T,>(pool: T[], count: number): T[] => {
 
 const findNearestOpponentTile = (
   originTile: { positionX: number; positionZ: number },
-  opponents: TeamMember[]
+  opponents: TeamMember[],
+  tiles: DuelMapTileData[]
 ) => {
-  let nearestTile: (typeof duelMapTilesData)[number] | null = null;
+  let nearestTile: DuelMapTileData | null = null;
   let nearestDistance = Infinity;
   for (const opponent of opponents) {
     if (opponent.statistics.hp <= 0) continue;
-    const tile = duelMapTilesData.find(({ id }) => id === opponent.tileID);
+    const tile = tiles.find(({ id }) => id === opponent.tileID);
     if (!tile) continue;
     const distance = Math.hypot(
       tile.positionX - originTile.positionX,
@@ -142,6 +144,7 @@ const findNearestOpponentTile = (
 // turn back via onEnemyTurnEnd once every enemy is out of AP. Renders
 // nothing.
 export const EnemyTurn = ({
+  tiles,
   isEnemyTurn,
   team,
   enemyTeam,
@@ -160,6 +163,7 @@ export const EnemyTurn = ({
   const onUseAttackAbilityRef = useRef(onUseAttackAbility);
   const onActionEventRef = useRef(onActionEvent);
   const onEnemyTurnEndRef = useRef(onEnemyTurnEnd);
+  const tilesRef = useRef(tiles);
   // Tile each enemy stood on right before its last move, so it doesn't just
   // shuffle back and forth between the same two tiles.
   const previousTileByEnemyId = useRef(new Map<number, number>());
@@ -168,6 +172,7 @@ export const EnemyTurn = ({
   // reads from setTimeout are always current, without retriggering the
   // isEnemyTurn effect below.
   useEffect(() => {
+    tilesRef.current = tiles;
     teamRef.current = team;
     enemyTeamRef.current = enemyTeam;
     onMoveEnemyRef.current = onMoveEnemy;
@@ -198,7 +203,7 @@ export const EnemyTurn = ({
       const allies = enemyTeamRef.current;
       const opponents = teamRef.current;
       const livingOpponents = opponents.filter(({ statistics }) => statistics.hp > 0);
-      const originTile = duelMapTilesData.find(
+      const originTile = tilesRef.current.find(
         (tile) => tile.id === actingEnemy.tileID
       );
       const archetype = getArchetype(actingEnemy);
@@ -232,7 +237,7 @@ export const EnemyTurn = ({
         // 'attack'-category abilities are a normal attack with a twist —
         // same adjacency requirement as a plain attack.
         const adjacentLivingOpponents = livingOpponents.filter((opponent) => {
-          const opponentTile = duelMapTilesData.find(
+          const opponentTile = tilesRef.current.find(
             (tile) => tile.id === opponent.tileID
           );
           return !!opponentTile && isNeighborTile(opponentTile, originTile);
@@ -245,7 +250,7 @@ export const EnemyTurn = ({
         const modifiers = getAttackAbilityModifiers(attackAbility);
         const results = targets
           .map((target) =>
-            resolveAttack(actingEnemy, target, opponents, allies, duelMapTilesData, modifiers)
+            resolveAttack(actingEnemy, target, opponents, allies, tilesRef.current, modifiers)
           )
           .filter((result): result is NonNullable<typeof result> => !!result);
         if (results.length === 0) return false;
@@ -279,13 +284,13 @@ export const EnemyTurn = ({
         const neighborOpponent = originTile
           ? opponents.find(({ statistics, tileID }) => {
               if (statistics.hp <= 0) return false;
-              const targetTile = duelMapTilesData.find((tile) => tile.id === tileID);
+              const targetTile = tilesRef.current.find((tile) => tile.id === tileID);
               return !!targetTile && isNeighborTile(targetTile, originTile);
             })
           : undefined;
         const result =
           originTile && neighborOpponent
-            ? resolveAttack(actingEnemy, neighborOpponent, opponents, allies, duelMapTilesData)
+            ? resolveAttack(actingEnemy, neighborOpponent, opponents, allies, tilesRef.current)
             : null;
         if (!result) return false;
         onActionEventRef.current({
@@ -384,18 +389,18 @@ export const EnemyTurn = ({
       const avoidTileId = previousTileByEnemyId.current.get(actingEnemy.id);
       const destination = (() => {
         if (!originTile) return null;
-        const nearestOpponentTile = findNearestOpponentTile(originTile, opponents);
+        const nearestOpponentTile = findNearestOpponentTile(originTile, opponents, tilesRef.current);
 
         if (archetype === 'keepDistance') {
           return nearestOpponentTile
             ? getNeighborTileAwayFrom(
                 originTile,
                 allAvatars,
-                duelMapTilesData,
+                tilesRef.current,
                 nearestOpponentTile,
                 avoidTileId
               )
-            : getRandomFreeNeighborTile(originTile, allAvatars, duelMapTilesData, avoidTileId);
+            : getRandomFreeNeighborTile(originTile, allAvatars, tilesRef.current, avoidTileId);
         }
 
         if (archetype === 'terrainSeeker') {
@@ -406,7 +411,7 @@ export const EnemyTurn = ({
           return getPreferredNeighborTile(
             originTile,
             allAvatars,
-            duelMapTilesData,
+            tilesRef.current,
             preferredTileNames,
             nearestOpponentTile,
             avoidTileId
@@ -419,11 +424,11 @@ export const EnemyTurn = ({
           ? getNeighborTileTowards(
               originTile,
               allAvatars,
-              duelMapTilesData,
+              tilesRef.current,
               nearestOpponentTile,
               avoidTileId
             )
-          : getRandomFreeNeighborTile(originTile, allAvatars, duelMapTilesData, avoidTileId);
+          : getRandomFreeNeighborTile(originTile, allAvatars, tilesRef.current, avoidTileId);
       })();
 
       if (destination && originTile) {

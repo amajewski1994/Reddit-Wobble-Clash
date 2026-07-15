@@ -1,6 +1,9 @@
 import type { TeamMember } from './team';
+import type { DuelMapTileData } from './mapTile';
 
 export interface DuelMapUIProps {
+  tiles: DuelMapTileData[];
+
   team: TeamMember[];
   enemyTeam: TeamMember[];
   activeAvatarId: number | null;
@@ -18,6 +21,8 @@ export interface DuelMapUIProps {
 }
 
 export interface DuelMapProps {
+  tiles: DuelMapTileData[];
+
   selectedTileName: string | null;
   team: TeamMember[];
   enemyTeam: TeamMember[];

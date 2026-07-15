@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Avatar } from './Avatar';
-import type { TeamMember } from '../../types/team';
-import type { AvatarAction, DuelActionEvent } from '../../types/duelMap';
-import type { MapTileData } from '../../types/mapTile';
+import type { TeamMember } from '../../../shared/types/team';
+import type { AvatarAction, DuelActionEvent } from '../../../shared/types/duelMap';
+import type { MapTileData } from '../../../shared/types/mapTile';
 import { getAbilityAnimationClip } from '../../utils/abilities';
 
 export const AVATAR_Y_OFFSET = 0.225;

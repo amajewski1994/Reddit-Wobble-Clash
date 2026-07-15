@@ -1,5 +1,10 @@
-import type { ActiveAbility } from '../types/characters';
-import type { ModifierMode, ModifierStat, StatModifier, TeamMember } from '../types/team';
+import type { ActiveAbility } from '../../shared/types/characters';
+import type {
+  ModifierMode,
+  ModifierStat,
+  StatModifier,
+  TeamMember,
+} from '../../shared/types/team';
 import { getMaxHp } from './maxHp';
 import { tileHasPart } from './tileBonus';
 
@@ -34,13 +39,17 @@ const isAlliesTargetedDescription = (description: string): boolean =>
   /all allies/i.test(description);
 
 const isSelfTargetedDescription = (description: string): boolean =>
-  !isAllyTargetedDescription(description) && !isAlliesTargetedDescription(description);
+  !isAllyTargetedDescription(description) &&
+  !isAlliesTargetedDescription(description);
 
 // 'reduce' and 'attack' abilities are always cast on an enemy (or several, for
 // 'attack'), regardless of wording (they say "the target"/"target enemy"
 // rather than "ally").
-export const getAbilityTargetType = (ability: ActiveAbility): AbilityTargetType => {
-  if (ability.category === 'reduce' || ability.category === 'attack') return 'enemy';
+export const getAbilityTargetType = (
+  ability: ActiveAbility
+): AbilityTargetType => {
+  if (ability.category === 'reduce' || ability.category === 'attack')
+    return 'enemy';
   if (isAlliesTargetedDescription(ability.description)) return 'allies';
   if (isAllyTargetedDescription(ability.description)) return 'ally';
   return 'self';
@@ -76,7 +85,9 @@ const ATTACK_TARGET_COUNT_WORDS: Record<string, number> = {
 };
 
 export const getAttackAbilityTargetCount = (ability: ActiveAbility): number => {
-  const match = ability.description.match(/attack\s+(\d+|two|three|four)\s+enemies/i);
+  const match = ability.description.match(
+    /attack\s+(\d+|two|three|four)\s+enemies/i
+  );
   const token = match?.[1]?.toLowerCase();
   if (!token) return 1;
   return ATTACK_TARGET_COUNT_WORDS[token] ?? Number(token);
@@ -121,7 +132,12 @@ const REDUCE_STAT_PATTERN = /(\d+)\s*(Attack|Defence|Accuracy|Dodge)/gi;
 
 const parseStatReduceFromDescription = (
   description: string
-): { stat: ModifierStat; mode: ModifierMode; amount: number; turns: number | null } | null => {
+): {
+  stat: ModifierStat;
+  mode: ModifierMode;
+  amount: number;
+  turns: number | null;
+} | null => {
   const turnsMatch = description.match(/for\s+(\d+)\s+turns?/i);
   const turns = turnsMatch ? Number(turnsMatch[1]) : null;
 
@@ -166,7 +182,9 @@ const applyReduceEffect = (
   return {
     ...target,
     statModifiers: [
-      ...target.statModifiers.filter((existing) => existing.stat !== parsed.stat),
+      ...target.statModifiers.filter(
+        (existing) => existing.stat !== parsed.stat
+      ),
       modifier,
     ],
   };
@@ -189,13 +207,23 @@ const parseApBoostAmount = (description: string): number | null => {
 
 const parseStatBoostFromDescription = (
   description: string
-): { stat: ModifierStat; mode: ModifierMode; amount: number; turns: number | null } | null => {
+): {
+  stat: ModifierStat;
+  mode: ModifierMode;
+  amount: number;
+  turns: number | null;
+} | null => {
   const turnsMatch = description.match(/for\s+(\d+)\s+turns?/i);
   const turns = turnsMatch ? Number(turnsMatch[1]) : null;
 
   const percentMatch = description.match(/(\d+)%\s*more damage/i);
   if (percentMatch) {
-    return { stat: 'attack', mode: 'percent', amount: Number(percentMatch[1]), turns };
+    return {
+      stat: 'attack',
+      mode: 'percent',
+      amount: Number(percentMatch[1]),
+      turns,
+    };
   }
 
   const matches = [...description.matchAll(BOOST_STAT_PATTERN)];
@@ -241,7 +269,9 @@ const applyBoostEffect = (
   return {
     ...member,
     statModifiers: [
-      ...member.statModifiers.filter((existing) => existing.stat !== parsed.stat),
+      ...member.statModifiers.filter(
+        (existing) => existing.stat !== parsed.stat
+      ),
       modifier,
     ],
   };
@@ -360,10 +390,16 @@ export const applyAbilityEffectToTarget = (
   if (ability.category === 'reduce') {
     return applyReduceEffect(target, ability);
   }
-  if (ability.category === 'boost' && !isSelfTargetedDescription(ability.description)) {
+  if (
+    ability.category === 'boost' &&
+    !isSelfTargetedDescription(ability.description)
+  ) {
     return applyBoostEffect(target, ability);
   }
-  if (ability.category === 'heal' && !isSelfTargetedDescription(ability.description)) {
+  if (
+    ability.category === 'heal' &&
+    !isSelfTargetedDescription(ability.description)
+  ) {
     return applyHealEffect(target, ability);
   }
   return target;
@@ -374,7 +410,8 @@ export const applyAbilityEffectToTarget = (
 export const consumeAttackModifiers = (member: TeamMember): TeamMember => ({
   ...member,
   statModifiers: member.statModifiers.filter(
-    (modifier) => !(modifier.stat === 'attack' && modifier.turnsRemaining === null)
+    (modifier) =>
+      !(modifier.stat === 'attack' && modifier.turnsRemaining === null)
   ),
 });
 
@@ -388,10 +425,14 @@ export const decrementStatModifiers = (
         : { ...modifier, turnsRemaining: modifier.turnsRemaining - 1 }
     )
     .filter(
-      (modifier) => modifier.turnsRemaining === null || modifier.turnsRemaining > 0
+      (modifier) =>
+        modifier.turnsRemaining === null || modifier.turnsRemaining > 0
     );
 
-const getModifierAmount = (modifier: StatModifier, baseValue: number): number =>
+const getModifierAmount = (
+  modifier: StatModifier,
+  baseValue: number
+): number =>
   modifier.mode === 'percent'
     ? Math.round((baseValue * modifier.amount) / 100)
     : modifier.amount;
@@ -443,7 +484,9 @@ export const getPassiveAttackBonus = (
     case 'Jack of All Trades':
       return JACK_OF_ALL_TRADES_ATTACK_BONUS;
     case 'Mountain Strength':
-      return tileHasPart(tileName, 'rocks') ? MOUNTAIN_STRENGTH_ATTACK_BONUS : 0;
+      return tileHasPart(tileName, 'rocks')
+        ? MOUNTAIN_STRENGTH_ATTACK_BONUS
+        : 0;
     default:
       return 0;
   }
