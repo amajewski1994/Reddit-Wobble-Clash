@@ -1,6 +1,8 @@
 import type { TeamMember } from '../../../shared/types/team';
 import { UserInfo } from '../../data/userInfo';
 import { EnemyInfo } from '../../data/enemyInfo';
+import { characters } from '../../data/characters';
+import { getCharacterImageUrl } from '../../utils/characterImages';
 
 export type GameResult = 'win' | 'lost';
 
@@ -34,19 +36,32 @@ const TeamSummary = ({
       </span> */}
     </div>
     <div className="flex flex-col gap-1.5">
-      {members.map(({ id, name: memberName, statistics }) => (
-        <div
-          key={id}
-          className={`flex items-center gap-2 rounded-md border border-(--panel-border) px-1.5 py-1 ${
-            statistics.hp <= 0 ? 'opacity-40 grayscale' : ''
-          }`}
-        >
-          <div className="flex items-center justify-center w-7 h-7 shrink-0 rounded border border-dashed border-(--panel-border) text-base">
-            {isEnemy ? '💀' : '🪖'}
+      {members.map(({ id, name: memberName, characterId, statistics }) => {
+        const character = characters.find(
+          (candidate) => candidate.id === characterId
+        );
+        return (
+          <div
+            key={id}
+            className={`flex items-center gap-2 rounded-md border border-(--panel-border) px-1.5 py-1 ${
+              statistics.hp <= 0 ? 'opacity-40 grayscale' : ''
+            }`}
+          >
+            {character ? (
+              <img
+                src={getCharacterImageUrl(character.image)}
+                alt={memberName}
+                className="w-7 h-7 shrink-0 rounded border border-(--panel-border) object-cover"
+              />
+            ) : (
+              <div className="flex items-center justify-center w-7 h-7 shrink-0 rounded border border-dashed border-(--panel-border) text-base">
+                {isEnemy ? '💀' : '🪖'}
+              </div>
+            )}
+            <span className="text-xs font-semibold truncate">{memberName}</span>
           </div>
-          <span className="text-xs font-semibold truncate">{memberName}</span>
-        </div>
-      ))}
+        );
+      })}
     </div>
   </div>
 );

@@ -1,5 +1,6 @@
 import type { Character } from '../../../shared/types/characters';
 import type { MapStats } from '../../../shared/types/savedMap';
+import { getCharacterImageUrl } from '../../utils/characterImages';
 
 const modeButtonClassName =
   'game-button-primary flex flex-col items-center justify-center gap-2 w-40 h-40 text-lg font-bold uppercase tracking-wide';
@@ -12,11 +13,13 @@ export interface StartScreenProps {
   stats: MapStats | null;
 }
 
-const EnemyPreview = ({ name }: { name: string }) => (
+const EnemyPreview = ({ name, image }: { name: string; image: string }) => (
   <div className="flex flex-col items-center gap-1 w-16">
-    <div className="flex items-center justify-center w-16 h-16 rounded-md border-2 border-dashed border-(--panel-border) bg-(--panel-soft) text-2xl opacity-80">
-      💀
-    </div>
+    <img
+      src={getCharacterImageUrl(image)}
+      alt={name}
+      className="w-16 h-16 rounded-md border-2 border-(--panel-border) object-cover"
+    />
     <span className="text-[10px] font-semibold text-center leading-tight text-white">
       {name}
     </span>
@@ -82,7 +85,7 @@ export const StartScreen = ({
         </span>
         <div className="flex gap-3">
           {enemies.map((enemy) => (
-            <EnemyPreview key={enemy.id} name={enemy.name} />
+            <EnemyPreview key={enemy.id} name={enemy.name} image={enemy.image} />
           ))}
         </div>
       </div>

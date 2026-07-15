@@ -32,6 +32,7 @@ import {
 } from './data/consts';
 import { calculateMapRating } from './utils/mapRating';
 import { createGameHandlers } from './utils/gameHandlers';
+import { preloadCharacterImages } from './utils/preloadCharacterImages';
 import type { PlacedAvatar } from '../shared/types/createMap';
 import type { DuelActionEvent } from '../shared/types/duelMap';
 
@@ -54,8 +55,7 @@ type Screen = 'start' | 'duel' | 'create' | 'pick' | 'gameOver';
 // out before cutting to the summary screen.
 const DEATH_ANIMATION_DELAY_MS = 5000;
 
-// Shown between confirming a Pick Mode team and entering the duel screen,
-// and between picking Create on the start screen and entering create mode.
+// Shown between confirming a Pick Mode team and entering the duel screen.
 const SCREEN_TRANSITION_LOADING_DELAY_MS = 5000;
 
 export const App = () => {
@@ -89,7 +89,7 @@ export const App = () => {
   );
   const [victoryToken, setVictoryToken] = useState(0);
   const [isConfirmingPick, setIsConfirmingPick] = useState(false);
-  const [isEnteringCreateMode, setIsEnteringCreateMode] = useState(false);
+  const [isLoadingCharacterImages, setIsLoadingCharacterImages] = useState(false);
 
   const [isSavingMap, setIsSavingMap] = useState(false);
   const [saveMapError, setSaveMapError] = useState<string | null>(null);
@@ -342,18 +342,21 @@ useEffect(() => {
     return () => clearTimeout(timeoutId);
   }, [isConfirmingPick]);
 
-  const handleSelectCreate = () => {
-    setIsEnteringCreateMode(true);
-    setScreen('create');
+  const handleSelectPick = () => {
+    setIsLoadingCharacterImages(true);
+    void preloadCharacterImages().then(() => {
+      setIsLoadingCharacterImages(false);
+      setScreen('pick');
+    });
   };
 
-  useEffect(() => {
-    if (!isEnteringCreateMode) return;
-    const timeoutId = setTimeout(() => {
-      setIsEnteringCreateMode(false);
-    }, SCREEN_TRANSITION_LOADING_DELAY_MS);
-    return () => clearTimeout(timeoutId);
-  }, [isEnteringCreateMode]);
+  const handleSelectCreate = () => {
+    setIsLoadingCharacterImages(true);
+    void preloadCharacterImages().then(() => {
+      setIsLoadingCharacterImages(false);
+      setScreen('create');
+    });
+  };
 
   // Adjusting state during render (rather than in an effect) avoids an
   // extra commit — see
@@ -410,7 +413,7 @@ useEffect(() => {
     setPreviewCharacterId(characters[0]!.id);
     setVictoryToken(0);
     setIsConfirmingPick(false);
-    setIsEnteringCreateMode(false);
+    setIsLoadingCharacterImages(false);
     hasRecordedResultRef.current = false;
     setScreen('start');
   };
@@ -430,22 +433,20 @@ useEffect(() => {
     return (
       <>
         <StartScreen
-          onSelectPick={() => setScreen('pick')}
+          onSelectPick={handleSelectPick}
           onSelectCreate={handleSelectCreate}
           showCreate={!activePublishedMap}
           enemies={activePublishedMapEnemies}
           stats={mapStats}
         />
-        <LoadingSpinner visible={isLoadingPublishedMap} />
+        <LoadingSpinner visible={isLoadingPublishedMap || isLoadingCharacterImages} />
       </>
     );
   }
 
   return (
     <div>
-      <LoadingSpinner
-        visible={isAssetsLoading || isConfirmingPick || isEnteringCreateMode}
-      />
+      <LoadingSpinner visible={isAssetsLoading || isConfirmingPick} />
       {screen === 'pick' && (
         <>
           <PickModeUI

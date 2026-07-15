@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import type { PickModeUIProps } from '../../../shared/types/pickMode';
 import { abilities } from '../../data/abilities';
+import { getCharacterImageUrl } from '../../utils/characterImages';
 
 const actionButtonLayoutClassName =
   'flex items-center justify-center h-10 px-4';
 const actionButtonClassName = `game-button-primary ${actionButtonLayoutClassName}`;
 const successButtonClassName = `game-button-success ${actionButtonLayoutClassName}`;
-
-const abbreviateName = (name: string) => name.slice(0, 2).toUpperCase();
 
 const AbilityCard = ({
   name,
@@ -123,10 +122,12 @@ export const PickModeUI = ({
       )}
 
       {previewCharacter && (
-        <div className="fixed top-1/5 sm:top-10 left-4 z-10 w-20 sm:w-40 flex flex-col items-center gap-1 sm:gap-2 p-1.5 sm:p-3 rounded-lg border border-(--panel-border) bg-(--panel)/40 backdrop-blur-sm">
-          <div className="flex items-center justify-center w-full h-10 sm:h-20 rounded border border-dashed border-(--panel-border) text-base sm:text-2xl opacity-70">
-            🧙
-          </div>
+        <div className="fixed top-1/5 sm:top-5 left-4 z-10 w-20 sm:w-40 flex flex-col items-center gap-1 sm:gap-2 p-1.5 sm:p-3 rounded-lg border border-(--panel-border) bg-(--panel)/40 backdrop-blur-sm">
+          <img
+            src={getCharacterImageUrl(previewCharacter.image)}
+            alt={previewCharacter.name}
+            className="w-full h-10 sm:h-20 rounded border border-(--panel-border) object-cover"
+          />
           <span className="text-[10px] sm:text-base font-bold text-center leading-tight">
             {previewCharacter.name}
           </span>
@@ -162,9 +163,11 @@ export const PickModeUI = ({
                 ✕
               </button>
             </div>
-            <div className="flex items-center justify-center w-full h-32 rounded-md border-2 border-dashed border-(--panel-border) text-4xl opacity-70">
-              🧙
-            </div>
+            <img
+              src={getCharacterImageUrl(previewCharacter.image)}
+              alt={previewCharacter.name}
+              className="w-full h-32 rounded-md border-2 border-(--panel-border) object-cover"
+            />
             <div className="flex justify-between text-sm">
               <span className="game-label">Class</span>
               <span>{previewCharacter.class}</span>
@@ -265,13 +268,19 @@ export const PickModeUI = ({
                 onClick={() =>
                   character !== undefined && onToggleCharacter(character.id)
                 }
-                className={`flex items-center justify-center w-14 h-14 shrink-0 rounded-md border-2 text-sm font-semibold ${
+                className={`flex items-center justify-center w-14 h-14 shrink-0 rounded-md border-2 text-sm font-semibold overflow-hidden ${
                   character
                     ? 'border-(--panel-border) bg-(--panel-soft) cursor-pointer'
                     : 'border-dashed border-(--panel-border) bg-(--panel-soft)'
                 }`}
               >
-                {character ? abbreviateName(character.name) : null}
+                {character ? (
+                  <img
+                    src={getCharacterImageUrl(character.image)}
+                    alt={character.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : null}
               </div>
             );
           })}

@@ -22,6 +22,7 @@ export const characters: Character[] = [
     id: 0,
     class: 'Warrior',
     name: 'Twickle',
+    image: 'avatar_001_image',
     description: 'A versatile warrior specializing in melee combat.',
     objectName: [
       {
@@ -38,8 +39,7 @@ export const characters: Character[] = [
       },
     ],
     statistics: {
-      hp: 1,
-      // hp: 110,
+      hp: 110,
       attack: 18,
       defence: 8,
       AP: 3,
@@ -61,6 +61,7 @@ export const characters: Character[] = [
     id: 1,
     class: 'Guardian',
     name: 'Bumbold',
+    image: 'avatar_002_image',
     description: 'A master of defense and protecting the team.',
     objectName: [
       {
@@ -77,8 +78,7 @@ export const characters: Character[] = [
       },
     ],
     statistics: {
-      hp: 1,
-      // hp: 130,
+      hp: 130,
       attack: 14,
       defence: 12,
       AP: 3,
@@ -100,6 +100,7 @@ export const characters: Character[] = [
     id: 2,
     class: 'Healer',
     name: 'Aldric',
+    image: 'avatar_003_image',
     description: 'Heals allies and keeps them alive.',
     objectName: [
       {
@@ -116,8 +117,7 @@ export const characters: Character[] = [
       },
     ],
     statistics: {
-      hp: 1,
-      // hp: 90,
+      hp: 90,
       attack: 10,
       defence: 5,
       AP: 3,
@@ -139,6 +139,7 @@ export const characters: Character[] = [
     id: 3,
     class: 'Support',
     name: 'Mossloo',
+    image: 'avatar_004_image',
     description: 'Boosts stats and supports the whole team.',
     objectName: [
       {
@@ -155,8 +156,7 @@ export const characters: Character[] = [
       },
     ],
     statistics: {
-      hp: 1,
-      // hp: 100,
+      hp: 100,
       attack: 12,
       defence: 6,
       AP: 3,
@@ -178,6 +178,7 @@ export const characters: Character[] = [
     id: 4,
     class: 'Champion',
     name: 'Gorrath',
+    image: 'avatar_005_image',
     description: 'A powerful warrior with the highest attack power.',
     objectName: [
       {
@@ -216,6 +217,7 @@ export const characters: Character[] = [
     id: 5,
     class: 'Sharpshooter',
     name: 'Roan',
+    image: 'avatar_006_image',
     description: 'A specialist in extremely accurate attacks.',
     objectName: [
       {
@@ -254,6 +256,7 @@ export const characters: Character[] = [
     id: 6,
     class: 'Nimble',
     name: 'Ryze',
+    image: 'avatar_007_image',
     description: 'A master of dodging blows with high agility.',
     objectName: [
       {
@@ -292,6 +295,7 @@ export const characters: Character[] = [
     id: 7,
     class: 'Runner',
     name: 'Sable',
+    image: 'avatar_008_image',
     description: 'An exceptionally fast hero that gains an extra Action Point.',
     objectName: [
       {
@@ -330,6 +334,7 @@ export const characters: Character[] = [
     id: 8,
     class: 'Grass Warden',
     name: 'Wren',
+    image: 'avatar_009_image',
     description: 'Draws power from grassy fields.',
     objectName: [
       {
@@ -368,6 +373,7 @@ export const characters: Character[] = [
     id: 9,
     class: 'Sand Warden',
     name: 'Nimqui',
+    image: 'avatar_010_image',
     description: 'Fights best on sandy terrain.',
     objectName: [
       {
@@ -406,6 +412,7 @@ export const characters: Character[] = [
     id: 10,
     class: 'Stone Warden',
     name: 'Boran',
+    image: 'avatar_011_image',
     description: 'Uses stone fields to boost its effectiveness.',
     objectName: [
       {
@@ -444,6 +451,7 @@ export const characters: Character[] = [
     id: 11,
     class: 'Dirt Warden',
     name: 'Hollis',
+    image: 'avatar_012_image',
     description: 'Excels on earthy, dirt terrain.',
     objectName: [
       {
@@ -482,6 +490,7 @@ export const characters: Character[] = [
     id: 12,
     class: 'Rock Warden',
     name: 'Dorne',
+    image: 'avatar_013_image',
     description: 'A specialist in fighting on rocky terrain.',
     objectName: [
       {
@@ -520,6 +529,7 @@ export const characters: Character[] = [
     id: 13,
     class: 'Veteran',
     name: 'Barrick',
+    image: 'avatar_014_image',
     description: 'An exceptionally resilient hero with a large amount of HP.',
     objectName: [
       {
@@ -558,6 +568,7 @@ export const characters: Character[] = [
     id: 14,
     class: 'Adventurer',
     name: 'Finnick',
+    image: 'avatar_015_image',
     description: 'A versatile class with no obvious weaknesses.',
     objectName: [
       {

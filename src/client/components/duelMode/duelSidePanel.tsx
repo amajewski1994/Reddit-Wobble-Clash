@@ -1,35 +1,50 @@
 import type { TeamMember } from '../../../shared/types/team';
 import { UserInfo } from '../../data/userInfo';
 import { EnemyInfo } from '../../data/enemyInfo';
+import { characters } from '../../data/characters';
+import { getCharacterImageUrl } from '../../utils/characterImages';
 import { actionButtonClassName, getMaxHp, HpBar } from './duelMapShared';
 
 const MiniCard = ({
   id,
+  characterId,
   hp,
   isEnemy,
   onSelect,
 }: {
   id: number;
+  characterId: number;
   hp: number;
   isEnemy: boolean;
   onSelect: () => void;
-}) => (
-  <div
-    onClick={onSelect}
-    className={`duel-panel ${isEnemy ? 'duel-panel--enemy' : 'duel-panel--team'} flex flex-col gap-1.5 w-15 p-1.5 cursor-pointer transition-opacity ${
-      hp <= 0 ? 'opacity-40 grayscale' : ''
-    }`}
-  >
-    <div className="flex items-center justify-center w-full h-10.5 rounded border border-dashed border-(--panel-border) text-lg opacity-70">
-      {isEnemy ? '💀' : '🪖'}
+}) => {
+  const character = characters.find((candidate) => candidate.id === characterId);
+  return (
+    <div
+      onClick={onSelect}
+      className={`duel-panel ${isEnemy ? 'duel-panel--enemy' : 'duel-panel--team'} flex flex-col gap-1.5 w-15 p-1.5 cursor-pointer transition-opacity ${
+        hp <= 0 ? 'opacity-40 grayscale' : ''
+      }`}
+    >
+      {character ? (
+        <img
+          src={getCharacterImageUrl(character.image)}
+          alt={character.name}
+          className="w-full h-10.5 rounded border border-(--panel-border) object-cover"
+        />
+      ) : (
+        <div className="flex items-center justify-center w-full h-10.5 rounded border border-dashed border-(--panel-border) text-lg opacity-70">
+          {isEnemy ? '💀' : '🪖'}
+        </div>
+      )}
+      <div className="flex items-center justify-between text-xs">
+        <span className="uppercase tracking-wide text-(--muted)">HP</span>
+        <span className="font-bold">{hp}</span>
+      </div>
+      <HpBar hp={hp} maxHp={getMaxHp(id)} isEnemy={isEnemy} />
     </div>
-    <div className="flex items-center justify-between text-xs">
-      <span className="uppercase tracking-wide text-(--muted)">HP</span>
-      <span className="font-bold">{hp}</span>
-    </div>
-    <HpBar hp={hp} maxHp={getMaxHp(id)} isEnemy={isEnemy} />
-  </div>
-);
+  );
+};
 
 interface DuelSidePanelProps {
   side: 'left' | 'right';
@@ -86,10 +101,11 @@ export const DuelSidePanel = ({
           🎒 Items
         </button>
       )} */}
-      {members.map(({ id, statistics }) => (
+      {members.map(({ id, characterId, statistics }) => (
         <MiniCard
           key={id}
           id={id}
+          characterId={characterId}
           hp={statistics.hp}
           isEnemy={isEnemy}
           onSelect={() => onSelectAvatarId(id)}

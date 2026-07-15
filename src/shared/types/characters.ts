@@ -29,6 +29,7 @@ export type Character = {
   id: number;
   class: string;
   name: string;
+  image: string;
   description: string;
   objectName: CharacterObjectVariant[];
   statistics: CharacterStatistics;

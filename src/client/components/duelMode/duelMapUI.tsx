@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { DuelMapUIProps } from '../../../shared/types/duelMap';
 import type { TeamMember, TeamMemberTileStatistics } from '../../../shared/types/team';
 import { UserInfo } from '../../data/userInfo';
+import { characters } from '../../data/characters';
+import { getCharacterImageUrl } from '../../utils/characterImages';
 // import { duelMapTilesData } from './duelMapTilesData';
 import { actionButtonClassName, getMaxHp, HpBar } from './duelMapShared';
 import {
@@ -150,6 +152,9 @@ const FullCard = ({
   const dodgeBonus =
     getStatModifierTotal(avatar, 'dodge', avatar.statistics.dodge) + passiveDodgeBoost;
   const activeStatuses = getActiveStatusNames(avatar);
+  const character = characters.find(
+    (candidate) => candidate.id === avatar.characterId
+  );
 
   return (
     <div
@@ -160,9 +165,17 @@ const FullCard = ({
       } ${isDead ? 'opacity-40 grayscale' : ''}`}
     >
       <div className="text-center font-bold">{avatar.name}</div>
-      <div className="flex items-center justify-center w-full h-32 rounded-md border-2 border-dashed border-(--panel-border) text-4xl opacity-70">
-        {isEnemy ? '💀' : '🪖'}
-      </div>
+      {character ? (
+        <img
+          src={getCharacterImageUrl(character.image)}
+          alt={avatar.name}
+          className="w-full h-32 rounded-md border-2 border-(--panel-border) object-cover"
+        />
+      ) : (
+        <div className="flex items-center justify-center w-full h-32 rounded-md border-2 border-dashed border-(--panel-border) text-4xl opacity-70">
+          {isEnemy ? '💀' : '🪖'}
+        </div>
+      )}
       <div className="flex justify-between text-sm">
         <span className="game-label">HP</span>
         <span className="font-bold">{avatar.statistics.hp}</span>

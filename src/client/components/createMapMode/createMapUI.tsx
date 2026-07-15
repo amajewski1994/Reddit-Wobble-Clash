@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { TILE_NAMES, DEFAULT_MAP_TITLE } from '../../data/consts';
 import { characters } from '../../data/characters';
+import { getCharacterImageUrl } from '../../utils/characterImages';
 import type { CreateMapUIProps } from '../../../shared/types/createMap';
 
 const AVATAR_NAMES = characters.map((character) => character.name);
+const getCharacterByName = (name: string) =>
+  characters.find((character) => character.name === name);
 
 const SCROLL_STEP = 80;
 
@@ -83,17 +86,26 @@ const ScrollableSelectList = ({
       >
         {items.map((name) => {
           const isSelected = selected === name;
+          const character = getCharacterByName(name);
           return (
             <div
               key={name}
               onClick={() => onSelect(name)}
-              className={`flex items-center justify-center w-16 h-16 shrink-0 rounded-full border-2 cursor-pointer transition-colors text-sm font-semibold ${
+              className={`flex items-center justify-center w-16 h-16 shrink-0 rounded-full border-2 cursor-pointer transition-colors text-sm font-semibold overflow-hidden ${
                 isSelected
                   ? 'bg-(--primary) border-(--primary) text-white'
                   : 'bg-(--panel-soft) border-(--panel-border)'
               }`}
             >
-              {abbreviateLabel(name)}
+              {character ? (
+                <img
+                  src={getCharacterImageUrl(character.image)}
+                  alt={name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                abbreviateLabel(name)
+              )}
             </div>
           );
         })}
@@ -119,31 +131,44 @@ const BottomTeamSlot = ({
   isActive: boolean;
   onClick: () => void;
   onRemove: () => void;
-}) => (
-  <div
-    onClick={onClick}
-    className={`relative flex items-center justify-center w-14 h-14 shrink-0 rounded-md border-2 cursor-pointer transition-colors text-sm font-semibold ${
-      isActive
-        ? 'border-(--primary) bg-(--panel-soft)'
-        : avatarName
-          ? 'border-(--panel-border) bg-(--panel-soft)'
-          : 'border-dashed border-(--panel-border) bg-(--panel-soft)'
-    }`}
-  >
-    {avatarName ? abbreviateLabel(avatarName) : <span className="text-(--muted)">Tap</span>}
-    {isActive && avatarName && (
-      <button
-        onClick={(event) => {
-          event.stopPropagation();
-          onRemove();
-        }}
-        className="absolute -top-2 -right-2 flex items-center justify-center w-5 h-5 rounded-full bg-(--danger) text-white text-xs font-bold leading-none"
-      >
-        ✕
-      </button>
-    )}
-  </div>
-);
+}) => {
+  const character = avatarName ? getCharacterByName(avatarName) : undefined;
+  return (
+    <div
+      onClick={onClick}
+      className={`relative flex items-center justify-center w-14 h-14 shrink-0 rounded-md border-2 cursor-pointer transition-colors text-sm font-semibold overflow-hidden ${
+        isActive
+          ? 'border-(--primary) bg-(--panel-soft)'
+          : avatarName
+            ? 'border-(--panel-border) bg-(--panel-soft)'
+            : 'border-dashed border-(--panel-border) bg-(--panel-soft)'
+      }`}
+    >
+      {character ? (
+        <img
+          src={getCharacterImageUrl(character.image)}
+          alt={avatarName ?? ''}
+          className="w-full h-full object-cover"
+        />
+      ) : avatarName ? (
+        abbreviateLabel(avatarName)
+      ) : (
+        <span className="text-(--muted)">Tap</span>
+      )}
+      {isActive && avatarName && (
+        <button
+          onClick={(event) => {
+            event.stopPropagation();
+            onRemove();
+          }}
+          className="absolute -top-2 -right-2 flex items-center justify-center w-5 h-5 rounded-full bg-(--danger) text-white text-xs font-bold leading-none"
+        >
+          ✕
+        </button>
+      )}
+    </div>
+  );
+};
 
 type Panel = 'tiles' | 'avatars' | null;
 
