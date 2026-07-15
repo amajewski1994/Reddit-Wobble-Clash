@@ -54,7 +54,7 @@ export const Avatars = ({
 
   return (
     <>
-      {team.map(({ id, name, objectName, tileID, rotationY }) => {
+      {team.map(({ id, name, objectName, tileID, rotationY, scale }) => {
         const tile = tiles.find((tile) => tile.id === tileID);
         if (!tile) return null;
         return (
@@ -65,6 +65,7 @@ export const Avatars = ({
             position={[tile.positionX, AVATAR_Y_OFFSET, tile.positionZ]}
             rotationY={rotationY}
             action={actionsById.get(id) ?? null}
+            scale={scale}
           />
         );
       })}

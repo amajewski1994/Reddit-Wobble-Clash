@@ -42,6 +42,7 @@ export type TeamMember = {
   statistics: TeamMemberStatistics;
   tileID: number;
   rotationY: number;
+  scale: number;
   abilities: ClassAbilities;
   abilityCooldowns: Record<string, number>;
   statModifiers: StatModifier[];

@@ -33,10 +33,12 @@ const PreviewAvatar = ({
   name,
   objectName,
   victoryToken,
+  scale,
 }: {
   name: string;
   objectName: string;
   victoryToken: number;
+  scale: number;
 }) => {
   const [action, setAction] = useState<AvatarAction | null>(null);
   const previousVictoryTokenRef = useRef(victoryToken);
@@ -60,6 +62,7 @@ const PreviewAvatar = ({
       rotationY={AVATAR_FACING_CAMERA_ROTATION_Y}
       action={action}
       animateMovement={false}
+      scale={scale}
     />
   );
 };
@@ -83,6 +86,7 @@ export const PickModeCanvas = ({ character, victoryToken }: PickModeCanvasProps)
           name={character.name}
           objectName={objectVariant.name}
           victoryToken={victoryToken}
+          scale={objectVariant.scale}
         />
       )}
     </Canvas>

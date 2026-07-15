@@ -98,6 +98,7 @@ export const Avatar = ({
   rotationY,
   action,
   animateMovement = true,
+  scale,
 }: {
   name: string;
   objectName: string;
@@ -105,6 +106,7 @@ export const Avatar = ({
   rotationY: number;
   action: AvatarAction | null;
   animateMovement?: boolean;
+  scale?: number,
 }) => {
   const path = `/assets/characters/${objectName}.glb`;
   const gltf = useLoader(GLTFLoader, path);
@@ -413,7 +415,7 @@ export const Avatar = ({
 
   return (
     <>
-      <primitive ref={groupRef} object={scene} scale={0.4} />
+      <primitive ref={groupRef} object={scene} scale={scale ? 0.325 * scale : 0.325} />
       {damageDisplay && (
         <DamageNumber
           key={damageDisplay.key}

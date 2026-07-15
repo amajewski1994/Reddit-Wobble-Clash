@@ -22,6 +22,7 @@ export type CharacterObjectVariant = {
   id: number;
   lvl: number;
   name: string;
+  scale: number;
 };
 
 export type Character = {

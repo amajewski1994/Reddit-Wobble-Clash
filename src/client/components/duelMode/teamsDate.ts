@@ -55,6 +55,7 @@ const buildTeamMember = ({
     },
     tileID,
     rotationY,
+    scale: baseObjectVariant.scale,
     abilities: characterAbilities.abilities,
     abilityCooldowns: {},
     statModifiers: [],
