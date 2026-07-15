@@ -52,15 +52,6 @@ const getTile = (tileID: number) =>
 
 const getTileName = (tileID: number) => getTile(tileID)?.tileName ?? '';
 
-const HudCorners = () => (
-  <>
-    <span className="duel-corner top-0 left-0 border-t-2 border-l-2" />
-    <span className="duel-corner top-0 right-0 border-t-2 border-r-2" />
-    <span className="duel-corner bottom-0 left-0 border-b-2 border-l-2" />
-    <span className="duel-corner bottom-0 right-0 border-b-2 border-r-2" />
-  </>
-);
-
 const StatRow = ({
   label,
   value,
@@ -406,6 +397,7 @@ export const DuelMapUI = ({
   onCancelAbility,
   turn,
   onEndTurn,
+  isEnemyTurn,
 }: DuelMapUIProps) => {
   const [isEndingTurn, setIsEndingTurn] = useState(false);
   const [isAbilitiesOpen, setisAbilitiesOpen] = useState(false);
@@ -441,20 +433,22 @@ export const DuelMapUI = ({
         }`}
       >
         <div className="duel-banner__inner px-8 py-2 text-base font-bold uppercase tracking-wide whitespace-nowrap">
-          Turn <span className="text-(--primary)">{turn}</span>
+          {isEnemyTurn
+            ? 'Enemy Turn'
+            : `Turn ${<span className="text-(--primary)">{turn}</span>}`}
         </div>
       </div>
       <DuelSidePanel
         side="left"
         members={team}
-        isVisible={!(isCardOpen || isEndingTurn)}
+        isVisible={!(isCardOpen || isEndingTurn || isEnemyTurn)}
         onSelectAvatarId={onSelectAvatarId}
         onItemsClick={() => setIsItemsOpen(true)}
       />
       <DuelSidePanel
         side="right"
         members={enemyTeam}
-        isVisible={!(isCardOpen || isEndingTurn)}
+        isVisible={!(isCardOpen || isEndingTurn || isEnemyTurn)}
         onSelectAvatarId={onSelectAvatarId}
       />
       {activeAvatar && (
@@ -536,14 +530,14 @@ export const DuelMapUI = ({
       {/* BOTTOM BAR */}
       <div
         className={`fixed bottom-4 inset-x-4 z-10 transition-all duration-500 ${
-          isCardOpen || isEndingTurn
+          isCardOpen || isEndingTurn || isEnemyTurn
             ? 'translate-y-[150%] opacity-0'
             : 'opacity-100'
         }`}
       >
-        <div className="relative flex items-center justify-between px-4 py-3">
-          <HudCorners />
-          <div className="flex gap-2">
+        <div className="relative flex items-center justify-end px-4 py-3">
+          {/* <HudCorners /> */}
+          {/* <div className="flex gap-2">
             {team.map(({ id, name, statistics }) => (
               <BottomTeamCard
                 key={id}
@@ -554,11 +548,11 @@ export const DuelMapUI = ({
                 onSelect={() => onSelectAvatarId(id)}
               />
             ))}
-          </div>
+          </div> */}
           <button
             className={actionButtonClassName}
             onClick={handleEndTurn}
-            disabled={isEndingTurn}
+            disabled={isEndingTurn || isEnemyTurn}
           >
             End Turn
           </button>

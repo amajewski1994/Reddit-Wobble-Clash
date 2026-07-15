@@ -5,6 +5,7 @@ export const duelMapTilesData = [
     positionZ: -4.45,
     rotationY: 240,
     tileName: 'grass',
+    blocked: false,
   },
   {
     id: 1,
@@ -12,6 +13,7 @@ export const duelMapTilesData = [
     positionZ: -4.45,
     rotationY: 240,
     tileName: 'sand-rocks',
+    blocked: false,
   },
   {
     id: 2,
@@ -19,6 +21,7 @@ export const duelMapTilesData = [
     positionZ: -4.45,
     rotationY: 0,
     tileName: 'sand-desert',
+    blocked: false,
   },
   {
     id: 3,
@@ -26,6 +29,7 @@ export const duelMapTilesData = [
     positionZ: -4.45,
     rotationY: 300,
     tileName: 'grass',
+    blocked: false,
   },
   {
     id: 4,
@@ -33,6 +37,7 @@ export const duelMapTilesData = [
     positionZ: -4.45,
     rotationY: 120,
     tileName: 'grass-hill',
+    blocked: true,
   },
   {
     id: 5,
@@ -40,6 +45,7 @@ export const duelMapTilesData = [
     positionZ: -4.45,
     rotationY: 60,
     tileName: 'sand-rocks',
+    blocked: false,
   },
   {
     id: 6,
@@ -47,6 +53,7 @@ export const duelMapTilesData = [
     positionZ: -4.45,
     rotationY: 240,
     tileName: 'grass-forest',
+    blocked: false,
   },
   {
     id: 7,
@@ -54,6 +61,7 @@ export const duelMapTilesData = [
     positionZ: -4.45,
     rotationY: 300,
     tileName: 'grass-hill',
+    blocked: true,
   },
   {
     id: 8,
@@ -61,6 +69,7 @@ export const duelMapTilesData = [
     positionZ: -4.45,
     rotationY: 180,
     tileName: 'grass-hill',
+    blocked: true,
   },
   {
     id: 9,
@@ -68,6 +77,7 @@ export const duelMapTilesData = [
     positionZ: -4.45,
     rotationY: 60,
     tileName: 'sand-desert',
+    blocked: false,
   },
   {
     id: 10,
@@ -75,6 +85,7 @@ export const duelMapTilesData = [
     positionZ: -3.56,
     rotationY: 60,
     tileName: 'stone-rocks',
+    blocked: false,
   },
   {
     id: 11,
@@ -82,6 +93,7 @@ export const duelMapTilesData = [
     positionZ: -3.56,
     rotationY: 300,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 12,
@@ -89,6 +101,7 @@ export const duelMapTilesData = [
     positionZ: -3.56,
     rotationY: 300,
     tileName: 'sand-rocks',
+    blocked: false,
   },
   {
     id: 13,
@@ -96,6 +109,7 @@ export const duelMapTilesData = [
     positionZ: -3.56,
     rotationY: 0,
     tileName: 'sand-desert',
+    blocked: false,
   },
   {
     id: 14,
@@ -103,6 +117,7 @@ export const duelMapTilesData = [
     positionZ: -3.56,
     rotationY: 180,
     tileName: 'sand-rocks',
+    blocked: false,
   },
   {
     id: 15,
@@ -110,6 +125,7 @@ export const duelMapTilesData = [
     positionZ: -3.56,
     rotationY: 240,
     tileName: 'sand-rocks',
+    blocked: false,
   },
   {
     id: 16,
@@ -117,6 +133,7 @@ export const duelMapTilesData = [
     positionZ: -3.56,
     rotationY: 180,
     tileName: 'grass-forest',
+    blocked: false,
   },
   {
     id: 17,
@@ -124,6 +141,7 @@ export const duelMapTilesData = [
     positionZ: -3.56,
     rotationY: 120,
     tileName: 'grass-forest',
+    blocked: false,
   },
   {
     id: 18,
@@ -131,6 +149,7 @@ export const duelMapTilesData = [
     positionZ: -3.56,
     rotationY: 60,
     tileName: 'stone-rocks',
+    blocked: false,
   },
   {
     id: 19,
@@ -138,6 +157,7 @@ export const duelMapTilesData = [
     positionZ: -2.67,
     rotationY: 300,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 20,
@@ -145,6 +165,7 @@ export const duelMapTilesData = [
     positionZ: -2.67,
     rotationY: 300,
     tileName: 'dirt',
+    blocked: false,
   },
   {
     id: 21,
@@ -152,6 +173,7 @@ export const duelMapTilesData = [
     positionZ: -2.67,
     rotationY: 300,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 22,
@@ -159,6 +181,7 @@ export const duelMapTilesData = [
     positionZ: -2.67,
     rotationY: 60,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 23,
@@ -166,6 +189,7 @@ export const duelMapTilesData = [
     positionZ: -2.67,
     rotationY: 120,
     tileName: 'stone-rocks',
+    blocked: false,
   },
   {
     id: 24,
@@ -173,6 +197,7 @@ export const duelMapTilesData = [
     positionZ: -2.67,
     rotationY: 120,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 25,
@@ -180,6 +205,7 @@ export const duelMapTilesData = [
     positionZ: -2.67,
     rotationY: 60,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 26,
@@ -187,6 +213,7 @@ export const duelMapTilesData = [
     positionZ: -2.67,
     rotationY: 120,
     tileName: 'stone',
+    blocked: false,
   },
   {
     id: 27,
@@ -194,6 +221,7 @@ export const duelMapTilesData = [
     positionZ: -2.67,
     rotationY: 240,
     tileName: 'stone-rocks',
+    blocked: false,
   },
   {
     id: 28,
@@ -201,6 +229,7 @@ export const duelMapTilesData = [
     positionZ: -2.67,
     rotationY: 0,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 29,
@@ -208,6 +237,7 @@ export const duelMapTilesData = [
     positionZ: -1.78,
     rotationY: 240,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 30,
@@ -215,6 +245,7 @@ export const duelMapTilesData = [
     positionZ: -1.78,
     rotationY: 60,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 31,
@@ -222,6 +253,7 @@ export const duelMapTilesData = [
     positionZ: -1.78,
     rotationY: 300,
     tileName: 'grass-forest',
+    blocked: false,
   },
   {
     id: 32,
@@ -229,6 +261,7 @@ export const duelMapTilesData = [
     positionZ: -1.78,
     rotationY: 180,
     tileName: 'sand',
+    blocked: false,
   },
   {
     id: 33,
@@ -236,6 +269,7 @@ export const duelMapTilesData = [
     positionZ: -1.78,
     rotationY: 120,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 34,
@@ -243,6 +277,7 @@ export const duelMapTilesData = [
     positionZ: -1.78,
     rotationY: 300,
     tileName: 'sand-desert',
+    blocked: false,
   },
   {
     id: 35,
@@ -250,6 +285,7 @@ export const duelMapTilesData = [
     positionZ: -1.78,
     rotationY: 60,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 36,
@@ -257,6 +293,7 @@ export const duelMapTilesData = [
     positionZ: -1.78,
     rotationY: 120,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 37,
@@ -264,6 +301,7 @@ export const duelMapTilesData = [
     positionZ: -1.78,
     rotationY: 120,
     tileName: 'sand',
+    blocked: false,
   },
   {
     id: 38,
@@ -271,6 +309,7 @@ export const duelMapTilesData = [
     positionZ: -0.89,
     rotationY: 60,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 39,
@@ -278,6 +317,7 @@ export const duelMapTilesData = [
     positionZ: -0.89,
     rotationY: 60,
     tileName: 'dirt',
+    blocked: false,
   },
   {
     id: 40,
@@ -285,6 +325,7 @@ export const duelMapTilesData = [
     positionZ: -0.89,
     rotationY: 180,
     tileName: 'grass',
+    blocked: false,
   },
   {
     id: 41,
@@ -292,6 +333,7 @@ export const duelMapTilesData = [
     positionZ: -0.89,
     rotationY: 300,
     tileName: 'sand',
+    blocked: false,
   },
   {
     id: 42,
@@ -299,6 +341,7 @@ export const duelMapTilesData = [
     positionZ: -0.89,
     rotationY: 180,
     tileName: 'dirt',
+    blocked: false,
   },
   {
     id: 43,
@@ -306,6 +349,7 @@ export const duelMapTilesData = [
     positionZ: -0.89,
     rotationY: 240,
     tileName: 'stone-rocks',
+    blocked: false,
   },
   {
     id: 44,
@@ -313,6 +357,7 @@ export const duelMapTilesData = [
     positionZ: -0.89,
     rotationY: 120,
     tileName: 'grass-forest',
+    blocked: false,
   },
   {
     id: 45,
@@ -320,6 +365,7 @@ export const duelMapTilesData = [
     positionZ: -0.89,
     rotationY: 300,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 46,
@@ -327,6 +373,7 @@ export const duelMapTilesData = [
     positionZ: -0.89,
     rotationY: 180,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 47,
@@ -334,6 +381,7 @@ export const duelMapTilesData = [
     positionZ: -0.89,
     rotationY: 300,
     tileName: 'sand',
+    blocked: false,
   },
   {
     id: 48,
@@ -341,6 +389,7 @@ export const duelMapTilesData = [
     positionZ: 0,
     rotationY: 120,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 49,
@@ -348,6 +397,7 @@ export const duelMapTilesData = [
     positionZ: 0,
     rotationY: 120,
     tileName: 'stone',
+    blocked: false,
   },
   {
     id: 50,
@@ -355,6 +405,7 @@ export const duelMapTilesData = [
     positionZ: 0,
     rotationY: 180,
     tileName: 'sand-rocks',
+    blocked: false,
   },
   {
     id: 51,
@@ -362,6 +413,7 @@ export const duelMapTilesData = [
     positionZ: 0,
     rotationY: 300,
     tileName: 'stone-rocks',
+    blocked: false,
   },
   {
     id: 52,
@@ -369,6 +421,7 @@ export const duelMapTilesData = [
     positionZ: 0,
     rotationY: 240,
     tileName: 'sand-desert',
+    blocked: false,
   },
   {
     id: 53,
@@ -376,6 +429,7 @@ export const duelMapTilesData = [
     positionZ: 0,
     rotationY: 60,
     tileName: 'grass-hill',
+    blocked: true,
   },
   {
     id: 54,
@@ -383,6 +437,7 @@ export const duelMapTilesData = [
     positionZ: 0,
     rotationY: 60,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 55,
@@ -390,6 +445,7 @@ export const duelMapTilesData = [
     positionZ: 0,
     rotationY: 240,
     tileName: 'grass-hill',
+    blocked: true,
   },
   {
     id: 56,
@@ -397,6 +453,7 @@ export const duelMapTilesData = [
     positionZ: 0,
     rotationY: 60,
     tileName: 'stone',
+    blocked: false,
   },
   {
     id: 57,
@@ -404,6 +461,7 @@ export const duelMapTilesData = [
     positionZ: 0.89,
     rotationY: 240,
     tileName: 'grass-forest',
+    blocked: false,
   },
   {
     id: 58,
@@ -411,6 +469,7 @@ export const duelMapTilesData = [
     positionZ: 0.89,
     rotationY: 180,
     tileName: 'sand-desert',
+    blocked: false,
   },
   {
     id: 59,
@@ -418,6 +477,7 @@ export const duelMapTilesData = [
     positionZ: 0.89,
     rotationY: 240,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 60,
@@ -425,6 +485,7 @@ export const duelMapTilesData = [
     positionZ: 0.89,
     rotationY: 180,
     tileName: 'sand-desert',
+    blocked: false,
   },
   {
     id: 61,
@@ -432,6 +493,7 @@ export const duelMapTilesData = [
     positionZ: 0.89,
     rotationY: 240,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 62,
@@ -439,6 +501,7 @@ export const duelMapTilesData = [
     positionZ: 0.89,
     rotationY: 60,
     tileName: 'grass-forest',
+    blocked: false,
   },
   {
     id: 63,
@@ -446,6 +509,7 @@ export const duelMapTilesData = [
     positionZ: 0.89,
     rotationY: 180,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 64,
@@ -453,6 +517,7 @@ export const duelMapTilesData = [
     positionZ: 0.89,
     rotationY: 180,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 65,
@@ -460,6 +525,7 @@ export const duelMapTilesData = [
     positionZ: 0.89,
     rotationY: 180,
     tileName: 'sand',
+    blocked: false,
   },
   {
     id: 66,
@@ -467,6 +533,7 @@ export const duelMapTilesData = [
     positionZ: 0.89,
     rotationY: 60,
     tileName: 'dirt',
+    blocked: false,
   },
   {
     id: 67,
@@ -474,6 +541,7 @@ export const duelMapTilesData = [
     positionZ: 1.78,
     rotationY: 240,
     tileName: 'grass-hill',
+    blocked: true,
   },
   {
     id: 68,
@@ -481,6 +549,7 @@ export const duelMapTilesData = [
     positionZ: 1.78,
     rotationY: 300,
     tileName: 'grass-forest',
+    blocked: false,
   },
   {
     id: 69,
@@ -488,6 +557,7 @@ export const duelMapTilesData = [
     positionZ: 1.78,
     rotationY: 0,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 70,
@@ -495,6 +565,7 @@ export const duelMapTilesData = [
     positionZ: 1.78,
     rotationY: 240,
     tileName: 'stone-rocks',
+    blocked: false,
   },
   {
     id: 71,
@@ -502,6 +573,7 @@ export const duelMapTilesData = [
     positionZ: 1.78,
     rotationY: 120,
     tileName: 'grass',
+    blocked: false,
   },
   {
     id: 72,
@@ -509,6 +581,7 @@ export const duelMapTilesData = [
     positionZ: 1.78,
     rotationY: 120,
     tileName: 'stone',
+    blocked: false,
   },
   {
     id: 73,
@@ -516,6 +589,7 @@ export const duelMapTilesData = [
     positionZ: 1.78,
     rotationY: 60,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 74,
@@ -523,6 +597,7 @@ export const duelMapTilesData = [
     positionZ: 1.78,
     rotationY: 120,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 75,
@@ -530,6 +605,7 @@ export const duelMapTilesData = [
     positionZ: 1.78,
     rotationY: 120,
     tileName: 'sand-rocks',
+    blocked: false,
   },
   {
     id: 76,
@@ -537,6 +613,7 @@ export const duelMapTilesData = [
     positionZ: 2.67,
     rotationY: 300,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 77,
@@ -544,6 +621,7 @@ export const duelMapTilesData = [
     positionZ: 2.67,
     rotationY: 0,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 78,
@@ -551,6 +629,7 @@ export const duelMapTilesData = [
     positionZ: 2.67,
     rotationY: 120,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 79,
@@ -558,6 +637,7 @@ export const duelMapTilesData = [
     positionZ: 2.67,
     rotationY: 180,
     tileName: 'sand-desert',
+    blocked: false,
   },
   {
     id: 80,
@@ -565,6 +645,7 @@ export const duelMapTilesData = [
     positionZ: 2.67,
     rotationY: 240,
     tileName: 'sand',
+    blocked: false,
   },
   {
     id: 81,
@@ -572,6 +653,7 @@ export const duelMapTilesData = [
     positionZ: 2.67,
     rotationY: 120,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 82,
@@ -579,6 +661,7 @@ export const duelMapTilesData = [
     positionZ: 2.67,
     rotationY: 120,
     tileName: 'dirt',
+    blocked: false,
   },
   {
     id: 83,
@@ -586,6 +669,7 @@ export const duelMapTilesData = [
     positionZ: 2.67,
     rotationY: 60,
     tileName: 'sand-rocks',
+    blocked: false,
   },
   {
     id: 84,
@@ -593,6 +677,7 @@ export const duelMapTilesData = [
     positionZ: 2.67,
     rotationY: 60,
     tileName: 'stone',
+    blocked: false,
   },
   {
     id: 85,
@@ -600,6 +685,7 @@ export const duelMapTilesData = [
     positionZ: 2.67,
     rotationY: 180,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 86,
@@ -607,6 +693,7 @@ export const duelMapTilesData = [
     positionZ: 3.56,
     rotationY: 240,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 87,
@@ -614,6 +701,7 @@ export const duelMapTilesData = [
     positionZ: 3.56,
     rotationY: 120,
     tileName: 'grass',
+    blocked: false,
   },
   {
     id: 88,
@@ -621,6 +709,7 @@ export const duelMapTilesData = [
     positionZ: 3.56,
     rotationY: 300,
     tileName: 'sand-rocks',
+    blocked: false,
   },
   {
     id: 89,
@@ -628,6 +717,7 @@ export const duelMapTilesData = [
     positionZ: 3.56,
     rotationY: 180,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 90,
@@ -635,6 +725,7 @@ export const duelMapTilesData = [
     positionZ: 3.56,
     rotationY: 180,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 91,
@@ -642,6 +733,7 @@ export const duelMapTilesData = [
     positionZ: 3.56,
     rotationY: 240,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 92,
@@ -649,6 +741,7 @@ export const duelMapTilesData = [
     positionZ: 3.56,
     rotationY: 120,
     tileName: 'grass-hill',
+    blocked: true,
   },
   {
     id: 93,
@@ -656,6 +749,7 @@ export const duelMapTilesData = [
     positionZ: 3.56,
     rotationY: 240,
     tileName: 'stone',
+    blocked: false,
   },
   {
     id: 94,
@@ -663,6 +757,7 @@ export const duelMapTilesData = [
     positionZ: 3.56,
     rotationY: 0,
     tileName: 'grass-hill',
+    blocked: true,
   },
   {
     id: 95,
@@ -670,6 +765,7 @@ export const duelMapTilesData = [
     positionZ: 4.45,
     rotationY: 240,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 96,
@@ -677,6 +773,7 @@ export const duelMapTilesData = [
     positionZ: 4.45,
     rotationY: 180,
     tileName: 'grass-hill',
+    blocked: true,
   },
   {
     id: 97,
@@ -684,6 +781,7 @@ export const duelMapTilesData = [
     positionZ: 4.45,
     rotationY: 60,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 98,
@@ -691,6 +789,7 @@ export const duelMapTilesData = [
     positionZ: 4.45,
     rotationY: 60,
     tileName: 'stone-mountain',
+    blocked: true,
   },
   {
     id: 99,
@@ -698,6 +797,7 @@ export const duelMapTilesData = [
     positionZ: 4.45,
     rotationY: 60,
     tileName: 'stone-hill',
+    blocked: true,
   },
   {
     id: 100,
@@ -705,6 +805,7 @@ export const duelMapTilesData = [
     positionZ: 4.45,
     rotationY: 180,
     tileName: 'sand-desert',
+    blocked: false,
   },
   {
     id: 101,
@@ -712,6 +813,7 @@ export const duelMapTilesData = [
     positionZ: 4.45,
     rotationY: 60,
     tileName: 'dirt-lumber',
+    blocked: false,
   },
   {
     id: 102,
@@ -719,6 +821,7 @@ export const duelMapTilesData = [
     positionZ: 4.45,
     rotationY: 0,
     tileName: 'stone',
+    blocked: false,
   },
   {
     id: 103,
@@ -726,6 +829,7 @@ export const duelMapTilesData = [
     positionZ: 4.45,
     rotationY: 0,
     tileName: 'stone',
+    blocked: false,
   },
   {
     id: 104,
@@ -733,5 +837,6 @@ export const duelMapTilesData = [
     positionZ: 4.45,
     rotationY: 120,
     tileName: 'dirt',
+    blocked: false,
   },
 ];

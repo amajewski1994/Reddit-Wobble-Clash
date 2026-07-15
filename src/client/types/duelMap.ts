@@ -14,6 +14,7 @@ export interface DuelMapUIProps {
   onCancelAbility: () => void;
   turn: number;
   onEndTurn: () => void;
+  isEnemyTurn: boolean;
 }
 
 export interface DuelMapProps {
@@ -24,6 +25,9 @@ export interface DuelMapProps {
   isMoveMode: boolean;
   isAttackMode: boolean;
   selectedAbilityName: string | null;
+  isEnemyTurn: boolean;
+  actionEvent: DuelActionEvent | null;
+  onActionEvent: (event: DuelActionEvent | null) => void;
   onMoveAvatarToTile: (tileId: number) => void;
   onAttackTile: (
     attackerId: number,

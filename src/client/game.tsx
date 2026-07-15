@@ -1,6 +1,6 @@
 import './index.css';
 
-import { StrictMode, useMemo, useState } from 'react';
+import { StrictMode, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { navigateTo } from '@devvit/web/client';
 import { useCounter } from './hooks/useCounter';
@@ -11,13 +11,17 @@ import { CreateMapUI } from './components/createMapMode/createMapUI';
 import { mapTilesData as initialCreateMapTiles } from './components/createMapMode/createMapTilesData';
 import { DuelMap } from './components/duelMode/duelMap';
 import { DuelMapUI } from './components/duelMode/duelMapUI';
+import { EnemyTurn } from './components/duelMode/enemyTurn';
 import { StartScreen } from './components/startScreen/startScreen';
+import type { GameResult } from './components/duelMode/gameOverScreen';
+import { GameOverScreen } from './components/duelMode/gameOverScreen';
 import { PickModeCanvas } from './components/pickMode/pickModeCanvas';
 import { PickModeUI } from './components/pickMode/pickModeUI';
 import {
   userTeam,
   enemyTeam as initialEnemyTeam,
   setUserTeamFromCharacterIds,
+  setEnemyTeamFromRandomCharacterIds,
 } from './components/duelMode/teamsDate';
 import { characters } from './data/characters';
 import { GameInfo } from './data/game';
@@ -29,8 +33,14 @@ import {
 import { calculateMapRating } from './utils/mapRating';
 import { createGameHandlers } from './utils/gameHandlers';
 import type { PlacedAvatar } from './types/createMap';
+import type { DuelActionEvent } from './types/duelMap';
 
-type Screen = 'start' | 'duel' | 'create' | 'pick';
+type Screen = 'start' | 'duel' | 'create' | 'pick' | 'gameOver';
+
+// Once a side is wiped out, the board stays up (frozen — see isDuelDecided
+// below) for this long so the killing blow's hurt/death animation can play
+// out before cutting to the summary screen.
+const DEATH_ANIMATION_DELAY_MS = 5000;
 
 export const App = () => {
   // const { count, username, loading, increment, decrement } = useCounter();
@@ -53,6 +63,9 @@ export const App = () => {
     string | null
   >(null);
   const [turn, setTurn] = useState(GameInfo.turn);
+  const [isEnemyTurn, setIsEnemyTurn] = useState(false);
+  const [actionEvent, setActionEvent] = useState<DuelActionEvent | null>(null);
+  const [gameResult, setGameResult] = useState<GameResult | null>(null);
   const [selectedCharacterIds, setSelectedCharacterIds] = useState<number[]>(
     []
   );
@@ -79,6 +92,8 @@ export const App = () => {
     handleChangeTileName,
     handleRotateCreateMapTile,
     handleEndTurn,
+    handleEnemyMoveToTile,
+    handleAdvanceTurn,
     handleToggleCharacterSelection,
   } = createGameHandlers({
     team,
@@ -98,6 +113,7 @@ export const App = () => {
     setCreateMapTiles,
     setTurn,
     setSelectedCharacterIds,
+    setIsEnemyTurn,
   });
 
   const previewCharacter =
@@ -121,9 +137,67 @@ export const App = () => {
 
   const handleConfirmPick = () => {
     setTeam(setUserTeamFromCharacterIds(selectedCharacterIds));
+    setEnemyTeam(setEnemyTeamFromRandomCharacterIds());
     setSelectedCharacterIds([]);
     setScreen('duel');
   };
+
+  // Adjusting state during render (rather than in an effect) avoids an
+  // extra commit — see
+  // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes.
+  // Guarded by gameResult === null, so it only ever fires once per duel —
+  // this only records the result and freezes the board (isDuelDecided
+  // below); the actual switch to the gameOver screen is deferred (see the
+  // effect below) so the death animation isn't cut off.
+  if (screen === 'duel' && gameResult === null) {
+    if (team.length > 0 && team.every(({ statistics }) => statistics.hp <= 0)) {
+      setGameResult('lost');
+    } else if (
+      enemyTeam.length > 0 &&
+      enemyTeam.every(({ statistics }) => statistics.hp <= 0)
+    ) {
+      setGameResult('win');
+    }
+  }
+
+  const isDuelDecided = gameResult !== null;
+
+  useEffect(() => {
+    if (!gameResult) return;
+    const timeoutId = setTimeout(
+      () => setScreen('gameOver'),
+      DEATH_ANIMATION_DELAY_MS
+    );
+    return () => clearTimeout(timeoutId);
+  }, [gameResult]);
+
+  const handleRestart = () => {
+    setTeam([]);
+    setEnemyTeam([]);
+    setActiveAvatarId(null);
+    setIsMoveMode(false);
+    setIsAttackMode(false);
+    setSelectedAbilityName(null);
+    setTurn(GameInfo.turn);
+    setIsEnemyTurn(false);
+    setActionEvent(null);
+    setGameResult(null);
+    setSelectedCharacterIds([]);
+    setPreviewCharacterId(characters[0]!.id);
+    setVictoryToken(0);
+    setScreen('start');
+  };
+
+  if (screen === 'gameOver' && gameResult) {
+    return (
+      <GameOverScreen
+        result={gameResult}
+        team={team}
+        enemyTeam={enemyTeam}
+        onBackToMenu={handleRestart}
+      />
+    );
+  }
 
   if (screen === 'start') {
     return (
@@ -201,6 +275,7 @@ export const App = () => {
             onCancelAbility={handleCancelAbility}
             turn={turn}
             onEndTurn={handleEndTurn}
+            isEnemyTurn={isEnemyTurn || isDuelDecided}
           />
           <DuelMap
             selectedTileName={selectedTileName}
@@ -210,12 +285,26 @@ export const App = () => {
             isMoveMode={isMoveMode}
             isAttackMode={isAttackMode}
             selectedAbilityName={selectedAbilityName}
+            isEnemyTurn={isEnemyTurn || isDuelDecided}
+            actionEvent={actionEvent}
+            onActionEvent={setActionEvent}
             onMoveAvatarToTile={handleMoveAvatarToTile}
             onAttackTile={handleAttackTile}
             onUseAbility={handleUseAbility}
             onUseAttackAbility={handleUseAttackAbility}
             onHitAndRunMove={handleHitAndRunMove}
             onUseMoveAbility={handleUseMoveAbility}
+          />
+          <EnemyTurn
+            isEnemyTurn={isEnemyTurn && !isDuelDecided}
+            team={team}
+            enemyTeam={enemyTeam}
+            onMoveEnemy={handleEnemyMoveToTile}
+            onAttackTile={handleAttackTile}
+            onUseAbility={handleUseAbility}
+            onUseAttackAbility={handleUseAttackAbility}
+            onActionEvent={setActionEvent}
+            onEnemyTurnEnd={handleAdvanceTurn}
           />
         </>
       )}

@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { userTeam } from '../components/duelMode/teamsDate';
 import { duelMapTilesData } from '../components/duelMode/duelMapTilesData';
-import { getMaxHp } from './maxHp';
+import { getMaxAp, getMaxHp } from './maxHp';
 import {
   activateAbility,
   applyAbilityEffectToTarget,
@@ -35,6 +35,7 @@ type GameHandlersDeps = {
   setCreateMapTiles: Dispatch<SetStateAction<MapTileData[]>>;
   setTurn: Dispatch<SetStateAction<number>>;
   setSelectedCharacterIds: Dispatch<SetStateAction<number[]>>;
+  setIsEnemyTurn: Dispatch<SetStateAction<boolean>>;
 };
 
 export const createGameHandlers = (deps: GameHandlersDeps) => {
@@ -56,6 +57,7 @@ export const createGameHandlers = (deps: GameHandlersDeps) => {
     setCreateMapTiles,
     setTurn,
     setSelectedCharacterIds,
+    setIsEnemyTurn,
   } = deps;
 
   const handleToggleCharacterSelection = (characterId: number) => {
@@ -326,7 +328,31 @@ export const createGameHandlers = (deps: GameHandlersDeps) => {
     };
   };
 
+  // Triggered by the End Turn button: hands control to the enemy AI instead
+  // of advancing the turn immediately. EnemyTurn calls handleAdvanceTurn once
+  // every enemy has spent its AP.
   const handleEndTurn = () => {
+    setIsEnemyTurn(true);
+  };
+
+  const handleEnemyMoveToTile = (enemyId: number, tileId: number) => {
+    setEnemyTeam((prev) =>
+      prev.map((member) =>
+        member.id === enemyId
+          ? {
+              ...member,
+              tileID: tileId,
+              statistics: {
+                ...member.statistics,
+                AP: Math.max(0, member.statistics.AP - 1),
+              },
+            }
+          : member
+      )
+    );
+  };
+
+  const handleAdvanceTurn = () => {
     setTurn((prev) => prev + 1);
     setTeam((prev) =>
       prev
@@ -341,7 +367,15 @@ export const createGameHandlers = (deps: GameHandlersDeps) => {
         })
         .map(decrementTurnBasedEffects)
     );
-    setEnemyTeam((prev) => prev.map(decrementTurnBasedEffects));
+    setEnemyTeam((prev) =>
+      prev
+        .map((member) => ({
+          ...member,
+          statistics: { ...member.statistics, AP: getMaxAp(member.id) },
+        }))
+        .map(decrementTurnBasedEffects)
+    );
+    setIsEnemyTurn(false);
   };
 
   return {
@@ -361,6 +395,8 @@ export const createGameHandlers = (deps: GameHandlersDeps) => {
     handleChangeTileName,
     handleRotateCreateMapTile,
     handleEndTurn,
+    handleEnemyMoveToTile,
+    handleAdvanceTurn,
     handleToggleCharacterSelection,
   };
 };

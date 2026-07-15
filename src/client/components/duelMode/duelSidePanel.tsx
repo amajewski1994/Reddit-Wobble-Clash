@@ -78,14 +78,14 @@ export const DuelSidePanel = ({
           </span>
         </div>
       </div>
-      {onItemsClick && (
+      {/* {onItemsClick && (
         <button
           className={`${actionButtonClassName} h-4 px-2 gap-1 text-[10px]`}
           onClick={onItemsClick}
         >
           🎒 Items
         </button>
-      )}
+      )} */}
       {members.map(({ id, statistics }) => (
         <MiniCard
           key={id}

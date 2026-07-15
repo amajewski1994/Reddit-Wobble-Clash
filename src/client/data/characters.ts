@@ -38,7 +38,8 @@ export const characters: Character[] = [
       },
     ],
     statistics: {
-      hp: 110,
+      hp: 1,
+      // hp: 110,
       attack: 18,
       defence: 8,
       AP: 3,
@@ -66,17 +67,18 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Jackpanda_v1',
-        scale: 1
+        scale: 1,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Jackpanda_v2',
-        scale: 1
+        scale: 1,
       },
     ],
     statistics: {
-      hp: 130,
+      hp: 1,
+      // hp: 130,
       attack: 14,
       defence: 12,
       AP: 3,
@@ -104,17 +106,18 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'angryPink_v1',
-        scale: 1
+        scale: 1,
       },
       {
         id: 1,
         lvl: 5,
         name: 'angryPink_v2',
-        scale: 1
+        scale: 1,
       },
     ],
     statistics: {
-      hp: 90,
+      hp: 1,
+      // hp: 90,
       attack: 10,
       defence: 5,
       AP: 3,
@@ -142,17 +145,18 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Fury_v1',
-        scale: 1
+        scale: 1,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Fury_v2',
-        scale: 1
+        scale: 1,
       },
     ],
     statistics: {
-      hp: 10,
+      hp: 1,
+      // hp: 100,
       attack: 12,
       defence: 6,
       AP: 3,
@@ -180,13 +184,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Stumpy_v1',
-        scale: 0.75
+        scale: 0.75,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Stumpy_v2',
-        scale: 0.75
+        scale: 0.75,
       },
     ],
     statistics: {
@@ -218,13 +222,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Pterodack_v1',
-        scale: 1
+        scale: 1,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Pterodack_v2',
-        scale: 1
+        scale: 1,
       },
     ],
     statistics: {
@@ -256,13 +260,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Devil_v1',
-        scale: 1
+        scale: 1,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Devil_v2',
-        scale: 1
+        scale: 1,
       },
     ],
     statistics: {
@@ -294,13 +298,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Lynx_v1',
-        scale: 1.25
+        scale: 1.25,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Lynx_v2',
-        scale: 1.25
+        scale: 1.25,
       },
     ],
     statistics: {
@@ -332,13 +336,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'VegeTurtle_v1',
-        scale: 0.9
+        scale: 0.9,
       },
       {
         id: 1,
         lvl: 5,
         name: 'VegeTurtle_v2',
-        scale: 0.9
+        scale: 0.9,
       },
     ],
     statistics: {
@@ -370,13 +374,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Armored_v1',
-        scale: 1.2
+        scale: 1.2,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Armored_v2',
-        scale: 1.2
+        scale: 1.2,
       },
     ],
     statistics: {
@@ -408,13 +412,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Wrestler_v1',
-        scale: 1.1
+        scale: 1.1,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Wrestler_v2',
-        scale: 1.1
+        scale: 1.1,
       },
     ],
     statistics: {
@@ -446,13 +450,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Blueny_v1',
-        scale: 1
+        scale: 1,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Blueny_v2',
-        scale: 1
+        scale: 1,
       },
     ],
     statistics: {
@@ -484,13 +488,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Pinky_v1',
-        scale: 0.8
+        scale: 0.8,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Pinky_v2',
-        scale: 0.8
+        scale: 0.8,
       },
     ],
     statistics: {
@@ -522,13 +526,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Woody_v1',
-        scale: 1
+        scale: 1,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Woody_v2',
-        scale: 1
+        scale: 1,
       },
     ],
     statistics: {
@@ -560,13 +564,13 @@ export const characters: Character[] = [
         id: 0,
         lvl: 0,
         name: 'Lobster_v1',
-        scale: 1
+        scale: 1,
       },
       {
         id: 1,
         lvl: 5,
         name: 'Lobster_v2',
-        scale: 1
+        scale: 1,
       },
     ],
     statistics: {

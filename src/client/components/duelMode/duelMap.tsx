@@ -5,55 +5,21 @@ import { duelMapTilesData as initialMapTilesData } from './duelMapTilesData';
 import { MapCanvas } from '../shared/MapCanvas';
 import { MapTiles } from '../shared/MapTiles';
 import { Avatars } from '../shared/Avatars';
-import type {
-  AttackOutcome,
-  DuelActionEvent,
-  DuelMapProps,
-} from '../../types/duelMap';
+import type { DuelMapProps } from '../../types/duelMap';
 import type { TeamMember } from '../../types/team';
 import { IMPASSABLE_TILE_NAME_PARTS } from '../../data/consts';
 import {
-  findProtector,
   getAbilityTargetType,
   getAttackAbilityModifiers,
   getAttackAbilityTargetCount,
-  getCrushingBlowsMultiplier,
-  getEffectiveBonus,
   getMoveAbilityRange,
-  getOwnPassiveDefenceBonus,
-  getPassiveAllyAttackBonus,
-  getPassiveAttackBonus,
-  getPassiveDefenceBonus,
-  getPassiveDodgeBonus,
   getPassiveMoveRangeBonus,
-  getStatModifierTotal,
-  isDamageImmune,
   isEndureActive,
   isHitAndRunPending,
-  isIgnoringEnemyDodgeBonuses,
 } from '../../utils/abilities';
-import { getTileBPBonus } from '../../utils/tileBonus';
 import { isNeighborTile } from '../../utils/adjacency';
-
-// Picks a random passable, unoccupied tile adjacent to `originTile` — the
-// same validity rules as a normal move (see the isMoveMode branch of
-// dimmedTileIds below). Returns null if the attacker is boxed in.
-const getRandomFreeNeighborTile = <T extends { id: number; tileID: number }>(
-  originTile: { id: number; positionX: number; positionZ: number },
-  avatars: T[],
-  tiles: { id: number; positionX: number; positionZ: number; tileName: string }[]
-) => {
-  const occupiedTileIds = new Set(avatars.map(({ tileID }) => tileID));
-  const candidates = tiles.filter(
-    (tile) =>
-      tile.id !== originTile.id &&
-      isNeighborTile(tile, originTile) &&
-      !occupiedTileIds.has(tile.id) &&
-      !IMPASSABLE_TILE_NAME_PARTS.some((part) => tile.tileName.includes(part))
-  );
-  const chosen = candidates[Math.floor(Math.random() * candidates.length)];
-  return chosen ?? null;
-};
+import { getRandomFreeNeighborTile } from '../../utils/randomMove';
+import { resolveAttack as resolveAttackBetween } from '../../utils/combat';
 
 type MapTile = {
   id: number;
@@ -67,15 +33,21 @@ type MapTile = {
 // A tile only extends the search if it's itself passable and unoccupied —
 // impassable terrain (and other avatars) block the path rather than just
 // being invalid final destinations, so you can't hop over them to reach
-// tiles beyond.
-const getTilesReachableWithinRange = <T extends { id: number; tileID: number }>(
+// tiles beyond. A dead avatar no longer occupies its tile.
+const getTilesReachableWithinRange = <
+  T extends { id: number; tileID: number; statistics: { hp: number } },
+>(
   originTile: MapTile,
   avatars: T[],
   tiles: MapTile[],
   maxRange: number
 ): Set<number> => {
   const occupiedTileIds = new Set(
-    avatars.filter((avatar) => avatar.tileID !== originTile.id).map(({ tileID }) => tileID)
+    avatars
+      .filter(
+        (avatar) => avatar.tileID !== originTile.id && avatar.statistics.hp > 0
+      )
+      .map(({ tileID }) => tileID)
   );
   const isPassable = (tile: MapTile) =>
     !occupiedTileIds.has(tile.id) &&
@@ -107,6 +79,9 @@ export const DuelMap = ({
   isMoveMode,
   isAttackMode,
   selectedAbilityName,
+  isEnemyTurn,
+  actionEvent,
+  onActionEvent,
   onMoveAvatarToTile,
   onAttackTile,
   onUseAbility,
@@ -115,9 +90,6 @@ export const DuelMap = ({
   onUseMoveAbility,
 }: DuelMapProps) => {
   const [tiles, setTiles] = useState(initialMapTilesData);
-  const [actionEvent, setActionEvent] = useState<DuelActionEvent | null>(
-    null
-  );
   const [pendingAttackTargetIds, setPendingAttackTargetIds] = useState<
     number[]
   >([]);
@@ -227,8 +199,16 @@ export const DuelMap = ({
             )
             .map(({ tileID }) => tileID)
         );
+        // 'attack'-category abilities are a normal attack with a twist — same
+        // adjacency requirement as a plain attack. 'reduce' abilities (Taunt,
+        // Sandstorm, ...) have range.
+        const requiresAdjacency = selectedAbility.category === 'attack';
         const ids = tiles
-          .filter((tile) => !enemyTileIds.has(tile.id))
+          .filter(
+            (tile) =>
+              !enemyTileIds.has(tile.id) ||
+              (requiresAdjacency && !isNeighborTile(tile, activeTile))
+          )
           .map((tile) => tile.id);
         return new Set(ids);
       }
@@ -278,127 +258,7 @@ export const DuelMap = ({
       ignoreDodge?: boolean;
       ignoreMiss?: boolean;
     } = {}
-  ) => {
-    const targetTile = tiles.find((tile) => tile.id === clickedTarget.tileID);
-    const attackerTile = tiles.find(
-      (tile) => tile.id === attackerAvatar.tileID
-    );
-    if (!targetTile || !attackerTile) return null;
-
-    const clickedTargetTeam = enemyTeam.some(
-      ({ id }) => id === clickedTarget.id
-    )
-      ? enemyTeam
-      : team;
-    const protector = findProtector(
-      clickedTarget,
-      clickedTargetTeam,
-      (member) => {
-        const protectorTile = tiles.find((tile) => tile.id === member.tileID);
-        return !!protectorTile && isNeighborTile(protectorTile, targetTile);
-      }
-    );
-    const targetAvatar = protector ?? clickedTarget;
-    const defenderTile = protector
-      ? (tiles.find((tile) => tile.id === protector.tileID) ?? targetTile)
-      : targetTile;
-
-    const attackerIsPlayer = team.some(({ id }) => id === attackerAvatar.id);
-    const attackerOpposingTeam = attackerIsPlayer ? enemyTeam : team;
-    const attackerOwnTeam = attackerIsPlayer ? team : enemyTeam;
-
-    const attackBonus = getEffectiveBonus(
-      getTileBPBonus(attackerTile.tileName, attackerAvatar.statistics.tileBP),
-      attackerAvatar
-    );
-    const defenceBonus =
-      getEffectiveBonus(
-        getTileBPBonus(defenderTile.tileName, targetAvatar.statistics.tileBP),
-        targetAvatar
-      ) +
-      getStatModifierTotal(
-        targetAvatar,
-        'defence',
-        targetAvatar.statistics.defence
-      ) +
-      getEffectiveBonus(
-        getPassiveDefenceBonus(targetAvatar, clickedTargetTeam, (ally) => {
-          const allyTile = tiles.find((tile) => tile.id === ally.tileID);
-          return !!allyTile && isNeighborTile(allyTile, defenderTile);
-        }),
-        targetAvatar
-      ) +
-      getEffectiveBonus(
-        getOwnPassiveDefenceBonus(targetAvatar, defenderTile.tileName),
-        targetAvatar
-      );
-    const attackBoostBonus = getStatModifierTotal(
-      attackerAvatar,
-      'attack',
-      attackerAvatar.statistics.attack
-    );
-    const passiveBonus = getEffectiveBonus(
-      getPassiveAttackBonus(
-        attackerAvatar,
-        attackerOpposingTeam,
-        attackerTile.tileName
-      ),
-      attackerAvatar
-    );
-    const allyAttackBonus = getEffectiveBonus(
-      getPassiveAllyAttackBonus(attackerAvatar, attackerOwnTeam, (ally) => {
-        const allyTile = tiles.find((tile) => tile.id === ally.tileID);
-        return !!allyTile && isNeighborTile(allyTile, attackerTile);
-      }),
-      attackerAvatar
-    );
-
-    const effectiveAccuracy =
-      attackerAvatar.statistics.accuracy +
-      getStatModifierTotal(
-        attackerAvatar,
-        'accuracy',
-        attackerAvatar.statistics.accuracy
-      );
-
-    const ignoresTargetDodgeBonuses = isIgnoringEnemyDodgeBonuses(attackerAvatar);
-    const targetDodgeBonus = ignoresTargetDodgeBonuses
-      ? 0
-      : getStatModifierTotal(
-          targetAvatar,
-          'dodge',
-          targetAvatar.statistics.dodge
-        ) +
-        getEffectiveBonus(
-          getPassiveDodgeBonus(targetAvatar, defenderTile.tileName),
-          targetAvatar
-        );
-    const effectiveDodge = targetAvatar.statistics.dodge + targetDodgeBonus;
-
-    const randomDodge = Math.random() * 100;
-    const randomAccuracy = Math.random() * 100;
-    const outcome: AttackOutcome =
-      !modifiers.ignoreDodge && randomDodge < effectiveDodge
-        ? 'dodge'
-        : !modifiers.ignoreMiss && randomAccuracy > effectiveAccuracy
-          ? 'miss'
-          : 'hit';
-
-    const offense =
-      (attackerAvatar.statistics.attack +
-        attackBonus +
-        attackBoostBonus +
-        passiveBonus +
-        allyAttackBonus) *
-      (modifiers.damageMultiplier ?? 1) *
-      getCrushingBlowsMultiplier(attackerAvatar);
-    const damage =
-      outcome === 'hit' && !isDamageImmune(targetAvatar)
-        ? Math.round(offense) - (targetAvatar.statistics.defence + defenceBonus)
-        : 0;
-
-    return { targetAvatar, targetTile, damage, outcome };
-  };
+  ) => resolveAttackBetween(attackerAvatar, clickedTarget, team, enemyTeam, tiles, modifiers);
 
   // Hit and Run: if the attacker has it pending, consume it by moving them
   // to a random free adjacent tile right after their attack resolves
@@ -414,7 +274,7 @@ export const DuelMap = ({
   };
 
   const handleTileClick = (id: number) => {
-    if (!activeTile) return;
+    if (isEnemyTurn || !activeTile) return;
 
     if (selectedAbilityName && selectedAbility) {
       if (activeAvatarId === null) return;
@@ -441,6 +301,8 @@ export const DuelMap = ({
         if (!targetAvatar) return;
 
         if (selectedAbility.category === 'attack' && activeAvatar) {
+          const targetTile = tiles.find((tile) => tile.id === id);
+          if (!targetTile || !isNeighborTile(targetTile, activeTile)) return;
           if (pendingAttackTargetIds.includes(targetAvatar.id)) return;
 
           const targetCount = getAttackAbilityTargetCount(selectedAbility);
@@ -470,7 +332,7 @@ export const DuelMap = ({
             return;
           }
 
-          setActionEvent({
+          onActionEvent({
             kind: 'attack',
             attackerId: activeAvatarId,
             targetId: last.targetAvatar.id,
@@ -497,7 +359,7 @@ export const DuelMap = ({
           return;
         }
 
-        setActionEvent({
+        onActionEvent({
           kind: 'ability',
           casterId: activeAvatarId,
           targetId: targetAvatar.id,
@@ -512,7 +374,7 @@ export const DuelMap = ({
           ({ tileID, statistics }) => tileID === id && statistics.hp > 0
         );
         if (!targetAvatar) return;
-        setActionEvent({
+        onActionEvent({
           kind: 'ability',
           casterId: activeAvatarId,
           targetId: targetAvatar.id,
@@ -523,7 +385,7 @@ export const DuelMap = ({
       }
 
       if (id !== activeTile.id) return;
-      setActionEvent({
+      onActionEvent({
         kind: 'ability',
         casterId: activeAvatarId,
         targetId: activeAvatarId,
@@ -549,7 +411,7 @@ export const DuelMap = ({
       if (!result) return;
       const { targetAvatar, targetTile, damage, outcome } = result;
 
-      setActionEvent({
+      onActionEvent({
         kind: 'attack',
         attackerId: activeAvatarId,
         targetId: targetAvatar.id,
