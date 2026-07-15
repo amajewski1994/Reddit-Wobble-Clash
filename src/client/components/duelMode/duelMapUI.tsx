@@ -51,7 +51,7 @@ const StatRow = ({
   value: number;
   bonus: number;
 }) => (
-  <div className="flex justify-between text-sm">
+  <div className="flex justify-between text-xs">
     <span className="game-label">{label}</span>
     <span>
       {value + bonus}
@@ -283,7 +283,7 @@ const SelectableCard = ({
 }) => (
   <div
     onClick={disabled ? undefined : onSelect}
-    className={`duel-panel duel-panel--team flex flex-col items-center gap-2 w-28 p-2 transition-opacity ${
+    className={`duel-panel duel-panel--team flex flex-col items-center gap-2 w-28 sm:w-36 p-2 transition-opacity ${
       disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
     }`}
   >
@@ -323,9 +323,9 @@ const SelectionPopup = ({
   onBack: () => void;
 }) => (
   <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40">
-    <div className="duel-panel duel-panel--team flex flex-col gap-4 w-full max-w-md mx-4 p-6">
+    <div className="duel-panel duel-panel--team flex flex-col gap-4 w-full max-w-md sm:max-w-lg mx-4 p-6">
       <div className="text-center font-bold">{title}</div>
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="grid grid-cols-2 justify-items-center gap-3">
         {items.map(
           ({ name, description, disabled, isPassive, cooldown, remainingCooldown }) => (
             <SelectableCard
@@ -403,7 +403,8 @@ export const DuelMapUI = ({
             'Enemy Turn'
           ) : (
             <>
-              Turn <span className="text-(--primary)">{turn}</span>
+              Turn{' '}
+              <span className="text-(--primary)">{turn}</span>
             </>
           )}
         </div>
@@ -423,23 +424,13 @@ export const DuelMapUI = ({
       />
       {activeAvatar && (
         <button
-          className="fixed top-4 right-4 z-20 text-xs font-semibold text-(--primary) hover:underline"
+          className="fixed top-4 left-4 z-20 text-sm font-semibold text-(--primary) hover:underline"
           onClick={() => onSelectAvatarId(null)}
         >
           ← Back
         </button>
       )}
-      {activeAvatar && selectedAbilityName && (
-        <button
-          className="fixed top-12 right-4 z-20 text-xs font-semibold text-(--primary) hover:underline"
-          onClick={() => {
-            onCancelAbility();
-            setisAbilitiesOpen(true);
-          }}
-        >
-          ← Back to Abilities
-        </button>
-      )}
+      
       {activeAvatar && (
         <FullCard
         tiles={tiles}
@@ -489,14 +480,14 @@ export const DuelMapUI = ({
           onBack={() => setisAbilitiesOpen(false)}
         />
       )}
-      {isItemsOpen && (
+      {/* {isItemsOpen && (
         <SelectionPopup
           title="Items"
           items={UserInfo.items.map((name) => ({ name }))}
           onSelectItem={() => setIsItemsOpen(false)}
           onBack={() => setIsItemsOpen(false)}
         />
-      )}
+      )} */}
 
       {/* BOTTOM BAR */}
       <div
@@ -506,7 +497,7 @@ export const DuelMapUI = ({
             : 'opacity-100'
         }`}
       >
-        <div className="relative flex items-center justify-end px-4 py-3">
+        <div className="relative flex items-center justify-end px-4 py-3 mr-20">
           {/* <HudCorners /> */}
           {/* <div className="flex gap-2">
             {team.map(({ id, name, statistics }) => (

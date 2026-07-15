@@ -24,7 +24,7 @@ const actionButtonClassName = `game-button-primary ${actionButtonLayoutClassName
 const successButtonClassName = `game-button-success ${actionButtonLayoutClassName}`;
 
 const MAX_MAP_RATING = 5;
-const MIN_SAVE_RATING_STARS = 3;
+const MIN_SAVE_RATING_STARS = 5;
 
 const MapRatingStars = ({ rating }: { rating: number }) => (
   <div className="flex gap-0.5 text-sm leading-none">
@@ -190,6 +190,11 @@ export const CreateMapUI = ({
     onResetRotation();
   };
 
+  const selectSlot = (index: number) => {
+    setIsTilesOpen(false);
+    onSelectSlot(index);
+  };
+
   const startEditingTitle = () => {
     setTitleDraft(mapTitle);
     setIsEditingTitle(true);
@@ -209,7 +214,7 @@ export const CreateMapUI = ({
         className="game-button-secondary fixed top-4 right-4 z-10 flex items-center justify-center h-8 px-3 text-sm"
         onClick={onBack}
       >
-        Back
+        Menu
       </button>
       <div className="fixed top-1/5 left-4 z-10 game-panel opacity-75 flex flex-col items-start gap-1 px-4 py-3">
         <span className="game-label">Map Rating</span>
@@ -303,7 +308,7 @@ export const CreateMapUI = ({
               key={index}
               avatarName={slot?.avatarName ?? null}
               isActive={activeSlotIndex === index}
-              onClick={() => onSelectSlot(index)}
+              onClick={() => selectSlot(index)}
               onRemove={() => onRemoveAvatar(index)}
             />
           ))}

@@ -101,7 +101,7 @@ export const PickModeUI = ({
         className={`game-button-secondary fixed top-4 right-4 z-10 flex items-center justify-center h-8 px-3 text-sm`}
         onClick={onBack}
       >
-        Back
+        Menu
       </button>
 
       {characters.length > 1 && (
@@ -123,18 +123,18 @@ export const PickModeUI = ({
       )}
 
       {previewCharacter && (
-        <div className="fixed top-1/5 left-4 z-10 w-20 flex flex-col items-center gap-1 p-1.5 rounded-lg border border-(--panel-border) bg-(--panel)/40 backdrop-blur-sm">
-          <div className="flex items-center justify-center w-full h-10 rounded border border-dashed border-(--panel-border) text-base opacity-70">
+        <div className="fixed top-1/5 sm:top-10 left-4 z-10 w-20 sm:w-40 flex flex-col items-center gap-1 sm:gap-2 p-1.5 sm:p-3 rounded-lg border border-(--panel-border) bg-(--panel)/40 backdrop-blur-sm">
+          <div className="flex items-center justify-center w-full h-10 sm:h-20 rounded border border-dashed border-(--panel-border) text-base sm:text-2xl opacity-70">
             🧙
           </div>
-          <span className="text-[10px] font-bold text-center leading-tight">
+          <span className="text-[10px] sm:text-base font-bold text-center leading-tight">
             {previewCharacter.name}
           </span>
-          <span className="text-[8px] uppercase tracking-wide text-(--muted) text-center leading-tight">
+          <span className="text-[8px] sm:text-xs uppercase tracking-wide text-(--muted) text-center leading-tight">
             {previewCharacter.class}
           </span>
           <button
-            className="game-button-primary flex items-center justify-center w-full h-6 px-1 text-[9px]"
+            className="game-button-primary flex items-center justify-center w-full h-6 sm:h-10 px-1 text-[9px] sm:text-sm"
             onClick={() => setIsInfoOpen((prev) => !prev)}
           >
             {isInfoOpen ? 'Hide Info' : 'Show Info'}
