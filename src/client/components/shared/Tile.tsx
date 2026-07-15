@@ -38,7 +38,7 @@ export const Tile = ({
           : [child.material];
         materials.forEach((material) => {
           material.transparent = true;
-          material.opacity = dimmed ? 0.1 : 1;
+          material.opacity = dimmed ? 0.3 : 1;
           material.needsUpdate = true;
         });
       }

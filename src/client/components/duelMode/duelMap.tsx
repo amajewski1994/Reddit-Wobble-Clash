@@ -430,7 +430,7 @@ export const DuelMap = ({
   };
 
   return (
-    <MapCanvas>
+    <MapCanvas backgroundUrl="/assets/duel%20-%20background.png">
       <MapTiles
         tiles={tiles}
         onTileClick={handleTileClick}
