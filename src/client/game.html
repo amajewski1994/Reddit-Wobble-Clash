@@ -7,9 +7,44 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>devvit</title>
+    <style>
+      html,
+      body {
+        background: #0b0f14;
+      }
+
+      #boot-loader {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0b0f14;
+      }
+
+      #boot-loader img {
+        width: 4rem;
+        height: 4rem;
+        animation: boot-loader-spin 1s linear infinite;
+      }
+
+      @keyframes boot-loader-spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
   </head>
   <body class="h-full">
-    <div id="root" class="h-full"></div>
+    <div id="root" class="h-full">
+      <div id="boot-loader">
+        <img src="/assets/loading_spinner.png" alt="Loading..." />
+      </div>
+    </div>
     <script type="module" src="game.tsx"></script>
   </body>
 </html>

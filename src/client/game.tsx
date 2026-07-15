@@ -4,6 +4,8 @@ import { StrictMode, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { navigateTo } from '@devvit/web/client';
 import { useCounter } from './hooks/useCounter';
+import { useAssetsLoading } from './hooks/useAssetsLoading';
+import { LoadingSpinner } from './components/shared/LoadingSpinner';
 import { CreateMap } from './components/createMapMode/createMap';
 import { CreateMapUI } from './components/createMapMode/createMapUI';
 import { mapTilesData as initialCreateMapTiles } from './components/createMapMode/createMapTilesData';
@@ -58,6 +60,7 @@ export const App = () => {
     characters[0]!.id
   );
   const [victoryToken, setVictoryToken] = useState(0);
+  const isAssetsLoading = useAssetsLoading();
 
   const {
     handleSelectAvatarId,
@@ -133,6 +136,7 @@ export const App = () => {
 
   return (
     <div>
+      {isAssetsLoading && <LoadingSpinner />}
       {screen === 'pick' && (
         <>
           <PickModeUI
