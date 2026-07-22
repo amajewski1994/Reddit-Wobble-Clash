@@ -1,27 +1,111 @@
-## Devvit React Starter
+# ⚔️ Wobble Clash
 
-A starter to build web applications on Reddit's developer platform
+Wobble Clash is a tactical turn-based strategy game built for the **Reddit Developer Platform** using **Devvit**.
 
-- [Devvit](https://developers.reddit.com/): A way to build and deploy immersive games on Reddit
-- [Vite](https://vite.dev/): For compiling the webView
-- [React](https://react.dev/): For UI
-- [Hono](https://hono.dev/): For backend logic
-- [Tailwind](https://tailwindcss.com/): For styles
-- [TypeScript](https://www.typescriptlang.org/): For type safety
+Create battle maps, choose unique Wobblers, and outsmart your opponents on a hexagonal battlefield where terrain, positioning, and resource management determine the winner.
 
-## Getting Started
+---
 
-> Make sure you have Node 22 downloaded on your machine before running!
+## 🎮 Features
 
-1. Run `npm create devvit@latest --template=react`
-2. Go through the installation wizard. You will need to create a Reddit account and connect it to Reddit developers
-3. Copy the command on the success page into your terminal
+- Tactical turn-based combat
+- Hexagonal battlefield
+- Four unique playable Wobblers
+- Terrain bonuses and strategic positioning
+- Interactive map editor
+- Community-created battle maps
+- Built with Devvit, React, and TypeScript
 
-## Commands
+---
 
-- `npm run dev`: Starts a development server where you can develop your application live on Reddit.
-- `npm run build`: Builds your client and server projects
-- `npm run deploy`: Uploads a new version of your app
-- `npm run launch`: Publishes your app for review
-- `npm run login`: Logs your CLI into Reddit
-- `npm run type-check`: Type checks, lints, and prettifies your app
+## 📸 Gameplay
+
+Players can create their own battle maps by placing terrain tiles and enemies.
+
+Once published, every map becomes a playable Reddit post where other users can challenge themselves and discover new strategies.
+
+During battle, players:
+
+- Choose a Wobbler
+- Use Action Points to move and attack
+- Take advantage of terrain bonuses
+- Defeat enemies through careful tactical planning
+
+---
+
+## 🛠️ Tech Stack
+
+- **Devvit**
+- **React**
+- **TypeScript**
+- **Vite**
+
+---
+
+## 🚀 Running the project
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start a local playtest:
+
+```bash
+npm run dev
+```
+
+Build the project:
+
+```bash
+npm run build
+```
+
+Publish a new version:
+
+```bash
+npm run launch
+```
+
+---
+
+## 📂 Project Structure
+
+```
+src/
+├── components/
+├── game/
+├── pages/
+├── utils/
+└── main.tsx
+```
+
+_(The exact structure may vary depending on the project.)_
+
+---
+
+## 🎯 Inspiration
+
+Wobble Clash was inspired by tactical RPGs such as **Baldur's Gate 3** and **Divinity: Original Sin 2**, where positioning and terrain are just as important as raw power.
+
+The goal was to bring meaningful tactical gameplay into an experience that feels native to Reddit.
+
+---
+
+## 🔮 Future Plans
+
+- Additional Wobblers
+- New terrain types
+- More items and abilities
+- Expanded map mechanics
+- Improved balancing
+- Visual polish and animations
+
+---
+
+## 👨‍💻 Author
+
+**Adrian Majewski**
+
+Created for the **Reddit Games with a Hook Hackathon 2026**.
