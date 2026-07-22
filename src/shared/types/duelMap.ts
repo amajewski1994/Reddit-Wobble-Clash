@@ -23,7 +23,6 @@ export interface DuelMapUIProps {
 export interface DuelMapProps {
   tiles: DuelMapTileData[];
 
-  selectedTileName: string | null;
   team: TeamMember[];
   enemyTeam: TeamMember[];
   activeAvatarId: number | null;

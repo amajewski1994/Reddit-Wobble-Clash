@@ -20,6 +20,7 @@ import {
 import { isNeighborTile } from '../../utils/adjacency';
 import { getRandomFreeNeighborTile } from '../../utils/randomMove';
 import { resolveAttack as resolveAttackBetween } from '../../utils/combat';
+import { playSound, playMoveSoundSequence } from '../../utils/sound';
 
 type MapTile = {
   id: number;
@@ -73,7 +74,6 @@ const getTilesReachableWithinRange = <
 
 export const DuelMap = ({
   tiles,
-  selectedTileName,
   team,
   enemyTeam,
   activeAvatarId,
@@ -288,6 +288,7 @@ export const DuelMap = ({
           moveRange
         );
         if (!reachableTileIds.has(id)) return;
+        playMoveSoundSequence();
         onUseMoveAbility(activeAvatarId, selectedAbilityName, id);
         return;
       }
@@ -365,6 +366,7 @@ export const DuelMap = ({
           targetId: targetAvatar.id,
           label: selectedAbilityName,
         });
+        if (selectedAbility.category === 'utility') playSound('item.mp3');
         onUseAbility(activeAvatarId, selectedAbilityName, targetAvatar.id);
         return;
       }
@@ -380,6 +382,7 @@ export const DuelMap = ({
           targetId: targetAvatar.id,
           label: selectedAbilityName,
         });
+        if (selectedAbility.category === 'utility') playSound('item.mp3');
         onUseAbility(activeAvatarId, selectedAbilityName, targetAvatar.id);
         return;
       }
@@ -391,6 +394,7 @@ export const DuelMap = ({
         targetId: activeAvatarId,
         label: selectedAbilityName,
       });
+      if (selectedAbility.category === 'utility') playSound('item.mp3');
       onUseAbility(activeAvatarId, selectedAbilityName, activeAvatarId);
       return;
     }
@@ -398,6 +402,7 @@ export const DuelMap = ({
     if (id === activeTile.id || dimmedTileIds.has(id)) return;
 
     if (isMoveMode) {
+      playMoveSoundSequence();
       onMoveAvatarToTile(id);
       return;
     }

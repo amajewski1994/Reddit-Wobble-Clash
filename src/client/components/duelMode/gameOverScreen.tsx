@@ -15,12 +15,10 @@ export interface GameOverScreenProps {
 
 const TeamSummary = ({
   name,
-  lvl,
   members,
   isEnemy,
 }: {
   name: string;
-  lvl: number;
   members: TeamMember[];
   isEnemy: boolean;
 }) => (
@@ -88,8 +86,8 @@ export const GameOverScreen = ({
       </div>
 
       <div className="flex flex-wrap items-start justify-center gap-4">
-        <TeamSummary name={UserInfo.name} lvl={UserInfo.lvl} members={team} isEnemy={false} />
-        <TeamSummary name={EnemyInfo.name} lvl={EnemyInfo.lvl} members={enemyTeam} isEnemy />
+        <TeamSummary name={UserInfo.name} members={team} isEnemy={false} />
+        <TeamSummary name={EnemyInfo.name} members={enemyTeam} isEnemy />
       </div>
 
       <button

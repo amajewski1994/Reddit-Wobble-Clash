@@ -3,6 +3,7 @@ import { TILE_NAMES, DEFAULT_MAP_TITLE } from '../../data/consts';
 import { characters } from '../../data/characters';
 import { getCharacterImageUrl } from '../../utils/characterImages';
 import { getTileImageUrl } from '../../utils/tileImages';
+import { playSound } from '../../utils/sound';
 import type { CreateMapUIProps } from '../../../shared/types/createMap';
 
 const AVATAR_NAMES = characters.map((character) => character.name);
@@ -216,6 +217,7 @@ export const CreateMapUI = ({
   }, [isEditingTitle]);
 
   const closePanel = () => {
+    playSound('button_cancel.mp3');
     setIsTilesOpen(false);
     onSelectSlot(null);
     onSelectTileName(null);
@@ -245,7 +247,10 @@ export const CreateMapUI = ({
     <>
       <button
         className="game-button-secondary fixed top-4 right-4 z-10 flex items-center justify-center h-8 px-3 text-sm"
-        onClick={onBack}
+        onClick={() => {
+          playSound('button_cancel.mp3');
+          onBack();
+        }}
       >
         Menu
       </button>

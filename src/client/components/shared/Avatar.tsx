@@ -14,6 +14,7 @@ import {
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { clone as cloneSkinnedScene } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import type { AttackOutcome, AvatarAction } from '../../../shared/types/duelMap';
+import { playSound } from '../../utils/sound';
 
 const ROTATE_DURATION = 0.3;
 const MOVE_DURATION = 0.8;
@@ -92,7 +93,6 @@ const DamageNumber = ({
 };
 
 export const Avatar = ({
-  name,
   objectName,
   position,
   rotationY,
@@ -385,10 +385,13 @@ export const Avatar = ({
           const { x, y, z } = groupRef.current.position;
           const origin: [number, number, number] = [x, y + 1, z];
           if (activeAction.outcome === 'dodge') {
+            playSound('miss.mp3');
             setDamageDisplay({ key: Date.now(), label: 'Dodge', color: '#3b82f6', origin });
           } else if (activeAction.outcome === 'miss') {
+            playSound('miss.mp3');
             setDamageDisplay({ key: Date.now(), label: 'Miss', color: '#9ca3af', origin });
           } else if (activeAction.damage !== undefined) {
+            playSound('hit.mp3');
             setDamageDisplay({
               key: Date.now(),
               label: `-${activeAction.damage}`,

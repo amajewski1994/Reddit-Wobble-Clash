@@ -1,7 +1,10 @@
 import { useState } from 'react';
 import type { PickModeUIProps } from '../../../shared/types/pickMode';
+import type { AbilityCategory } from '../../../shared/types/characters';
 import { abilities } from '../../data/abilities';
 import { getCharacterImageUrl } from '../../utils/characterImages';
+import { getAbilityCategoryIcon } from '../../utils/abilityIcons';
+import { playSound } from '../../utils/sound';
 
 const actionButtonLayoutClassName =
   'flex items-center justify-center h-10 px-4';
@@ -11,17 +14,19 @@ const successButtonClassName = `game-button-success ${actionButtonLayoutClassNam
 const AbilityCard = ({
   name,
   description,
+  category,
   isPassive,
   cooldown,
 }: {
   name: string;
   description: string;
+  category: AbilityCategory;
   isPassive?: boolean;
   cooldown?: number | null;
 }) => (
   <div className="duel-panel duel-panel--team flex flex-col items-center gap-2 w-28 p-2">
-    <div className="flex items-center justify-center w-full h-20 rounded border border-dashed border-(--panel-border) game-label">
-      Zdjęcie
+    <div className="flex items-center justify-center w-full h-20 rounded border border-(--panel-border) text-3xl">
+      {getAbilityCategoryIcon(category)}
     </div>
     <span className="text-xs font-semibold text-center">{name}</span>
     <span className="text-[10px] text-center opacity-70">{description}</span>
@@ -83,7 +88,10 @@ export const PickModeUI = ({
         </div>
         {previewCharacter && (
           <button
-            onClick={() => onPick(previewCharacter.id)}
+            onClick={() => {
+              playSound('button_action.mp3');
+              onPick(previewCharacter.id);
+            }}
             disabled={isPreviewSelected || isTeamFull}
             className={`${actionButtonLayoutClassName} rounded-md font-bold ${
               isPreviewSelected
@@ -98,7 +106,10 @@ export const PickModeUI = ({
 
       <button
         className={`game-button-secondary fixed top-4 right-4 z-10 flex items-center justify-center h-8 px-3 text-sm`}
-        onClick={onBack}
+        onClick={() => {
+          playSound('button_cancel.mp3');
+          onBack();
+        }}
       >
         Menu
       </button>
@@ -235,6 +246,7 @@ export const PickModeUI = ({
               <AbilityCard
                 name={previewAbilities.abilities.passive.name}
                 description={previewAbilities.abilities.passive.description}
+                category={previewAbilities.abilities.passive.category}
                 isPassive
               />
               {previewAbilities.abilities.active.map((ability) => (
@@ -242,6 +254,7 @@ export const PickModeUI = ({
                   key={ability.name}
                   name={ability.name}
                   description={ability.description}
+                  category={ability.category}
                   cooldown={ability.cooldown}
                 />
               ))}
@@ -288,7 +301,10 @@ export const PickModeUI = ({
         <button
           className={successButtonClassName}
           disabled={selectedCharacterIds.length !== maxTeamSize}
-          onClick={onConfirm}
+          onClick={() => {
+            playSound('button_confirm.mp3');
+            onConfirm();
+          }}
         >
           Confirm
         </button>

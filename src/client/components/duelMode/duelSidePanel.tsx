@@ -3,7 +3,7 @@ import { UserInfo } from '../../data/userInfo';
 import { EnemyInfo } from '../../data/enemyInfo';
 import { characters } from '../../data/characters';
 import { getCharacterImageUrl } from '../../utils/characterImages';
-import { actionButtonClassName, getMaxHp, HpBar } from './duelMapShared';
+import { getMaxHp, HpBar } from './duelMapShared';
 
 const MiniCard = ({
   id,
@@ -51,7 +51,6 @@ interface DuelSidePanelProps {
   members: TeamMember[];
   isVisible: boolean;
   onSelectAvatarId: (id: number) => void;
-  onItemsClick?: () => void;
 }
 
 export const DuelSidePanel = ({
@@ -59,7 +58,6 @@ export const DuelSidePanel = ({
   members,
   isVisible,
   onSelectAvatarId,
-  onItemsClick,
 }: DuelSidePanelProps) => {
   const isEnemy = side === 'right';
   const info = isEnemy ? EnemyInfo : UserInfo;
@@ -93,14 +91,6 @@ export const DuelSidePanel = ({
           </span> */}
         </div>
       </div>
-      {/* {onItemsClick && (
-        <button
-          className={`${actionButtonClassName} h-4 px-2 gap-1 text-[10px]`}
-          onClick={onItemsClick}
-        >
-          🎒 Items
-        </button>
-      )} */}
       {members.map(({ id, characterId, statistics }) => (
         <MiniCard
           key={id}

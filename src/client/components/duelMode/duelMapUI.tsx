@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import type { DuelMapUIProps } from '../../../shared/types/duelMap';
 import type { TeamMember, TeamMemberTileStatistics } from '../../../shared/types/team';
-import { UserInfo } from '../../data/userInfo';
+import type { AbilityCategory } from '../../../shared/types/characters';
 import { characters } from '../../data/characters';
 import { getCharacterImageUrl } from '../../utils/characterImages';
+import { getAbilityCategoryIcon } from '../../utils/abilityIcons';
+import { playSound } from '../../utils/sound';
 // import { duelMapTilesData } from './duelMapTilesData';
 import { actionButtonClassName, getMaxHp, HpBar } from './duelMapShared';
 import {
@@ -243,21 +245,30 @@ const FullCard = ({
         <div className="flex flex-col gap-2">
           <button
             className={actionButtonClassName}
-            onClick={onAttack}
+            onClick={() => {
+              playSound('button_action.mp3');
+              onAttack();
+            }}
             disabled={avatar.statistics.AP === 0 || isDead}
           >
             Attack
           </button>
           <button
             className={actionButtonClassName}
-            onClick={onMove}
+            onClick={() => {
+              playSound('button_action.mp3');
+              onMove();
+            }}
             disabled={avatar.statistics.AP === 0 || isDead}
           >
             Move
           </button>
           <button
             className={actionButtonClassName}
-            onClick={onAbilities}
+            onClick={() => {
+              playSound('button_action.mp3');
+              onAbilities();
+            }}
             disabled={avatar.statistics.AP === 0 || isDead}
           >
             Abilities
@@ -271,6 +282,7 @@ const FullCard = ({
 type SelectionItem = {
   name: string;
   description?: string | undefined;
+  category: AbilityCategory;
   disabled?: boolean | undefined;
   isPassive?: boolean | undefined;
   cooldown?: number | null | undefined;
@@ -280,6 +292,7 @@ type SelectionItem = {
 const SelectableCard = ({
   name,
   description,
+  category,
   disabled,
   isPassive,
   cooldown,
@@ -288,6 +301,7 @@ const SelectableCard = ({
 }: {
   name: string;
   description?: string | undefined;
+  category: AbilityCategory;
   disabled?: boolean | undefined;
   isPassive?: boolean | undefined;
   cooldown?: number | null | undefined;
@@ -300,8 +314,8 @@ const SelectableCard = ({
       disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:opacity-80'
     }`}
   >
-    <div className="flex items-center justify-center w-full h-20 rounded border border-dashed border-(--panel-border) game-label">
-      Zdjęcie
+    <div className="flex items-center justify-center w-full h-20 rounded border border-(--panel-border) text-3xl">
+      {getAbilityCategoryIcon(category)}
     </div>
     <span className="text-xs font-semibold text-center">{name}</span>
     {description && (
@@ -340,11 +354,20 @@ const SelectionPopup = ({
       <div className="text-center font-bold">{title}</div>
       <div className="grid grid-cols-2 justify-items-center gap-3">
         {items.map(
-          ({ name, description, disabled, isPassive, cooldown, remainingCooldown }) => (
+          ({
+            name,
+            description,
+            category,
+            disabled,
+            isPassive,
+            cooldown,
+            remainingCooldown,
+          }) => (
             <SelectableCard
               key={name}
               name={name}
               description={description}
+              category={category}
               disabled={disabled}
               isPassive={isPassive}
               cooldown={cooldown}
@@ -354,7 +377,13 @@ const SelectionPopup = ({
           )
         )}
       </div>
-      <button className={actionButtonClassName} onClick={onBack}>
+      <button
+        className={actionButtonClassName}
+        onClick={() => {
+          playSound('button_cancel.mp3');
+          onBack();
+        }}
+      >
         ← Back
       </button>
     </div>
@@ -373,14 +402,12 @@ export const DuelMapUI = ({
   onMove,
   selectedAbilityName,
   onSelectAbility,
-  onCancelAbility,
   turn,
   onEndTurn,
   isEnemyTurn,
 }: DuelMapUIProps) => {
   const [isEndingTurn, setIsEndingTurn] = useState(false);
   const [isAbilitiesOpen, setisAbilitiesOpen] = useState(false);
-  const [isItemsOpen, setIsItemsOpen] = useState(false);
   const [lastActiveAvatarId, setLastActiveAvatarId] = useState(activeAvatarId);
   const activeAvatar = [...team, ...enemyTeam].find(
     ({ id }) => id === activeAvatarId
@@ -427,7 +454,6 @@ export const DuelMapUI = ({
         members={team}
         isVisible={!(isCardOpen || isEndingTurn || isEnemyTurn)}
         onSelectAvatarId={onSelectAvatarId}
-        onItemsClick={() => setIsItemsOpen(true)}
       />
       <DuelSidePanel
         side="right"
@@ -438,7 +464,10 @@ export const DuelMapUI = ({
       {activeAvatar && (
         <button
           className="fixed top-4 left-4 z-20 text-sm font-semibold text-(--primary) hover:underline"
-          onClick={() => onSelectAvatarId(null)}
+          onClick={() => {
+            playSound('button_cancel.mp3');
+            onSelectAvatarId(null);
+          }}
         >
           ← Back
         </button>
@@ -467,17 +496,19 @@ export const DuelMapUI = ({
             {
               name: activeAvatar.abilities.passive.name,
               description: activeAvatar.abilities.passive.description,
+              category: activeAvatar.abilities.passive.category,
               disabled: true,
               isPassive: true,
               cooldown: activeAvatar.abilities.passive.cooldown,
             },
             ...activeAvatar.abilities.active.map(
-              ({ name, description, cooldown }) => {
+              ({ name, description, category, cooldown }) => {
                 const remainingCooldown =
                   activeAvatar.abilityCooldowns[name] ?? 0;
                 return {
                   name,
                   description,
+                  category,
                   disabled: remainingCooldown > 0,
                   isPassive: false,
                   cooldown,
@@ -493,15 +524,6 @@ export const DuelMapUI = ({
           onBack={() => setisAbilitiesOpen(false)}
         />
       )}
-      {/* {isItemsOpen && (
-        <SelectionPopup
-          title="Items"
-          items={UserInfo.items.map((name) => ({ name }))}
-          onSelectItem={() => setIsItemsOpen(false)}
-          onBack={() => setIsItemsOpen(false)}
-        />
-      )} */}
-
       {/* BOTTOM BAR */}
       <div
         className={`fixed bottom-4 inset-x-4 z-10 transition-all duration-500 ${

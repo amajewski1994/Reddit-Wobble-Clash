@@ -4,7 +4,9 @@ import { StrictMode, useEffect, useMemo, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { navigateTo } from '@devvit/web/client';
 import { useAssetsLoading } from './hooks/useAssetsLoading';
+import { useBackgroundMusic } from './hooks/useBackgroundMusic';
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
+import { MusicToggleButton } from './components/shared/MusicToggleButton';
 import { CreateMap } from './components/createMapMode/createMap';
 import { CreateMapUI } from './components/createMapMode/createMapUI';
 import { mapTilesData as initialCreateMapTiles } from './components/createMapMode/createMapTilesData';
@@ -59,6 +61,14 @@ const DEATH_ANIMATION_DELAY_MS = 5000;
 // Shown between confirming a Pick Mode team and entering the duel screen.
 const SCREEN_TRANSITION_LOADING_DELAY_MS = 5000;
 
+const BACKGROUND_MUSIC_BY_SCREEN: Record<Screen, string | null> = {
+  start: 'menu_music.mp3',
+  pick: 'menu_music.mp3',
+  create: 'duel_music.mp3',
+  duel: 'duel_music.mp3',
+  gameOver: null,
+};
+
 export const App = () => {
   const [screen, setScreen] = useState<Screen>('start');
   const [selectedTileName, setSelectedTileName] = useState<string | null>(null);
@@ -104,6 +114,7 @@ const [, setPublishedMapLoadError] =
   useState<string | null>(null);
 
   const isAssetsLoading = useAssetsLoading();
+  useBackgroundMusic(BACKGROUND_MUSIC_BY_SCREEN[screen]);
 
   const {
     handleSelectAvatarId,
@@ -421,12 +432,15 @@ useEffect(() => {
 
   if (screen === 'gameOver' && gameResult) {
     return (
-      <GameOverScreen
-        result={gameResult}
-        team={team}
-        enemyTeam={enemyTeam}
-        onBackToMenu={handleRestart}
-      />
+      <>
+        <GameOverScreen
+          result={gameResult}
+          team={team}
+          enemyTeam={enemyTeam}
+          onBackToMenu={handleRestart}
+        />
+        <MusicToggleButton />
+      </>
     );
   }
 
@@ -441,6 +455,7 @@ useEffect(() => {
           stats={mapStats}
         />
         <LoadingSpinner visible={isLoadingPublishedMap || isLoadingModeImages} />
+        <MusicToggleButton />
       </>
     );
   }
@@ -448,6 +463,7 @@ useEffect(() => {
   return (
     <div>
       <LoadingSpinner visible={isAssetsLoading || isConfirmingPick} />
+      <MusicToggleButton />
       {screen === 'pick' && (
         <>
           <PickModeUI
@@ -522,7 +538,6 @@ useEffect(() => {
           />
           <DuelMap
           tiles={activeDuelTiles}
-            selectedTileName={selectedTileName}
             team={team}
             enemyTeam={enemyTeam}
             activeAvatarId={activeAvatarId}
